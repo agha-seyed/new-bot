@@ -64,6 +64,7 @@
     "consultation_upload_resume_prompt": "لطفا رزومه خود را بارگذاری کنید:",
     "consultation_complete": "درخواست مشاوره شما با موفقیت ثبت شد!",
     "consultation_cancelled": "درخواست مشاوره لغو شد.",
+    "no_consultation_requests": "شما هیچ درخواست مشاوره‌ای ندارید.",
     "document_submission_prompt": "لطفا مدرک خود را بارگذاری کنید.",
     "document_submission_complete": "مدرک شما با موفقیت بارگذاری شد!",
     "weather_in_perugia": "آب و هوا در پروجا",
@@ -73,5 +74,8 @@
     "cost_of_living_in_italy": "هزینه زندگی در ایتالیا",
     "search_prompt": "لطفا عبارت مورد نظر خود را برای جستجو وارد کنید:",
     "ask_prompt": "لطفا سوال خود را بپرسید:",
-    "tts_prompt": "لطفا متنی را که می خواهید به گفتار تبدیل شود ارائه دهید."
+    "tts_prompt": "لطفا متنی را که می خواهید به گفتار تبدیل شود ارائه دهید.",
+    "help_text": "این متن راهنما است.",
+    "contact_us_text": "این متن تماس با ما است.",
+    "about_us_text": "این متن درباره ما است."
 }

@@ -64,6 +64,7 @@
     "consultation_upload_resume_prompt": "Per favore, carica il tuo curriculum:",
     "consultation_complete": "La tua richiesta di consulenza è stata inviata con successo!",
     "consultation_cancelled": "Richiesta di consulenza annullata.",
+    "no_consultation_requests": "Non hai richieste di consulenza.",
     "document_submission_prompt": "Per favore, carica il tuo documento.",
     "document_submission_complete": "Il tuo documento è stato caricato con successo!",
     "weather_in_perugia": "Meteo a Perugia",
@@ -73,5 +74,8 @@
     "cost_of_living_in_italy": "Costo della vita in Italia",
     "search_prompt": "Per favore, inserisci la tua query di ricerca:",
     "ask_prompt": "Per favore, fai la tua domanda:",
-    "tts_prompt": "Per favore, fornisci il testo che vuoi convertire in parlato."
+    "tts_prompt": "Per favore, fornisci il testo che vuoi convertire in parlato.",
+    "help_text": "Questo è il testo di aiuto.",
+    "contact_us_text": "Questo è il testo di contattaci.",
+    "about_us_text": "Questo è il testo su di noi."
 }

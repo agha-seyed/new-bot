@@ -64,6 +64,7 @@
     "consultation_upload_resume_prompt": "Please upload your resume:",
     "consultation_complete": "Your consultation request has been submitted successfully!",
     "consultation_cancelled": "Consultation request cancelled.",
+    "no_consultation_requests": "You have no consultation requests.",
     "document_submission_prompt": "Please upload your document.",
     "document_submission_complete": "Your document has been uploaded successfully!",
     "weather_in_perugia": "Weather in Perugia",
@@ -73,5 +74,8 @@
     "cost_of_living_in_italy": "Cost of Living in Italy",
     "search_prompt": "Please enter your search query:",
     "ask_prompt": "Please ask your question:",
-    "tts_prompt": "Please provide the text you want to convert to speech."
+    "tts_prompt": "Please provide the text you want to convert to speech.",
+    "help_text": "This is the help text.",
+    "contact_us_text": "This is the contact us text.",
+    "about_us_text": "This is the about us text."
 }

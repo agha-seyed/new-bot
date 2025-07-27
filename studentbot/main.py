@@ -18,6 +18,7 @@ from studentbot.handlers.weather_handler import weather
 from studentbot.handlers.cost_handler import cost_of_living
 from studentbot.handlers.search_handler import get_search_handler
 from studentbot.handlers.ai_handler import get_ai_handler
+from studentbot.handlers.info_handler import get_info_handler
 from studentbot.utils.db_utils import create_users_table, create_consultation_requests_table
 from studentbot.utils.db_utils import create_users_table
 
@@ -53,7 +54,8 @@ def main() -> None:
     application.add_handler(CommandHandler("points", points))
     application.add_handler(CommandHandler("leaderboard", leaderboard))
     application.add_handler(CommandHandler("news", news))
-    application.add_handler(get_consultation_handler())
+    for handler in get_consultation_handler():
+        application.add_handler(handler)
     for handler in get_document_handler():
         application.add_handler(handler)
     application.add_handler(CommandHandler("weather", weather))
@@ -61,6 +63,8 @@ def main() -> None:
     for handler in get_search_handler():
         application.add_handler(handler)
     for handler in get_ai_handler():
+        application.add_handler(handler)
+    for handler in get_info_handler():
         application.add_handler(handler)
     application.add_handler(
         MessageHandler(

@@ -1,3 +1,5 @@
+import os
+import os
 from telegram import Update
 from telegram.ext import (
     ContextTypes,
@@ -8,7 +10,7 @@ from telegram.ext import (
 )
 
 from studentbot.utils.text_formatter import get_translated_text
-from studentbot.utils.db_utils import create_consultation_request
+from studentbot.utils.db_utils import create_consultation_request, get_consultation_requests
 
 # States
 (
@@ -137,6 +139,15 @@ async def upload_resume(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
         user_data["consultation_work_experience"],
         user_data["consultation_special_needs"],
     )
+
+    # Notify admin
+    admin_chat_id = os.getenv("ADMIN_CHAT_ID")
+    if admin_chat_id:
+        await context.bot.send_message(
+            chat_id=admin_chat_id,
+            text=f"New consultation request from {user_data['consultation_name']}",
+        )
+
     await update.message.reply_text(
         get_translated_text("consultation_complete", lang)
     )
@@ -154,33 +165,52 @@ async def cancel_consultation(
     return ConversationHandler.END
 
 
+async def consult_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Displays the status of the user's consultation requests."""
+    lang = context.user_data.get("lang", "en")
+    user_id = update.message.from_user.id
+    requests = get_consultation_requests(user_id)
+    if not requests:
+        await update.message.reply_text(get_translated_text("no_consultation_requests", lang))
+        return
+
+    for req in requests:
+        status_text = f"""
+*Request ID:* {req[0]}
+*Status:* {req[11]}
+        """
+        await update.message.reply_text(status_text, parse_mode="Markdown")
+
 def get_consultation_handler():
     """Returns the consultation conversation handler."""
-    return ConversationHandler(
-        entry_points=[CommandHandler("consult", start_consultation)],
-        states={
-            NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, name)],
-            FIELD_OF_STUDY: [
-                MessageHandler(filters.TEXT & ~filters.COMMAND, field_of_study)
-            ],
-            LEVEL: [MessageHandler(filters.TEXT & ~filters.COMMAND, level)],
-            GPA: [MessageHandler(filters.TEXT & ~filters.COMMAND, gpa)],
-            DESTINATION_COUNTRY: [
-                MessageHandler(filters.TEXT & ~filters.COMMAND, destination_country)
-            ],
-            LANGUAGE_LEVEL: [
-                MessageHandler(filters.TEXT & ~filters.COMMAND, language_level)
-            ],
-            BUDGET: [MessageHandler(filters.TEXT & ~filters.COMMAND, budget)],
-            WORK_EXPERIENCE: [
-                MessageHandler(filters.TEXT & ~filters.COMMAND, work_experience)
-            ],
-            SPECIAL_NEEDS: [
-                MessageHandler(filters.TEXT & ~filters.COMMAND, special_needs)
-            ],
-            UPLOAD_RESUME: [
-                MessageHandler(filters.TEXT & ~filters.COMMAND, upload_resume)
-            ],
-        },
-        fallbacks=[CommandHandler("cancel", cancel_consultation)],
-    )
+    return [
+        ConversationHandler(
+            entry_points=[CommandHandler("consult", start_consultation)],
+            states={
+                NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, name)],
+                FIELD_OF_STUDY: [
+                    MessageHandler(filters.TEXT & ~filters.COMMAND, field_of_study)
+                ],
+                LEVEL: [MessageHandler(filters.TEXT & ~filters.COMMAND, level)],
+                GPA: [MessageHandler(filters.TEXT & ~filters.COMMAND, gpa)],
+                DESTINATION_COUNTRY: [
+                    MessageHandler(filters.TEXT & ~filters.COMMAND, destination_country)
+                ],
+                LANGUAGE_LEVEL: [
+                    MessageHandler(filters.TEXT & ~filters.COMMAND, language_level)
+                ],
+                BUDGET: [MessageHandler(filters.TEXT & ~filters.COMMAND, budget)],
+                WORK_EXPERIENCE: [
+                    MessageHandler(filters.TEXT & ~filters.COMMAND, work_experience)
+                ],
+                SPECIAL_NEEDS: [
+                    MessageHandler(filters.TEXT & ~filters.COMMAND, special_needs)
+                ],
+                UPLOAD_RESUME: [
+                    MessageHandler(filters.TEXT & ~filters.COMMAND, upload_resume)
+                ],
+            },
+            fallbacks=[CommandHandler("cancel", cancel_consultation)],
+        ),
+        CommandHandler("consult_status", consult_status),
+    ]

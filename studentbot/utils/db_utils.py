@@ -30,6 +30,16 @@ def create_users_table():
     cur.close()
     conn.close()
 
+def get_consultation_requests(user_id):
+    """Retrieves a user's consultation requests from the database."""
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM consultation_requests WHERE user_id = %s", (user_id,))
+    requests = cur.fetchall()
+    cur.close()
+    conn.close()
+    return requests
+
 def create_consultation_request(user_id, name, field_of_study, level, gpa, destination_country, language_level, budget, work_experience, special_needs):
     """Creates a new consultation request in the database."""
     conn = get_db_connection()
