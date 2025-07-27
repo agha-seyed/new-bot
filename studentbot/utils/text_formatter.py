@@ -1,5 +1,6 @@
 import json
 import os
+import re
 
 
 def get_translated_text(key, lang):
@@ -11,3 +12,8 @@ def get_translated_text(key, lang):
     with open(lang_file_path, "r", encoding="utf-8") as f:
         translations = json.load(f)
     return translations.get(key, f"Missing translation for key: {key}")
+
+
+def sanitize_markdown(text):
+    """Escapes special Markdown characters in a string."""
+    return re.sub(r"([_*\[\]()~`>#\+\-=|{}.!])", r"\\\1", text)
