@@ -1,0 +1,13 @@
+python-telegram-bot==20.7
+psycopg2-binary
+redis
+google-api-python-client
+google-auth-httplib2
+google-auth-oauthlib
+gspread
+oauth2client
+gTTS
+feedparser
+schedule
+python-dotenv
+requests
