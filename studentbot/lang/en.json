@@ -77,5 +77,6 @@
     "tts_prompt": "Please provide the text you want to convert to speech.",
     "help_text": "This is the help text.",
     "contact_us_text": "This is the contact us text.",
-    "about_us_text": "This is the about us text."
+    "about_us_text": "This is the about us text.",
+    "arrival_guide_menu": "Arrival Guide Menu"
 }

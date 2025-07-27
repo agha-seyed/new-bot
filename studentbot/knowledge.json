@@ -1,0 +1,88 @@
+{
+  "arrival_guide": {
+    "airport_entry": {
+      "title": {
+        "en": "Airport Entry",
+        "fa": "ورود به فرودگاه",
+        "it": "Ingresso in aeroporto"
+      },
+      "content": {
+        "en": "Check your documents, customs tips, and routes.",
+        "fa": "بررسی مدارک، نکات گمرکی و مسیرها.",
+        "it": "Controlla i tuoi documenti, consigli doganali e percorsi."
+      }
+    },
+    "reaching_perugia": {
+      "title": {
+        "en": "Reaching Perugia",
+        "fa": "رسیدن به پروجا",
+        "it": "Raggiungere Perugia"
+      },
+      "content": {
+        "en": "Routes with FlixBus, Itabus, train, and taxi. Includes estimated prices, ticket links, and terminal addresses.",
+        "fa": "مسیرها با فلیکس‌باس، ایتاباس، قطار و تاکسی. شامل قیمت‌های تخمینی، لینک خرید بلیط و آدرس ترمینال‌ها.",
+        "it": "Percorsi con FlixBus, Itabus, treno e taxi. Include prezzi stimati, link per i biglietti e indirizzi dei terminal."
+      }
+    },
+    "codice_fiscale": {
+      "title": {
+        "en": "Getting Codice Fiscale",
+        "fa": "دریافت کد مالیاتی",
+        "it": "Ottenere il Codice Fiscale"
+      },
+      "content": {
+        "en": "Required documents, how to book an appointment (with the IO app or in person), and addresses of Agenzia delle Entrate offices in Perugia.",
+        "fa": "مدارک مورد نیاز، نحوه گرفتن وقت (با اپلیکیشن IO یا حضوری) و آدرس دفاتر آژانس مالیاتی در پروجا.",
+        "it": "Documenti richiesti, come prenotare un appuntamento (con l'app IO o di persona) e indirizzi degli uffici dell'Agenzia delle Entrate a Perugia."
+      }
+    },
+    "bank_account": {
+      "title": {
+        "en": "Opening a Bank Account",
+        "fa": "افتتاح حساب بانکی",
+        "it": "Aprire un conto bancario"
+      },
+      "content": {
+        "en": "Comparison of Revolut, N26, and PostePay, required documents, and legal tips.",
+        "fa": "مقایسه روولوت، N26 و پست‌پی، مدارک مورد نیاز و نکات حقوقی.",
+        "it": "Confronto tra Revolut, N26 e PostePay, documenti richiesti e consigli legali."
+      }
+    },
+    "health_insurance": {
+      "title": {
+        "en": "Getting Health Insurance",
+        "fa": "دریافت بیمه درمانی",
+        "it": "Ottenere l'assicurazione sanitaria"
+      },
+      "content": {
+        "en": "Free and paid options, documents, center addresses, and payment links for Polizza Sanitaria, ASL, and SSN.",
+        "fa": "گزینه‌های رایگان و پولی، مدارک، آدرس مراکز و لینک‌های پرداخت برای بیمه درمانی، ASL و SSN.",
+        "it": "Opzioni gratuite e a pagamento, documenti, indirizzi dei centri e link di pagamento per Polizza Sanitaria, ASL e SSN."
+      }
+    },
+    "university_registration": {
+      "title": {
+        "en": "University Registration",
+        "fa": "ثبت‌نام دانشگاه",
+        "it": "Registrazione all'università"
+      },
+      "content": {
+        "en": "Addresses of faculties (Engineering, Medicine, Sciences), university website, student panel, and activation email.",
+        "fa": "آدرس دانشکده‌ها (مهندسی، پزشکی، علوم)، وب‌سایت دانشگاه، پنل دانشجویی و ایمیل فعال‌سازی.",
+        "it": "Indirizzi delle facoltà (Ingegneria, Medicina, Scienze), sito web dell'università, pannello studenti e email di attivazione."
+      }
+    },
+    "finding_housing": {
+      "title": {
+        "en": "Finding Housing",
+        "fa": "یافتن خانه یا خوابگاه",
+        "it": "Trovare un alloggio"
+      },
+      "content": {
+        "en": "Introduction to platforms: Idealista, Uniplaces, HousingAnywhere, StanzaZoo. Sample rental agreement, legal tips, and tips for sharing a house.",
+        "fa": "معرفی پلتفرم‌ها: ایدیالیستا، یونی‌پلیس، هاوزینگ‌انی‌ور، استانزاتزو. نمونه قرارداد اجاره، نکات حقوقی و نکات اشتراک‌گذاری خانه.",
+        "it": "Introduzione alle piattaforme: Idealista, Uniplaces, HousingAnywhere, StanzaZoo. Esempio di contratto di affitto, consigli legali e consigli per la condivisione di una casa."
+      }
+    }
+  }
+}

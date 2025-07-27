@@ -77,5 +77,6 @@
     "tts_prompt": "Per favore, fornisci il testo che vuoi convertire in parlato.",
     "help_text": "Questo è il testo di aiuto.",
     "contact_us_text": "Questo è il testo di contattaci.",
-    "about_us_text": "Questo è il testo su di noi."
+    "about_us_text": "Questo è il testo su di noi.",
+    "arrival_guide_menu": "Menu Guida all'Arrivo"
 }
