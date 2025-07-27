@@ -1,3 +1,4 @@
+import re
 from telegram import Update
 from telegram.ext import (
     ContextTypes,
@@ -15,51 +16,55 @@ from studentbot.utils.gsheets import add_user_to_sheet
 FIRST_NAME, LAST_NAME, AGE, EMAIL, COUNTRY, FIELD_OF_STUDY = range(6)
 
 
+async def prompt(update: Update, context: ContextTypes.DEFAULT_TYPE, prompt_text, next_state):
+    """Sends a prompt to the user and returns the next state."""
+    lang = context.user_data.get("lang", "en")
+    await update.message.reply_text(get_translated_text(prompt_text, lang))
+    return next_state
+
 async def start_registration(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Starts the registration conversation."""
-    lang = context.user_data.get("lang", "en")
-    await update.message.reply_text(get_translated_text("first_name_prompt", lang))
-    return FIRST_NAME
+    return await prompt(update, context, "first_name_prompt", FIRST_NAME)
 
 
 async def first_name(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Stores the first name and asks for the last name."""
     context.user_data["first_name"] = update.message.text
-    lang = context.user_data.get("lang", "en")
-    await update.message.reply_text(get_translated_text("last_name_prompt", lang))
-    return LAST_NAME
+    return await prompt(update, context, "last_name_prompt", LAST_NAME)
 
 
 async def last_name(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Stores the last name and asks for the age."""
     context.user_data["last_name"] = update.message.text
-    lang = context.user_data.get("lang", "en")
-    await update.message.reply_text(get_translated_text("age_prompt", lang))
-    return AGE
+    return await prompt(update, context, "age_prompt", AGE)
 
 
 async def age(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Stores the age and asks for the email."""
-    context.user_data["age"] = update.message.text
     lang = context.user_data.get("lang", "en")
-    await update.message.reply_text(get_translated_text("email_prompt", lang))
-    return EMAIL
+    age = update.message.text
+    if not age.isdigit():
+        await update.message.reply_text(get_translated_text("invalid_age", lang))
+        return AGE
+    context.user_data["age"] = int(age)
+    return await prompt(update, context, "email_prompt", EMAIL)
 
 
 async def email(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Stores the email and asks for the country."""
-    context.user_data["email"] = update.message.text
     lang = context.user_data.get("lang", "en")
-    await update.message.reply_text(get_translated_text("country_prompt", lang))
-    return COUNTRY
+    email = update.message.text
+    if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+        await update.message.reply_text(get_translated_text("invalid_email", lang))
+        return EMAIL
+    context.user_data["email"] = email
+    return await prompt(update, context, "country_prompt", COUNTRY)
 
 
 async def country(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Stores the country and asks for the field of study."""
     context.user_data["country"] = update.message.text
-    lang = context.user_data.get("lang", "en")
-    await update.message.reply_text(get_translated_text("field_of_study_prompt", lang))
-    return FIELD_OF_STUDY
+    return await prompt(update, context, "field_of_study_prompt", FIELD_OF_STUDY)
 
 
 async def field_of_study(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:

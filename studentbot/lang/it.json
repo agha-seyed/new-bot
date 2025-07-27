@@ -35,5 +35,7 @@
     "edit_country_prompt": "Per favore, inserisci il tuo nuovo paese di residenza (attuale: {country}):",
     "edit_field_of_study_prompt": "Per favore, inserisci il tuo nuovo campo di studi (attuale: {field_of_study}):",
     "profile_updated": "Il tuo profilo è stato aggiornato con successo!",
-    "edit_cancelled": "Modifica del profilo annullata."
+    "edit_cancelled": "Modifica del profilo annullata.",
+    "invalid_age": "Età non valida. Per favore, inserisci un numero.",
+    "invalid_email": "Indirizzo email non valido. Per favore, inserisci un indirizzo email valido."
 }

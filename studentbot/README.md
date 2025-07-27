@@ -9,6 +9,8 @@ This is a Telegram bot designed to help international students, with a focus on 
 -   **Database Integration:** User data is stored in a PostgreSQL database.
 -   **Google Sheets Integration:** User data is also backed up to a Google Sheet.
 -   **Menu System:** A menu system provides access to all of the bot's features.
+-   **Input Validation:** The bot validates user input to ensure that it is in the correct format.
+-   **Error Handling:** The bot provides helpful error messages to the user if they enter invalid data.
 
 ## Setup
 
