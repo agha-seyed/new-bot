@@ -30,6 +30,48 @@ def create_users_table():
     cur.close()
     conn.close()
 
+def create_consultation_request(user_id, name, field_of_study, level, gpa, destination_country, language_level, budget, work_experience, special_needs):
+    """Creates a new consultation request in the database."""
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        """
+        INSERT INTO consultation_requests (user_id, name, field_of_study, level, gpa, destination_country, language_level, budget, work_experience, special_needs)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """,
+        (user_id, name, field_of_study, level, gpa, destination_country, language_level, budget, work_experience, special_needs),
+    )
+    conn.commit()
+    cur.close()
+    conn.close()
+
+def create_consultation_requests_table():
+    """Creates the consultation_requests table if it doesn't already exist."""
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS consultation_requests (
+            id SERIAL PRIMARY KEY,
+            user_id BIGINT,
+            name VARCHAR(255),
+            field_of_study VARCHAR(255),
+            level VARCHAR(255),
+            gpa VARCHAR(255),
+            destination_country VARCHAR(255),
+            language_level VARCHAR(255),
+            budget VARCHAR(255),
+            work_experience TEXT,
+            special_needs TEXT,
+            status VARCHAR(255) DEFAULT 'pending',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+        """
+    )
+    conn.commit()
+    cur.close()
+    conn.close()
+
 def add_points(user_id, points):
     """Adds points to a user's profile."""
     conn = get_db_connection()

@@ -1,0 +1,16 @@
+{
+    "questions": [
+        {
+            "q": "How can I apply for a scholarship?",
+            "a": "You can find information about scholarships in the 'Scholarships' section of the main menu."
+        },
+        {
+            "q": "What are the deadlines for the scholarships?",
+            "a": "You can find the deadlines for the scholarships in the 'Deadlines Calendar' section of the main menu."
+        },
+        {
+            "q": "How can I find housing in Perugia?",
+            "a": "You can find information about housing in the 'Housing in Perugia' section of the main menu."
+        }
+    ]
+}

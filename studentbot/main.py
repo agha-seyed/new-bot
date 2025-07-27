@@ -12,7 +12,13 @@ from studentbot.handlers.edit_profile_flow import get_edit_profile_handler
 from studentbot.handlers.isee_handler import get_isee_handler
 from studentbot.handlers.gamification_handler import points, leaderboard
 from studentbot.handlers.news_handler import news
-from studentbot.handlers.registration_flow import get_registration_handler
+from studentbot.handlers.consult_handler import get_consultation_handler
+from studentbot.handlers.document_handler import get_document_handler
+from studentbot.handlers.weather_handler import weather
+from studentbot.handlers.cost_handler import cost_of_living
+from studentbot.handlers.search_handler import get_search_handler
+from studentbot.handlers.ai_handler import get_ai_handler
+from studentbot.utils.db_utils import create_users_table, create_consultation_requests_table
 from studentbot.utils.db_utils import create_users_table
 
 # Enable logging
@@ -26,6 +32,7 @@ def main() -> None:
     """Start the bot."""
     # Create the users table if it doesn't already exist
     create_users_table()
+    create_consultation_requests_table()
 
     # Get the token from the environment variable
     token = os.getenv("TELEGRAM_TOKEN")
@@ -46,6 +53,15 @@ def main() -> None:
     application.add_handler(CommandHandler("points", points))
     application.add_handler(CommandHandler("leaderboard", leaderboard))
     application.add_handler(CommandHandler("news", news))
+    application.add_handler(get_consultation_handler())
+    for handler in get_document_handler():
+        application.add_handler(handler)
+    application.add_handler(CommandHandler("weather", weather))
+    application.add_handler(CommandHandler("cost", cost_of_living))
+    for handler in get_search_handler():
+        application.add_handler(handler)
+    for handler in get_ai_handler():
+        application.add_handler(handler)
     application.add_handler(
         MessageHandler(
             filters.Regex(r"^(🇬🇧 English|🇮🇹 Italiano|🇮🇷 فارسی)$"), language_handler
