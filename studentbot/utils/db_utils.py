@@ -21,13 +21,43 @@ def create_users_table():
             email VARCHAR(255),
             country VARCHAR(255),
             field_of_study VARCHAR(255),
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            points INTEGER DEFAULT 0
         )
         """
     )
     conn.commit()
     cur.close()
     conn.close()
+
+def add_points(user_id, points):
+    """Adds points to a user's profile."""
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("UPDATE users SET points = points + %s WHERE id = %s", (points, user_id))
+    conn.commit()
+    cur.close()
+    conn.close()
+
+def get_user_points(user_id):
+    """Retrieves a user's points from the database."""
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT points FROM users WHERE id = %s", (user_id,))
+    points = cur.fetchone()
+    cur.close()
+    conn.close()
+    return points[0] if points else 0
+
+def get_leaderboard():
+    """Retrieves the leaderboard from the database."""
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT first_name, points FROM users ORDER BY points DESC LIMIT 10")
+    leaderboard = cur.fetchall()
+    cur.close()
+    conn.close()
+    return leaderboard
 
 def get_user(user_id):
     """Retrieves a user's profile from the database."""

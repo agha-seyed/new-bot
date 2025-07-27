@@ -8,8 +8,18 @@ from telegram.ext import (
     filters,
 )
 
+import re
+from telegram import Update
+from telegram.ext import (
+    ContextTypes,
+    ConversationHandler,
+    CommandHandler,
+    MessageHandler,
+    filters,
+)
+
 from studentbot.utils.text_formatter import get_translated_text
-from studentbot.utils.db_utils import create_user
+from studentbot.utils.db_utils import create_user, add_points
 from studentbot.utils.gsheets import add_user_to_sheet
 
 # States
@@ -84,6 +94,7 @@ async def field_of_study(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         user_data["country"],
         user_data["field_of_study"],
     )
+    add_points(user_id, 10)
     add_user_to_sheet(
         "users",
         [

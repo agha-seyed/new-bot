@@ -37,5 +37,19 @@
     "profile_updated": "Il tuo profilo è stato aggiornato con successo!",
     "edit_cancelled": "Modifica del profilo annullata.",
     "invalid_age": "Età non valida. Per favore, inserisci un numero.",
-    "invalid_email": "Indirizzo email non valido. Per favore, inserisci un indirizzo email valido."
+    "invalid_email": "Indirizzo email non valido. Per favore, inserisci un indirizzo email valido.",
+    "family_members_prompt": "Per favore, inserisci il numero di membri della famiglia:",
+    "annual_income_prompt": "Per favore, inserisci il reddito annuo della tua famiglia:",
+    "is_owner_prompt": "Sei proprietario di un immobile?",
+    "property_area_prompt": "Per favore, inserisci la superficie del tuo immobile in metri quadrati:",
+    "isee_calculation_cancelled": "Calcolo ISEE annullato.",
+    "yes": "Sì",
+    "no": "No",
+    "scholarship_status_full": "Hai diritto a una borsa di studio completa.",
+    "scholarship_status_medium": "Hai diritto a una borsa di studio media.",
+    "scholarship_status_partial": "Hai diritto a una borsa di studio parziale.",
+    "scholarship_status_none": "Non hai diritto a una borsa di studio.",
+    "points": "Hai {points} punti.",
+    "leaderboard": "Classifica",
+    "news": "Ultime Notizie"
 }

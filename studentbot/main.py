@@ -9,6 +9,9 @@ from studentbot.handlers.profile_handler import profile
 from studentbot.handlers.menu_handler import menu
 from studentbot.handlers.registration_flow import get_registration_handler
 from studentbot.handlers.edit_profile_flow import get_edit_profile_handler
+from studentbot.handlers.isee_handler import get_isee_handler
+from studentbot.handlers.gamification_handler import points, leaderboard
+from studentbot.handlers.news_handler import news
 from studentbot.handlers.registration_flow import get_registration_handler
 from studentbot.utils.db_utils import create_users_table
 
@@ -39,6 +42,10 @@ def main() -> None:
     application.add_handler(CommandHandler("menu", menu))
     application.add_handler(get_registration_handler())
     application.add_handler(get_edit_profile_handler())
+    application.add_handler(get_isee_handler())
+    application.add_handler(CommandHandler("points", points))
+    application.add_handler(CommandHandler("leaderboard", leaderboard))
+    application.add_handler(CommandHandler("news", news))
     application.add_handler(
         MessageHandler(
             filters.Regex(r"^(🇬🇧 English|🇮🇹 Italiano|🇮🇷 فارسی)$"), language_handler

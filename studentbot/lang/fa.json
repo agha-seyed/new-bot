@@ -37,5 +37,19 @@
     "profile_updated": "پروفایل شما با موفقیت به روز شد!",
     "edit_cancelled": "ویرایش پروفایل لغو شد.",
     "invalid_age": "سن نامعتبر است. لطفا یک عدد وارد کنید.",
-    "invalid_email": "آدرس ایمیل نامعتبر است. لطفا یک آدرس ایمیل معتبر وارد کنید."
+    "invalid_email": "آدرس ایمیل نامعتبر است. لطفا یک آدرس ایمیل معتبر وارد کنید.",
+    "family_members_prompt": "لطفا تعداد اعضای خانواده خود را وارد کنید:",
+    "annual_income_prompt": "لطفا درآمد سالانه خانواده خود را وارد کنید:",
+    "is_owner_prompt": "آیا شما مالک ملک هستید؟",
+    "property_area_prompt": "لطفا متراژ ملک خود را به متر مربع وارد کنید:",
+    "isee_calculation_cancelled": "محاسبه ISEE لغو شد.",
+    "yes": "بله",
+    "no": "خیر",
+    "scholarship_status_full": "شما واجد شرایط بورسیه کامل هستید.",
+    "scholarship_status_medium": "شما واجد شرایط بورسیه متوسط هستید.",
+    "scholarship_status_partial": "شما واجد شرایط بورسیه جزئی هستید.",
+    "scholarship_status_none": "شما واجد شرایط بورسیه نیستید.",
+    "points": "شما {points} امتیاز دارید.",
+    "leaderboard": "جدول امتیازات",
+    "news": "آخرین اخبار"
 }

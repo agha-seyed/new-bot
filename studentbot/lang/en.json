@@ -37,5 +37,19 @@
     "profile_updated": "Your profile has been updated successfully!",
     "edit_cancelled": "Profile edit cancelled.",
     "invalid_age": "Invalid age. Please enter a number.",
-    "invalid_email": "Invalid email address. Please enter a valid email address."
+    "invalid_email": "Invalid email address. Please enter a valid email address.",
+    "family_members_prompt": "Please enter the number of family members:",
+    "annual_income_prompt": "Please enter your family's annual income:",
+    "is_owner_prompt": "Are you a property owner?",
+    "property_area_prompt": "Please enter the area of your property in square meters:",
+    "isee_calculation_cancelled": "ISEE calculation cancelled.",
+    "yes": "Yes",
+    "no": "No",
+    "scholarship_status_full": "You are eligible for a full scholarship.",
+    "scholarship_status_medium": "You are eligible for a medium scholarship.",
+    "scholarship_status_partial": "You are eligible for a partial scholarship.",
+    "scholarship_status_none": "You are not eligible for a scholarship.",
+    "points": "You have {points} points.",
+    "leaderboard": "Leaderboard",
+    "news": "Latest News"
 }
