@@ -7,6 +7,7 @@ from sentence_transformers import SentenceTransformer, util
 
 from studentbot.utils.text_formatter import get_translated_text
 from studentbot.utils.redis_utils import get_cached_answer, cache_answer
+from studentbot.utils.ai_utils import smart_search
 
 # Load the sentence transformer model
 model = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
@@ -101,8 +102,34 @@ async def speech_to_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     pipe = pipeline("automatic-speech-recognition", model="openai/whisper-small")
     text = pipe(file_path)["text"]
 
-    await update.message.reply_text(text)
+    # Ask for confirmation
+    keyboard = [
+        [
+            InlineKeyboardButton(get_translated_text("yes", lang), callback_data=f"stt_yes_{text}"),
+            InlineKeyboardButton(get_translated_text("no", lang), callback_data="stt_no"),
+        ]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    await update.message.reply_text(
+        get_translated_text("stt_confirm_prompt", lang).format(text=text),
+        reply_markup=reply_markup,
+    )
     os.remove(file_path)
+
+
+async def stt_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Handles the STT callback."""
+    query = update.callback_query
+    await query.answer()
+    data = query.data.split("_", 2)
+    if data[1] == "yes":
+        text = data[2]
+        user_id = query.from_user.id
+        await query.edit_message_text(text=get_translated_text("searching", "en"))
+        answer = await smart_search(text, user_id)
+        await query.edit_message_text(text=answer)
+    else:
+        await query.edit_message_text(text=get_translated_text("stt_cancelled", "en"))
 
 
 async def tts_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -124,4 +151,5 @@ def get_ai_handler():
         CommandHandler("tts", text_to_speech),
         MessageHandler(filters.VOICE, speech_to_text),
         CallbackQueryHandler(tts_callback, pattern="^tts_"),
+        CallbackQueryHandler(stt_callback, pattern="^stt_"),
     ]

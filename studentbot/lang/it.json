@@ -99,5 +99,8 @@
     "tts_button": "📢 Ottieni audio",
     "migration_status": "Stato di avanzamento della migrazione",
     "migration_status_updated": "Stato della migrazione aggiornato con successo.",
-    "searching": "🔍 Ricerca di una risposta in corso... Attendere prego."
+    "searching": "🔍 Ricerca di una risposta in corso... Attendere prego.",
+    "stt_confirm_prompt": "Ho capito bene?\n\n{text}",
+    "stt_cancelled": "Ok, non cercherò questo.",
+    "calendar": "📅 Calendario"
 }

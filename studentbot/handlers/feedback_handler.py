@@ -3,6 +3,7 @@ from telegram.ext import ContextTypes, CommandHandler, CallbackQueryHandler
 
 from studentbot.utils.text_formatter import get_translated_text
 from studentbot.utils.gsheets import add_user_to_sheet
+from studentbot.utils.db_utils import add_score, update_user_level
 
 
 async def feedback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -32,6 +33,11 @@ async def feedback_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     query = update.callback_query
     await query.answer()
     add_user_to_sheet("feedback", [query.from_user.id, query.data])
+
+    # Add score
+    add_score(query.from_user.id, 3)
+    update_user_level(query.from_user.id)
+
     lang = context.user_data.get("lang", "en")
     await query.edit_message_text(text=get_translated_text("feedback_thanks", lang))
 

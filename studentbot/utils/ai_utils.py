@@ -33,10 +33,20 @@ def search_in_json(question):
         return None
 
 
+from transformers import pipeline
+
 def ask_huggingface(question):
     """Asks a question to the Hugging Face model."""
-    # TODO: Implement this
-    return None
+    qa_pipeline = pipeline(
+        "question-answering",
+        model="distilbert-base-cased-distilled-squad",
+        tokenizer="distilbert-base-cased-distilled-squad",
+    )
+    # This is a placeholder context. In a real application, you would
+    # provide a relevant context for the question.
+    context = "The Student Helper Bot is a Telegram bot designed to help international students, with a focus on students in Perugia, Italy."
+    result = qa_pipeline(question=question, context=context)
+    return result["answer"]
 
 
 def smart_search(question, user_id):

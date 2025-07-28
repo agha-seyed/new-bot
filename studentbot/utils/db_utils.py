@@ -23,10 +23,50 @@ def create_users_table():
             field_of_study VARCHAR(255),
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             points INTEGER DEFAULT 0,
-            migration_status INTEGER DEFAULT 0
+            migration_status INTEGER DEFAULT 0,
+            score INTEGER DEFAULT 0,
+            level VARCHAR(255) DEFAULT 'Newbie'
         )
         """
     )
+    conn.commit()
+    cur.close()
+    conn.close()
+
+def add_score(user_id, score):
+    """Adds score to a user's profile."""
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("UPDATE users SET score = score + %s WHERE id = %s", (score, user_id))
+    conn.commit()
+    cur.close()
+    conn.close()
+
+def get_user_level(user_id):
+    """Retrieves a user's level from the database."""
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT level FROM users WHERE id = %s", (user_id,))
+    level = cur.fetchone()
+    cur.close()
+    conn.close()
+    return level[0] if level else "Newbie"
+
+def update_user_level(user_id):
+    """Updates a user's level based on their score."""
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT score FROM users WHERE id = %s", (user_id,))
+    score = cur.fetchone()[0]
+    if score < 10:
+        level = "🎓 Newbie"
+    elif score < 30:
+        level = "🧑‍🎓 Active Student"
+    elif score < 60:
+        level = "👨‍🏫 Mentor"
+    else:
+        level = "👑 Ambassador"
+    cur.execute("UPDATE users SET level = %s WHERE id = %s", (level, user_id))
     conn.commit()
     cur.close()
     conn.close()
@@ -40,6 +80,16 @@ def get_consultation_requests(user_id):
     cur.close()
     conn.close()
     return requests
+
+def get_all_users():
+    """Retrieves all users from the database."""
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM users")
+    users = cur.fetchall()
+    cur.close()
+    conn.close()
+    return users
 
 def get_all_consultation_requests():
     """Retrieves all consultation requests from the database."""

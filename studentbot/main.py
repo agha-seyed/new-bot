@@ -24,7 +24,9 @@ from studentbot.handlers.admin_handler import get_admin_handler
 from studentbot.handlers.question_handler import get_question_handler
 from studentbot.handlers.feedback_handler import get_feedback_handler
 from studentbot.handlers.migration_handler import get_migration_handler
+from studentbot.handlers.calendar_handler import get_calendar_handler
 from studentbot.utils.db_utils import create_users_table, create_consultation_requests_table
+from studentbot.utils.scheduler import start_scheduler
 from studentbot.utils.db_utils import create_users_table
 
 # Enable logging
@@ -80,6 +82,8 @@ def main() -> None:
         application.add_handler(handler)
     for handler in get_migration_handler():
         application.add_handler(handler)
+    for handler in get_calendar_handler():
+        application.add_handler(handler)
     application.add_handler(
         MessageHandler(
             filters.Regex(r"^(🗑️ Delete Profile|🗑️ حذف پروفایل|🗑️ Elimina profilo)$"),
@@ -93,6 +97,7 @@ def main() -> None:
     )
 
     # Run the bot until the user presses Ctrl-C
+    start_scheduler()
     application.run_polling()
 
 

@@ -10,6 +10,7 @@ from telegram.ext import (
 
 from studentbot.utils.text_formatter import get_translated_text
 from studentbot.utils.gsheets import add_user_to_sheet
+from studentbot.utils.db_utils import add_score, update_user_level
 
 # States
 TITLE, DESCRIPTION, TOPIC = range(3)
@@ -64,6 +65,10 @@ async def topic(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
             text=f"New question from {update.message.from_user.first_name}:\n\n*Title:* {user_data['question_title']}\n*Description:* {user_data['question_description']}\n*Topic:* {user_data['question_topic']}",
             parse_mode="Markdown",
         )
+
+    # Add score
+    add_score(user_id, 5)
+    update_user_level(user_id)
 
     await update.message.reply_text(get_translated_text("question_complete", lang))
     return ConversationHandler.END

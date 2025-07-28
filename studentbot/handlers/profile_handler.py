@@ -2,7 +2,7 @@ from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import ContextTypes
 
 from studentbot.utils.text_formatter import get_translated_text, sanitize_markdown
-from studentbot.utils.db_utils import get_user, delete_user
+from studentbot.utils.db_utils import get_user, delete_user, get_user_points, get_user_level
 from studentbot.utils.gsheets import delete_user_from_sheet
 
 
@@ -20,6 +20,8 @@ async def profile(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 *Email:* {sanitize_markdown(user[4])}
 *Country:* {sanitize_markdown(user[5])}
 *Field of Study:* {sanitize_markdown(user[6])}
+*Points:* {get_user_points(user_id)}
+*Level:* {get_user_level(user_id)}
         """
         keyboard = [
             [get_translated_text("edit_profile", lang)],
