@@ -40,6 +40,27 @@ def get_consultation_requests(user_id):
     conn.close()
     return requests
 
+def get_all_consultation_requests():
+    """Retrieves all consultation requests from the database."""
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM consultation_requests")
+    requests = cur.fetchall()
+    cur.close()
+    conn.close()
+    return requests
+
+def update_consultation_request_status(request_id, status):
+    """Updates the status of a consultation request."""
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "UPDATE consultation_requests SET status = %s WHERE id = %s", (status, request_id)
+    )
+    conn.commit()
+    cur.close()
+    conn.close()
+
 def create_consultation_request(user_id, name, field_of_study, level, gpa, destination_country, language_level, budget, work_experience, special_needs):
     """Creates a new consultation request in the database."""
     conn = get_db_connection()
