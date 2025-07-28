@@ -1,8 +1,8 @@
 from telegram import Update
 from telegram.ext import ContextTypes, CommandHandler
 
-from studentbot.utils.text_formatter import get_translated_text
-from studentbot.utils.db_utils import get_user_migration_status, update_user_migration_status
+from utils.text_formatter import get_translated_text
+from utils.db_utils import get_user_migration_status, update_user_migration_status
 
 
 async def migration_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:

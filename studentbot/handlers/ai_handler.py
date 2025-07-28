@@ -5,9 +5,9 @@ from transformers import pipeline
 from gtts import gTTS
 from sentence_transformers import SentenceTransformer, util
 
-from studentbot.utils.text_formatter import get_translated_text
-from studentbot.utils.redis_utils import get_cached_answer, cache_answer
-from studentbot.utils.ai_utils import smart_search
+from utils.text_formatter import get_translated_text
+from utils.redis_utils import get_cached_answer, cache_answer
+from utils.ai_utils import smart_search
 
 # Load the sentence transformer model
 model = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")

@@ -5,30 +5,30 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters, C
 from fastapi import FastAPI, Request
 import uvicorn
 
-from studentbot.handlers.cmd_start import start
-from studentbot.handlers.language_handler import language_handler
-from studentbot.handlers.profile_handler import profile, delete_profile_handler
-from studentbot.handlers.menu_handler import menu
-from studentbot.handlers.registration_flow import get_registration_handler
-from studentbot.handlers.edit_profile_flow import get_edit_profile_handler
-from studentbot.handlers.isee_handler import get_isee_handler
-from studentbot.handlers.gamification_handler import points, leaderboard
-from studentbot.handlers.news_handler import news
-from studentbot.handlers.consult_handler import get_consultation_handler
-from studentbot.handlers.document_handler import get_document_handler
-from studentbot.handlers.weather_handler import weather
-from studentbot.handlers.cost_handler import get_cost_handler
-from studentbot.handlers.search_handler import get_search_handler
-from studentbot.handlers.ai_handler import get_ai_handler
-from studentbot.handlers.info_handler import get_info_handler
-from studentbot.handlers.arrival_guide_handler import get_arrival_guide_handler
-from studentbot.handlers.admin_handler import get_admin_handler
-from studentbot.handlers.question_handler import get_question_handler
-from studentbot.handlers.feedback_handler import get_feedback_handler
-from studentbot.handlers.migration_handler import get_migration_handler
-from studentbot.handlers.calendar_handler import get_calendar_handler
-from studentbot.utils.db_utils import create_users_table, create_consultation_requests_table
-from studentbot.utils.scheduler import start_scheduler
+from handlers.cmd_start import start
+from handlers.language_handler import language_handler
+from handlers.profile_handler import profile, delete_profile_handler
+from handlers.menu_handler import menu
+from handlers.registration_flow import get_registration_handler
+from handlers.edit_profile_flow import get_edit_profile_handler
+from handlers.isee_handler import get_isee_handler
+from handlers.gamification_handler import points, leaderboard
+from handlers.news_handler import news
+from handlers.consult_handler import get_consultation_handler
+from handlers.document_handler import get_document_handler
+from handlers.weather_handler import weather
+from handlers.cost_handler import get_cost_handler
+from handlers.search_handler import get_search_handler
+from handlers.ai_handler import get_ai_handler
+from handlers.info_handler import get_info_handler
+from handlers.arrival_guide_handler import get_arrival_guide_handler
+from handlers.admin_handler import get_admin_handler
+from handlers.question_handler import get_question_handler
+from handlers.feedback_handler import get_feedback_handler
+from handlers.migration_handler import get_migration_handler
+from handlers.calendar_handler import get_calendar_handler
+from utils.db_utils import create_users_table, create_consultation_requests_table
+from utils.scheduler import start_scheduler
 
 # Enable logging
 logging.basicConfig(

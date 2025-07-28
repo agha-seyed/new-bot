@@ -8,7 +8,7 @@ from telegram.ext import (
     filters,
 )
 
-from studentbot.utils.text_formatter import get_translated_text
+from utils.text_formatter import get_translated_text
 
 # States
 RENT, FOOD, TRANSPORTATION, COMPARE_CITY = range(4)

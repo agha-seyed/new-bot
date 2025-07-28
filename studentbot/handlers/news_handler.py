@@ -2,7 +2,7 @@ import feedparser
 from telegram import Update
 from telegram.ext import ContextTypes
 
-from studentbot.utils.text_formatter import get_translated_text
+from utils.text_formatter import get_translated_text
 
 
 async def news(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:

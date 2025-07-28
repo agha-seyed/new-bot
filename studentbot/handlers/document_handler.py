@@ -2,8 +2,8 @@ import os
 from telegram import Update
 from telegram.ext import ContextTypes, CommandHandler, MessageHandler, filters
 
-from studentbot.utils.text_formatter import get_translated_text
-from studentbot.utils.gdrive import upload_file
+from utils.text_formatter import get_translated_text
+from utils.gdrive import upload_file
 
 
 async def start_document_submission(update: Update, context: ContextTypes.DEFAULT_TYPE):

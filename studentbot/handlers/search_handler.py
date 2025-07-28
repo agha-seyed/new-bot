@@ -1,8 +1,8 @@
 from telegram import Update
 from telegram.ext import ContextTypes, CommandHandler, MessageHandler, filters
 
-from studentbot.utils.text_formatter import get_translated_text
-from studentbot.utils.redis_utils import get_cached_answer, cache_answer
+from utils.text_formatter import get_translated_text
+from utils.redis_utils import get_cached_answer, cache_answer
 
 
 async def start_search(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -14,9 +14,9 @@ async def start_search(update: Update, context: ContextTypes.DEFAULT_TYPE):
 import json
 from sentence_transformers import util
 
-from studentbot.handlers.ai_handler import model
+from handlers.ai_handler import model
 
-from studentbot.utils.ai_utils import smart_search
+from utils.ai_utils import smart_search
 
 async def search_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handles the search query."""

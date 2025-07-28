@@ -7,7 +7,7 @@ from telegram.ext import (
     filters,
 )
 
-from studentbot.utils.text_formatter import get_translated_text
+from utils.text_formatter import get_translated_text
 
 # States
 FAMILY_MEMBERS, ANNUAL_INCOME, IS_OWNER, PROPERTY_AREA = range(4)

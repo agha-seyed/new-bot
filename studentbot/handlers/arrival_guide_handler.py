@@ -2,7 +2,7 @@ import json
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import ContextTypes, CommandHandler, MessageHandler, filters
 
-from studentbot.utils.text_formatter import get_translated_text
+from utils.text_formatter import get_translated_text
 
 # Load the knowledge base
 with open("studentbot/knowledge.json", "r", encoding="utf-8") as f:

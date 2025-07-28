@@ -1,9 +1,9 @@
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import ContextTypes
 
-from studentbot.utils.text_formatter import get_translated_text, sanitize_markdown
-from studentbot.utils.db_utils import get_user, delete_user, get_user_points, get_user_level
-from studentbot.utils.gsheets import delete_user_from_sheet
+from utils.text_formatter import get_translated_text, sanitize_markdown
+from utils.db_utils import get_user, delete_user, get_user_points, get_user_level
+from utils.gsheets import delete_user_from_sheet
 
 
 async def profile(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
