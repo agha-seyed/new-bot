@@ -1,0 +1,17 @@
+{
+    "Perugia": {
+        "rent": 300,
+        "food": 200,
+        "transportation": 30
+    },
+    "Rome": {
+        "rent": 600,
+        "food": 300,
+        "transportation": 50
+    },
+    "Milan": {
+        "rent": 700,
+        "food": 350,
+        "transportation": 60
+    }
+}

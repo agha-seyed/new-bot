@@ -22,7 +22,8 @@ def create_users_table():
             country VARCHAR(255),
             field_of_study VARCHAR(255),
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            points INTEGER DEFAULT 0
+            points INTEGER DEFAULT 0,
+            migration_status INTEGER DEFAULT 0
         )
         """
     )
@@ -131,6 +132,27 @@ def get_leaderboard():
     cur.close()
     conn.close()
     return leaderboard
+
+def get_user_migration_status(user_id):
+    """Retrieves a user's migration status from the database."""
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT migration_status FROM users WHERE id = %s", (user_id,))
+    status = cur.fetchone()
+    cur.close()
+    conn.close()
+    return status[0] if status else 0
+
+def update_user_migration_status(user_id, status):
+    """Updates a user's migration status in the database."""
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "UPDATE users SET migration_status = %s WHERE id = %s", (status, user_id)
+    )
+    conn.commit()
+    cur.close()
+    conn.close()
 
 def get_user(user_id):
     """Retrieves a user's profile from the database."""

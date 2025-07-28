@@ -1,11 +1,12 @@
 import os
-from telegram import Update
-from telegram.ext import ContextTypes, CommandHandler, MessageHandler, filters
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import ContextTypes, CommandHandler, MessageHandler, filters, CallbackQueryHandler
 from transformers import pipeline
 from gtts import gTTS
 from sentence_transformers import SentenceTransformer, util
 
 from studentbot.utils.text_formatter import get_translated_text
+from studentbot.utils.redis_utils import get_cached_answer, cache_answer
 
 # Load the sentence transformer model
 model = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
@@ -34,6 +35,12 @@ async def answer(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     lang = context.user_data.get("lang", "en")
     question = update.message.text
 
+    # Check for cached answer
+    cached_answer = get_cached_answer(question)
+    if cached_answer:
+        await update.message.reply_text(cached_answer.decode("utf-8"))
+        return
+
     # Load the Q&A data
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     qna_file_path = os.path.join(base_dir, "qna.json")
@@ -54,10 +61,19 @@ async def answer(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     if best_match_score > 0.7:
         answer = qna_data["questions"][best_match_index]["a"]
+        cache_answer(question, answer)
     else:
         answer = "I'm sorry, I don't have an answer to that question."
 
-    await update.message.reply_text(answer)
+    keyboard = [
+        [
+            InlineKeyboardButton(
+                get_translated_text("tts_button", lang), callback_data=f"tts_{answer}"
+            )
+        ]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    await update.message.reply_text(answer, reply_markup=reply_markup)
 
 
 async def text_to_speech(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -89,6 +105,17 @@ async def speech_to_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     os.remove(file_path)
 
 
+async def tts_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Handles the TTS callback."""
+    query = update.callback_query
+    await query.answer()
+    text = query.data.split("_", 1)[1]
+    lang = context.user_data.get("lang", "en")
+    tts = gTTS(text, lang=lang)
+    tts.save("tts.mp3")
+    await context.bot.send_voice(chat_id=update.effective_chat.id, voice=open("tts.mp3", "rb"))
+    os.remove("tts.mp3")
+
 def get_ai_handler():
     """Returns the AI handler."""
     return [
@@ -96,4 +123,5 @@ def get_ai_handler():
         MessageHandler(filters.TEXT & ~filters.COMMAND, answer),
         CommandHandler("tts", text_to_speech),
         MessageHandler(filters.VOICE, speech_to_text),
+        CallbackQueryHandler(tts_callback, pattern="^tts_"),
     ]
