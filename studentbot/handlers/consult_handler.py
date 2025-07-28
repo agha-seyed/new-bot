@@ -9,8 +9,19 @@ from telegram.ext import (
     filters,
 )
 
+import os
+from telegram import Update
+from telegram.ext import (
+    ContextTypes,
+    ConversationHandler,
+    CommandHandler,
+    MessageHandler,
+    filters,
+)
+
 from studentbot.utils.text_formatter import get_translated_text
 from studentbot.utils.db_utils import create_consultation_request, get_consultation_requests
+from studentbot.utils.gdrive import upload_file
 
 # States
 (
@@ -122,10 +133,16 @@ async def special_needs(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
 
 async def upload_resume(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Stores the resume and ends the conversation."""
-    # TODO: Handle file upload
     lang = context.user_data.get("lang", "en")
-    # Save data to database
+    document = update.message.document
+    file = await context.bot.get_file(document.file_id)
+    file_path = f"{document.file_name}"
+    await file.download_to_drive(file_path)
     user_id = update.message.from_user.id
+    upload_file(file_path, user_id, document.file_name)
+    os.remove(file_path)
+
+    # Save data to database
     user_data = context.user_data
     create_consultation_request(
         user_id,

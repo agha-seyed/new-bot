@@ -51,6 +51,8 @@ This is a Telegram bot designed to help international students, with a focus on 
     -   `PYTHON_VERSION`: The Python version to use.
     -   `QUESTIONS_SHEET_NAME`: The name of the Google Sheet for questions.
     -   `SHEET_ID`: The ID of your Google Sheet.
+    - `GOOGLE_DRIVE_CREDS`: The path to your Google Drive API credentials file.
+    - `GOOGLE_DRIVE_UPLOAD_FOLDER_ID`: The ID of the folder to upload files to.
 4.  **Run the bot:**
     ```
     python -m studentbot.main

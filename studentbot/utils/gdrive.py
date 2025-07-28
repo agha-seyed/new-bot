@@ -23,7 +23,7 @@ def get_gdrive_service():
             creds.refresh(Request())
         else:
             flow = InstalledAppFlow.from_client_secrets_file(
-                os.getenv("GOOGLE_CREDS"), SCOPES
+                os.getenv("GOOGLE_DRIVE_CREDS"), SCOPES
             )
             creds = flow.run_local_server(port=0)
         # Save the credentials for the next run
@@ -33,10 +33,14 @@ def get_gdrive_service():
     return build("drive", "v3", credentials=creds)
 
 
-def upload_file(file_path, file_name):
+def upload_file(file_path, user_id, original_filename):
     """Uploads a file to Google Drive."""
     service = get_gdrive_service()
-    file_metadata = {"name": file_name}
+    folder_id = os.getenv("GOOGLE_DRIVE_UPLOAD_FOLDER_ID")
+    file_metadata = {
+        "name": f"{user_id}_{original_filename}",
+        "parents": [folder_id],
+    }
     media = MediaFileUpload(file_path)
     file = (
         service.files()
