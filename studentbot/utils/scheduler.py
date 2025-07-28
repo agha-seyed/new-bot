@@ -2,7 +2,7 @@ import os
 from telegram import Bot
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
-from studentbot.utils.db_utils import get_all_users, get_all_consultation_requests
+from utils.db_utils import get_all_users, get_all_consultation_requests
 
 
 async def send_daily_report():
