@@ -1,7 +1,9 @@
-import logging
 import os
-
-from telegram.ext import Application, CommandHandler, MessageHandler, filters
+import logging
+from telegram import Update
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackQueryHandler
+from fastapi import FastAPI, Request
+import uvicorn
 
 from studentbot.handlers.cmd_start import start
 from studentbot.handlers.language_handler import language_handler
@@ -15,7 +17,7 @@ from studentbot.handlers.news_handler import news
 from studentbot.handlers.consult_handler import get_consultation_handler
 from studentbot.handlers.document_handler import get_document_handler
 from studentbot.handlers.weather_handler import weather
-from studentbot.handlers.cost_handler import cost_of_living
+from studentbot.handlers.cost_handler import get_cost_handler
 from studentbot.handlers.search_handler import get_search_handler
 from studentbot.handlers.ai_handler import get_ai_handler
 from studentbot.handlers.info_handler import get_info_handler
@@ -27,7 +29,6 @@ from studentbot.handlers.migration_handler import get_migration_handler
 from studentbot.handlers.calendar_handler import get_calendar_handler
 from studentbot.utils.db_utils import create_users_table, create_consultation_requests_table
 from studentbot.utils.scheduler import start_scheduler
-from studentbot.utils.db_utils import create_users_table
 
 # Enable logging
 logging.basicConfig(
@@ -35,21 +36,28 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+app = FastAPI()
+application = Application.builder().token(os.getenv("TELEGRAM_TOKEN")).build()
 
-def main() -> None:
+@app.post("/webhook")
+async def webhook(request: Request):
+    """Handle webhook updates from Telegram."""
+    await application.update_queue.put(
+        Update.de_json(await request.json(), application.bot)
+    )
+    return {"ok": True}
+
+async def main() -> None:
     """Start the bot."""
     # Create the users table if it doesn't already exist
     create_users_table()
     create_consultation_requests_table()
 
-    # Get the token from the environment variable
-    token = os.getenv("TELEGRAM_TOKEN")
-    if not token:
-        logger.error("TELEGRAM_TOKEN environment variable not set")
-        return
-
-    # Create the Application and pass it your bot's token.
-    application = Application.builder().token(token).build()
+    # Set webhook
+    await application.bot.set_webhook(
+        url=f"{os.getenv('BASE_URL')}/webhook",
+        secret_token=os.getenv("WEBHOOK_SECRET"),
+    )
 
     # on different commands - answer in Telegram
     application.add_handler(CommandHandler("start", start))
@@ -103,3 +111,14 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+else:
+    import asyncio
+
+    application.bot_data["dp"] = application
+    application.bot_data["app"] = app
+
+    loop = asyncio.get_event_loop()
+    if loop.is_running():
+        loop.create_task(main())
+    else:
+        loop.run_until_complete(main())
