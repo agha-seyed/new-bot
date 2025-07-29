@@ -11,9 +11,9 @@ from telegram.ext import (
     filters,
 )
 
-from ..utils.text_formatter import get_translated_text, sanitize_markdown
-from ..utils.db_utils import create_user, add_points, get_user, log_event
-from ..utils.gsheets import add_user_to_sheet
+from studentbot.utils.text_formatter import get_translated_text, sanitize_markdown
+from studentbot.utils.db_utils import create_user, add_points, get_user, log_event
+from studentbot.utils.gsheets import add_user_to_sheet
 
 # Set up logging
 logger = logging.getLogger(__name__)
