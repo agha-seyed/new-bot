@@ -315,3 +315,134 @@
         "it": "🔔 L'utente {user_id} ha inviato un feedback scarso. Controlla!"
     }
 }
+{
+    "already_registered": {
+        "en": "🚫 You're already registered! Check your profile with /profile.",
+        "fa": "🚫 شما قبلاً ثبت‌نام کردید! پروفایلتون رو با /profile چک کنید.",
+        "it": "🚫 Sei già registrato! Controlla il tuo profilo con /profile."
+    },
+    "admin_new_registration": {
+        "en": "🔔 New registration:\nName: {first_name} {last_name}\nEmail: {email}\nCountry: {country}\nField: {field}\nAge: {age}\nTime: {timestamp}",
+        "fa": "🔔 ثبت‌نام جدید:\nنام: {first_name} {last_name}\nایمیل: {email}\nکشور: {country}\nرشته: {field}\nسن: {age}\nزمان: {timestamp}",
+        "it": "🔔 Nuova registrazione:\nNome: {first_name} {last_name}\nEmail: {email}\nPaese: {country}\nCampo: {field}\nEtà: {age}\nData: {timestamp}"
+    },
+    "registration_summary": {
+        "en": "Registration Summary",
+        "fa": "خلاصه ثبت‌نام",
+        "it": "Riepilogo Registrazione"
+    },
+    "confirm_registration_prompt": {
+        "en": "Please confirm your details or cancel.",
+        "fa": "لطفاً اطلاعاتتون رو تأیید یا لغو کنید.",
+        "it": "Conferma i tuoi dettagli o annulla."
+    }
+}
+
+{
+    "scholarship_topic": {
+        "en": "🎓 Scholarship",
+        "fa": "🎓 بورسیه",
+        "it": "🎓 Borsa di Studio"
+    },
+    "housing_topic": {
+        "en": "🏠 Housing",
+        "fa": "🏠 مسکن",
+        "it": "🏠 Alloggio"
+    },
+    "deadlines_topic": {
+        "en": "📅 Deadlines",
+        "fa": "📅 مهلت‌ها",
+        "it": "📅 Scadenze"
+    },
+    "migration_topic": {
+        "en": "🌎 Migration",
+        "fa": "🌎 مهاجرت",
+        "it": "🌎 Migrazione"
+    },
+    "summary_title": {
+        "en": "Question Summary",
+        "fa": "خلاصه سؤال",
+        "it": "Riepilogo Domanda"
+    },
+    "title": {
+        "en": "Title",
+        "fa": "عنوان",
+        "it": "Titolo"
+    },
+    "description": {
+        "en": "Description",
+        "fa": "توضیحات",
+        "it": "Descrizione"
+    },
+    "topic": {
+        "en": "Topic",
+        "fa": "موضوع",
+        "it": "Argomento"
+    },
+    "confirm_question_prompt": {
+        "en": "Please confirm your question or cancel.",
+        "fa": "لطفاً سؤالتون رو تأیید یا لغو کنید.",
+        "it": "Conferma la tua domanda o annullala."
+    },
+    "ai_thinking": {
+        "en": "🧠 Thinking... Please wait a moment!",
+        "fa": "🧠 در حال فکر کردن... یه لحظه صبر کن!",
+        "it": "🧠 Sto pensando... Aspetta un attimo!"
+    },
+    "admin_will_reply": {
+        "en": "🤝 Our team will review your question and reply soon!",
+        "fa": "🤝 تیم ما سؤالتون رو بررسی می‌کنه و به‌زودی جواب می‌ده!",
+        "it": "🤝 Il nostro team esaminerà la tua domanda e risponderà presto!"
+    }
+}
+
+{
+    "start_edit_profile": {
+        "en": "✏️ Starting profile edit... Use /edit to continue!",
+        "fa": "✏️ شروع ویرایش پروفایل... برای ادامه از /edit استفاده کن!",
+        "it": "✏️ Inizio modifica profilo... Usa /edit per continuare!"
+    },
+    "start_upload_document": {
+        "en": "📤 Starting document upload... Use /upload to continue!",
+        "fa": "📤 شروع آپلود مدرک... برای ادامه از /upload استفاده کن!",
+        "it": "📤 Inizio caricamento documento... Usa /upload per continuare!"
+    },
+    "registration_time": {
+        "en": "Registration Time",
+        "fa": "زمان ثبت‌نام",
+        "it": "Data di Registrazione"
+    },
+    "level": {
+        "en": "Level",
+        "fa": "سطح",
+        "it": "Livello"
+    },
+    "progress": {
+        "en": "Progress",
+        "fa": "پیشرفت",
+        "it": "Progresso"
+    },
+    "questions_asked": {
+        "en": "Questions Asked",
+        "fa": "سؤالات پرسیده‌شده",
+        "it": "Domande Poste"
+    },
+    "answers_received": {
+        "en": "Answers Received",
+        "fa": "پاسخ‌های دریافت‌شده",
+        "it": "Risposte Ricevute"
+    }
+}
+
+{
+    "more_news": {
+        "en": "📰 More News",
+        "fa": "📰 اخبار بیشتر",
+        "it": "📰 Altre Notizie"
+    },
+    "news_fetch_error": {
+        "en": "😕 Couldn't fetch news right now. Try again later!",
+        "fa": "😕 الان نمی‌تونیم اخبار رو دریافت کنیم. بعداً دوباره امتحان کن!",
+        "it": "😕 Impossibile recuperare le notizie ora. Riprova più tardi!"
+    }
+}
