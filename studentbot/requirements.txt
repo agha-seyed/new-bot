@@ -1,22 +1,37 @@
+# --- Core Dependencies ---
 python-telegram-bot==20.7
+fastapi
+uvicorn
+
+# --- Database & Caching ---
+asyncpg
+sqlalchemy
 psycopg2-binary
-redis
+redis[hiredis]
+
+# --- Scheduler & Timing ---
+schedule
+
+# --- Google Sheets Integration ---
+gspread
+oauth2client
 google-api-python-client
 google-auth-httplib2
 google-auth-oauthlib
-gspread
-oauth2client
-gTTS
-feedparser
-schedule
+
+# --- Environment & Config ---
 python-dotenv
+
+# --- AI & NLP (Dual Support: OpenAI + HuggingFace) ---
+openai
+transformers
 HuggingFace-hub
 sentence-transformers
-httpx
 torch --extra-index-url https://download.pytorch.org/whl/cpu
-transformers
-fastapi
-uvicorn
-asyncpg
-sqlalchemy
-redis[hiredis]
+httpx
+
+# --- Utilities ---
+feedparser
+gTTS
+PyMuPDF
+python-docx
