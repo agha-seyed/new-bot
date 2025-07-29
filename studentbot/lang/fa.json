@@ -262,3 +262,56 @@
         "it": "😕 Impossibile aggiornare il tuo profilo. Riprova più tardi!"
     }
 }
+{
+    "migration_steps": {
+        "en": "Migration Steps",
+        "fa": "مراحل مهاجرت",
+        "it": "Fasi di Migrazione"
+    },
+    "current_step": {
+        "en": "Current Step",
+        "fa": "مرحله فعلی",
+        "it": "Fase Attuale"
+    },
+    "admin_migration_updated": {
+        "en": "🔔 User {user_id} updated migration status to {status}/10.",
+        "fa": "🔔 کاربر {user_id} وضعیت مهاجرتش رو به {status}/10 به‌روز کرد.",
+        "it": "🔔 L'utente {user_id} ha aggiornato lo stato di migrazione a {status}/10."
+    },
+    "migration_status_no_arg": {
+        "en": "🚫 Please provide a status number (0-10). Example: /update_migration_status 5",
+        "fa": "🚫 لطفاً یه شماره وضعیت (0-10) وارد کنید. مثال: /update_migration_status 5",
+        "it": "🚫 Inserisci un numero di stato (0-10). Esempio: /update_migration_status 5"
+    },
+    "migration_status_invalid_arg": {
+        "en": "🚫 Invalid status! Please enter a number between 0 and 10.",
+        "fa": "🚫 وضعیت نامعتبر! لطفاً یه شماره بین 0 تا 10 وارد کنید.",
+        "it": "🚫 Stato non valido! Inserisci un numero tra 0 e 10."
+    }
+}
+{
+    "invalid_language": {
+        "en": "🚫 Invalid language! Please choose a valid option.",
+        "fa": "🚫 زبان نامعتبر! لطفاً یه گزینه معتبر انتخاب کنید.",
+        "it": "🚫 Lingua non valida! Scegli un'opzione valida."
+    },
+    "language_set": {
+        "en": "🌍 Language set to {lang} successfully!",
+        "fa": "🌍 زبان با موفقیت به {lang} تنظیم شد!",
+        "it": "🌍 Lingua impostata su {lang} con successo!"
+    }
+}
+
+
+{
+    "invalid_feedback": {
+        "en": "🚫 Invalid feedback choice! Please select one of the options.",
+        "fa": "🚫 انتخاب بازخورد نامعتبر! لطفاً یکی از گزینه‌ها رو انتخاب کنید.",
+        "it": "🚫 Scelta di feedback non valida! Seleziona una delle opzioni."
+    },
+    "admin_poor_feedback": {
+        "en": "🔔 User {user_id} submitted poor feedback. Please review!",
+        "fa": "🔔 کاربر {user_id} بازخورد ضعیف داد. لطفاً بررسی کنید!",
+        "it": "🔔 L'utente {user_id} ha inviato un feedback scarso. Controlla!"
+    }
+}
