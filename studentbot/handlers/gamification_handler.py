@@ -42,7 +42,8 @@ async def leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         for i, user in enumerate(board):
             leaderboard_text += (
                 f"{i+1}. *{sanitize_markdown(user['first_name'])} {sanitize_markdown(user['last_name'])}* "
-                f"- {user['points']} points ({sanitize_markdown(user['level'])})\n"
+                f"- {user['points']} {sanitize_markdown(get_translated_text('points', lang).split()[0])} "
+                f"({sanitize_markdown(user['level'])})\n"
             )
         await update.message.reply_text(leaderboard_text, parse_mode="MarkdownV2")
         logger.info(f"✅ Displayed leaderboard for user {update.effective_user.id}")
@@ -95,6 +96,7 @@ async def award_points_for_action(user_id: int, action: str) -> None:
         "file_upload": 15,
         "feedback": 5,
         "interaction": 2,
+        "isee_calculation": 10,
     }
     
     points = points_map.get(action, 0)
@@ -118,7 +120,6 @@ async def set_gamification_commands(application) -> None:
         ]
         commands_by_lang[lang] = commands
     
-    # Set default commands (English)
     try:
         await application.bot.set_my_commands(commands_by_lang["en"])
         logger.info("✅ Set gamification commands for English")
