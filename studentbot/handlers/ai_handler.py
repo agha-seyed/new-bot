@@ -1,13 +1,14 @@
 import os
+import json
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes, CommandHandler, MessageHandler, filters, CallbackQueryHandler
 from transformers import pipeline
 from gtts import gTTS
 from sentence_transformers import SentenceTransformer, util
 
-from ..utils.text_formatter import get_translated_text
-from ..utils.redis_utils import get_cached_answer, cache_answer
-from ..utils.ai_utils import smart_search
+from studentbot.utils.text_formatter import get_translated_text
+from studentbot.utils.redis_utils import get_cached_answer, cache_answer
+from studentbot.utils.ai_utils import smart_search
 
 # Load the sentence transformer model
 model = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
@@ -19,36 +20,29 @@ qa_pipeline = pipeline(
     tokenizer="distilbert-base-cased-distilled-squad",
 )
 
-# Load the text to speech pipeline
+# Load the text to speech pipeline (not used here, kept for reference)
 tts_pipeline = pipeline("text-to-speech", model="espnet/kan-bayashi_ljspeech_vits")
 
 
 async def ask(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Asks a question to the user."""
     lang = context.user_data.get("lang", "en")
     await update.message.reply_text(get_translated_text("ask_prompt", lang))
 
 
-import json
-
 async def answer(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Answers the user's question."""
     lang = context.user_data.get("lang", "en")
     question = update.message.text
 
-    # Check for cached answer
     cached_answer = get_cached_answer(question)
     if cached_answer:
         await update.message.reply_text(cached_answer.decode("utf-8"))
         return
 
-    # Load the Q&A data
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     qna_file_path = os.path.join(base_dir, "qna.json")
     with open(qna_file_path, "r", encoding="utf-8") as f:
         qna_data = json.load(f)
 
-    # Find the best match for the user's question
     questions = [q["q"] for q in qna_data["questions"]]
     question_embedding = model.encode(question, convert_to_tensor=True)
     best_match_score = 0
@@ -67,18 +61,13 @@ async def answer(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         answer = "I'm sorry, I don't have an answer to that question."
 
     keyboard = [
-        [
-            InlineKeyboardButton(
-                get_translated_text("tts_button", lang), callback_data=f"tts_{answer}"
-            )
-        ]
+        [InlineKeyboardButton(get_translated_text("tts_button", lang), callback_data=f"tts_{answer}")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     await update.message.reply_text(answer, reply_markup=reply_markup)
 
 
 async def text_to_speech(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Converts text to speech."""
     lang = context.user_data.get("lang", "en")
     text = " ".join(context.args)
     if not text:
@@ -91,18 +80,15 @@ async def text_to_speech(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
 
 async def speech_to_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Converts speech to text."""
     lang = context.user_data.get("lang", "en")
     voice = update.message.voice
     file = await context.bot.get_file(voice.file_id)
     file_path = "stt.ogg"
     await file.download_to_drive(file_path)
 
-    # Convert speech to text
     pipe = pipeline("automatic-speech-recognition", model="openai/whisper-small")
     text = pipe(file_path)["text"]
 
-    # Ask for confirmation
     keyboard = [
         [
             InlineKeyboardButton(get_translated_text("yes", lang), callback_data=f"stt_yes_{text}"),
@@ -118,7 +104,6 @@ async def speech_to_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
 
 async def stt_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Handles the STT callback."""
     query = update.callback_query
     await query.answer()
     data = query.data.split("_", 2)
@@ -133,7 +118,6 @@ async def stt_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 
 
 async def tts_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Handles the TTS callback."""
     query = update.callback_query
     await query.answer()
     text = query.data.split("_", 1)[1]
@@ -143,8 +127,8 @@ async def tts_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     await context.bot.send_voice(chat_id=update.effective_chat.id, voice=open("tts.mp3", "rb"))
     os.remove("tts.mp3")
 
+
 def get_ai_handler():
-    """Returns the AI handler."""
     return [
         CommandHandler("ask", ask),
         MessageHandler(filters.TEXT & ~filters.COMMAND, answer),
