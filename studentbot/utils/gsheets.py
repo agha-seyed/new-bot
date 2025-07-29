@@ -1,4 +1,3 @@
-
 import logging
 from typing import List, Optional
 import gspread
@@ -66,10 +65,9 @@ class GoogleSheetsClient:
             raise ValueError("First column (user_id) must be a non-empty integer or string.")
     
     def add_user_to_sheet(self, sheet_name: str, user_data: List[Any]) -> None:
-        """Add a new row with user data to the sheet."""
+        """Add a new row with user data to the Scholarship sheet."""
         try:
             worksheet = self.get_worksheet(sheet_name)
-            # Assume first row is header; validate data length
             header = worksheet.row_values(1)
             self.validate_user_data(user_data, len(header))
             
@@ -82,8 +80,24 @@ class GoogleSheetsClient:
             logger.error(f"❌ Failed to add user to sheet '{sheet_name}': {str(e)}")
             raise
     
+    def add_consultation_to_sheet(self, sheet_name: str, consultation_data: List[Any]) -> None:
+        """Add a new consultation request to the StudentBotQuestions sheet."""
+        try:
+            worksheet = self.get_worksheet(sheet_name)
+            header = worksheet.row_values(1)
+            self.validate_user_data(consultation_data, len(header))
+            
+            worksheet.append_row(consultation_data, value_input_option="RAW")
+            logger.info(f"✅ Added consultation to sheet '{sheet_name}': {consultation_data[0]}")
+        except APIError as e:
+            logger.error(f"❌ API error adding consultation to sheet '{sheet_name}': {str(e)}")
+            raise
+        except Exception as e:
+            logger.error(f"❌ Failed to add consultation to sheet '{sheet_name}': {str(e)}")
+            raise
+    
     def update_user_in_sheet(self, sheet_name: str, user_id: int, user_data: List[Any]) -> None:
-        """Update a row in the sheet matching the user_id (assumed in column A)."""
+        """Update a row in the Scholarship sheet matching the user_id (in column A)."""
         try:
             worksheet = self.get_worksheet(sheet_name)
             header = worksheet.row_values(1)
@@ -106,7 +120,7 @@ class GoogleSheetsClient:
             raise
     
     def delete_user_from_sheet(self, sheet_name: str, user_id: int) -> None:
-        """Delete the row in the sheet corresponding to the user_id (in column A)."""
+        """Delete the row in the Scholarship sheet corresponding to the user_id (in column A)."""
         try:
             worksheet = self.get_worksheet(sheet_name)
             cell = worksheet.find(str(user_id), in_column=1)
@@ -116,14 +130,7 @@ class GoogleSheetsClient:
             worksheet.delete_rows(cell.row)
             logger.info(f"✅ Deleted user {user_id} from sheet '{sheet_name}'.")
         except APIError as e:
-            logger.error(f"❌ API error deleting user {user_id} from sheet '{sheet_name}': {str(e)}")
-            raise
-        except ValueError as e:
-            logger.error(f"❌ Value error deleting user {user_id}: {str(e)}")
-            raise
-        except Exception as e:
-            logger.error(f"❌ Failed to delete user {user_id} from sheet '{sheet_name}': {str(e)}")
-            raise
+            logger.error(f"❌ API error deleting user {inventorss@inventorss.com
 
 # Initialize Google Sheets client
 gsheets_client = GoogleSheetsClient()
