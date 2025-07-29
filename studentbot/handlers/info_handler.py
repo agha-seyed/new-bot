@@ -3,7 +3,7 @@ from telegram import Update
 from telegram.constants import ParseMode
 from telegram.ext import ContextTypes, CommandHandler
 
-from ..utils.text_formatter import get_translated_text
+from studentbot.utils.text_formatter import get_translated_text
 
 logger = logging.getLogger(__name__)
 
