@@ -7,6 +7,8 @@ from sqlalchemy import text
 from config import config
 from studentbot.utils.db_utils import get_user_points, get_user_level, get_leaderboard, add_points, AsyncSessionLocal
 from studentbot.utils.text_formatter import get_translated_text, sanitize_markdown
+from studentbot.utils.gsheets import gsheets_client
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -19,8 +21,12 @@ async def points(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         points = await get_user_points(user_id)
         level = await get_user_level(user_id)
         message = get_translated_text("points", lang).format(points=points, level=level)
-        await update.message.reply_text(message, parse_mode="MarkdownV2")
+        await update.message.reply_text(sanitize_markdown(message), parse_mode="MarkdownV2")
         logger.info(f"✅ Displayed points ({points}) and level ({level}) for user {user_id}")
+        await gsheets_client.add_interaction_to_sheet(
+            config.QUESTIONS_SHEET_NAME,
+            [user_id, "N/A", "N/A", 0, "N/A", "N/A", "N/A", "Viewed Points", f"Points: {points}, Level: {level}", datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")]
+        )
     except TelegramError as e:
         logger.error(f"❌ Telegram error displaying points for user {user_id}: {str(e)}")
         await update.message.reply_text(get_translated_text("error_occurred", lang))
@@ -31,6 +37,7 @@ async def points(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 async def leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Display the top 10 users by points with their levels."""
     lang = context.user_data.get("lang", "en")
+    user_id = update.effective_user.id
     
     try:
         board = await get_leaderboard()
@@ -46,7 +53,12 @@ async def leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
                 f"({sanitize_markdown(user['level'])})\n"
             )
         await update.message.reply_text(leaderboard_text, parse_mode="MarkdownV2")
-        logger.info(f"✅ Displayed leaderboard for user {update.effective_user.id}")
+        logger.info(f"✅ Displayed leaderboard for user {user_id}")
+        await gsheets_client.add_interaction_to_sheet(
+            config.QUESTIONS_SHEET_NAME,
+            [user_id, "N/A", "N/A", 0, "N/A", "N/A", "N/A", "Viewed Leaderboard", "Top 10 users", datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")]
+        )
+        await award_points_for_action(user_id, "interaction")
     except TelegramError as e:
         logger.error(f"❌ Telegram error displaying leaderboard: {str(e)}")
         await update.message.reply_text(get_translated_text("error_occurred", lang))
@@ -63,6 +75,10 @@ async def reset_leaderboard() -> None:
                     text("UPDATE users SET points = 0, score = 0, level = '🎓 Newbie'")
                 )
                 logger.info("✅ Leaderboard reset successfully")
+                await gsheets_client.add_interaction_to_sheet(
+                    config.QUESTIONS_SHEET_NAME,
+                    [0, "Admin", "Admin", 0, "N/A", "N/A", "N/A", "Reset Leaderboard", "All points and levels reset", datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")]
+                )
     except Exception as e:
         logger.error(f"❌ Error resetting leaderboard: {str(e)}")
         raise
@@ -81,6 +97,7 @@ async def reset(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await reset_leaderboard()
         await update.message.reply_text(get_translated_text("leaderboard_reset", lang))
         logger.info(f"✅ User {user_id} reset the leaderboard")
+        await award_points_for_action(user_id, "admin_action")
     except TelegramError as e:
         logger.error(f"❌ Telegram error resetting leaderboard for user {user_id}: {str(e)}")
         await update.message.reply_text(get_translated_text("error_occurred", lang))
@@ -91,12 +108,15 @@ async def reset(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 async def award_points_for_action(user_id: int, action: str) -> None:
     """Award points to a user based on their action."""
     points_map = {
-        "registration": 10,
-        "consultation": 20,
-        "file_upload": 15,
-        "feedback": 5,
-        "interaction": 2,
-        "isee_calculation": 10,
+        "registration": 10,        # For user registration
+        "consultation": 20,        # For submitting a consultation request
+        "file_upload": 15,         # For uploading a file
+        "feedback": 5,             # For providing feedback
+        "interaction": 2,          # For general interactions (e.g., viewing calendar, guide, or asking questions)
+        "isee_calculation": 10,    # For calculating ISEE
+        "tts": 5,                  # For using text-to-speech
+        "stt": 5,                  # For using speech-to-text
+        "admin_action": 5,         # For admin actions (e.g., archiving, responding, broadcasting)
     }
     
     points = points_map.get(action, 0)
@@ -104,6 +124,10 @@ async def award_points_for_action(user_id: int, action: str) -> None:
         try:
             await add_points(user_id, points)
             logger.info(f"✅ Awarded {points} points to user {user_id} for action '{action}'")
+            await gsheets_client.add_interaction_to_sheet(
+                config.QUESTIONS_SHEET_NAME,
+                [user_id, "N/A", "N/A", 0, "N/A", "N/A", "N/A", f"Action: {action}", f"Awarded {points} points", datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")]
+            )
         except Exception as e:
             logger.error(f"❌ Error awarding {points} points to user {user_id} for action '{action}': {str(e)}")
 
@@ -123,6 +147,10 @@ async def set_gamification_commands(application) -> None:
     try:
         await application.bot.set_my_commands(commands_by_lang["en"])
         logger.info("✅ Set gamification commands for English")
+        # Add commands for other languages if needed
+        for lang in languages[1:]:
+            await application.bot.set_my_commands(commands_by_lang[lang], language_code=lang)
+            logger.info(f"✅ Set gamification commands for {lang}")
     except TelegramError as e:
         logger.error(f"❌ Error setting gamification commands: {str(e)}")
 
