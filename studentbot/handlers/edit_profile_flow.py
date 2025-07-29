@@ -8,9 +8,10 @@ from telegram.ext import (
     filters,
 )
 
-from utils.text_formatter import get_translated_text
-from utils.db_utils import get_user, update_user
-from utils.gsheets import update_user_in_sheet
+from studentbot.utils.text_formatter import get_translated_text
+from studentbot.utils.db_utils import get_user, update_user
+from studentbot.utils.gsheets import update_user_in_sheet
+
 
 logger = logging.getLogger(__name__)
 
