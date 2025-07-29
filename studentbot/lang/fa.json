@@ -446,3 +446,137 @@
         "it": "😕 Impossibile recuperare le notizie ora. Riprova più tardi!"
     }
 }
+
+
+{
+    "register_menu": {
+        "en": "📋 Register",
+        "fa": "📋 ثبت‌نام",
+        "it": "📋 Registrazione"
+    },
+    "profile_menu": {
+        "en": "👤 Profile",
+        "fa": "👤 پروفایل",
+        "it": "👤 Profilo"
+    },
+    "question_menu": {
+        "en": "❓ Ask a Question",
+        "fa": "❓ پرسیدن سؤال",
+        "it": "❓ Fai una Domanda"
+    },
+    "help_menu": {
+        "en": "📖 Help",
+        "fa": "📖 راهنما",
+        "it": "📖 Aiuto"
+    },
+    "contact_menu": {
+        "en": "📩 Contact Us",
+        "fa": "📩 تماس با ما",
+        "it": "📩 Contattaci"
+    },
+    "about_menu": {
+        "en": "ℹ️ About Us",
+        "fa": "ℹ️ درباره ما",
+        "it": "ℹ️ Chi Siamo"
+    },
+    "menu_selected": {
+        "en": "✅ Selected: {command}",
+        "fa": "✅ انتخاب شد: {command}",
+        "it": "✅ Selezionato: {command}"
+    },
+    "search_again": {
+        "en": "🔍 Search Again",
+        "fa": "🔍 جستجوی دوباره",
+        "it": "🔍 Cerca di Nuovo"
+    },
+    "wind_speed": {
+        "en": "Wind Speed",
+        "fa": "سرعت باد",
+        "it": "Velocità del Vento"
+    },
+    "refresh_weather": {
+        "en": "🔄 Refresh Weather",
+        "fa": "🔄 به‌روزرسانی آب‌وهوا",
+        "it": "🔄 Aggiorna Meteo"
+    }
+}
+
+{
+    "wind_speed": {
+        "en": "Wind Speed",
+        "fa": "سرعت باد",
+        "it": "Velocità del Vento"
+    },
+    "refresh_weather": {
+        "en": "🔄 Refresh Weather",
+        "fa": "🔄 به‌روزرسانی آب‌وهوا",
+        "it": "🔄 Aggiorna Meteo"
+    },
+    "weather_error": {
+        "en": "😕 Couldn't fetch weather data. Try again later!",
+        "fa": "😕 نمی‌تونیم داده‌های آب‌وهوا رو بگیریم. بعداً دوباره امتحان کن!",
+        "it": "😕 Impossibile recuperare i dati meteo. Riprova più tardi!"
+    }
+}
+
+{
+    "search_again": {
+        "en": "🔍 Search Again",
+        "fa": "🔍 جستجوی دوباره",
+        "it": "🔍 Cerca di Nuovo"
+    },
+    "search_too_short": {
+        "en": "🚫 Search query too short! Please enter at least 3 characters.",
+        "fa": "🚫 عبارت جستجو خیلی کوتاهه! لطفاً حداقل 3 کاراکتر وارد کنید.",
+        "it": "🚫 Query di ricerca troppo breve! Inserisci almeno 3 caratteri."
+    },
+    "cached_result": {
+        "en": "📚 Found in cache!",
+        "fa": "📚 توی کش پیدا شد!",
+        "it": "📚 Trovato nella cache!"
+    },
+    "search_failed": {
+        "en": "😕 Search failed. Please try again later!",
+        "fa": "😕 جستجو ناموفق بود. بعداً دوباره امتحان کنید!",
+        "it": "😕 Ricerca fallita. Riprova più tardi!"
+    }
+}
+
+{
+    "register_menu": {
+        "en": "📋 Register",
+        "fa": "📋 ثبت‌نام",
+        "it": "📋 Registrazione"
+    },
+    "profile_menu": {
+        "en": "👤 Profile",
+        "fa": "👤 پروفایل",
+        "it": "👤 Profilo"
+    },
+    "question_menu": {
+        "en": "❓ Ask a Question",
+        "fa": "❓ پرسیدن سؤال",
+        "it": "❓ Fai una Domanda"
+    },
+    "help_menu": {
+        "en": "📖 Help",
+        "fa": "📖 راهنما",
+        "it": "📖 Aiuto"
+    },
+    "contact_menu": {
+        "en": "📩 Contact Us",
+        "fa": "📩 تماس با ما",
+        "it": "📩 Contattaci"
+    },
+    "about_menu": {
+        "en": "ℹ️ About Us",
+        "fa": "ℹ️ درباره ما",
+        "it": "ℹ️ Chi Siamo"
+    },
+    "menu_selected": {
+        "en": "✅ Selected: {command}",
+        "fa": "✅ انتخاب شد: {command}",
+        "it": "✅ Selezionato: {command}"
+    }
+}
+
