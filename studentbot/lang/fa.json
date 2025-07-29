@@ -195,3 +195,70 @@
         "it": "🔔 L'utente {user_id} ha caricato un documento: {file_name}\nURL Drive: {drive_url}"
     }
 }
+{
+    "profile_preview": {
+        "en": "Profile Preview",
+        "fa": "پیش‌نمایش پروفایل",
+        "it": "Anteprima del Profilo"
+    },
+    "first_name": {
+        "en": "First Name",
+        "fa": "نام",
+        "it": "Nome"
+    },
+    "last_name": {
+        "en": "Last Name",
+        "fa": "نام خانوادگی",
+        "it": "Cognome"
+    },
+    "age": {
+        "en": "Age",
+        "fa": "سن",
+        "it": "Età"
+    },
+    "email": {
+        "en": "Email",
+        "fa": "ایمیل",
+        "it": "Email"
+    },
+    "country": {
+        "en": "Country",
+        "fa": "کشور",
+        "it": "Paese"
+    },
+    "field_of_study": {
+        "en": "Field of Study",
+        "fa": "رشته تحصیلی",
+        "it": "Campo di Studio"
+    },
+    "preview_updated_info": {
+        "en": "🌟 Here's a preview of your updated info:",
+        "fa": "🌟 این پیش‌نمایش اطلاعات به‌روز شده شماست:",
+        "it": "🌟 Ecco un'anteprima delle tue informazioni aggiornate:"
+    },
+    "confirm_button": {
+        "en": "✅ Confirm",
+        "fa": "✅ تأیید",
+        "it": "✅ Conferma"
+    },
+    "cancel_button": {
+        "en": "❌ Cancel",
+        "fa": "❌ لغو",
+        "it": "❌ Annulla"
+    },
+    "invalid_confirmation": {
+        "en": "🚫 Please select Confirm or Cancel.",
+        "fa": "🚫 لطفاً تأیید یا لغو رو انتخاب کنید.",
+        "it": "🚫 Seleziona Conferma o Annulla."
+    },
+    "admin_profile_updated": {
+        "en": "🔔 User {first_name} {last_name} updated their profile.",
+        "fa": "🔔 کاربر {first_name} {last_name} پروفایلش رو به‌روز کرد.",
+        "it": "🔔 L'utente {first_name} {last_name} ha aggiornato il proprio profilo."
+    },
+    "edit_failed": {
+        "en": "😕 Failed to update your profile. Try again later!",
+        "fa": "😕 به‌روزرسانی پروفایلت失敗 کرد. بعداً دوباره امتحان کن!",
+        "it": "😕 Impossibile aggiornare il tuo profilo. Riprova più tardi!"
+    }
+}
