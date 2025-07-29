@@ -19,9 +19,9 @@ from telegram.ext import (
     filters,
 )
 
-from utils.text_formatter import get_translated_text
-from utils.db_utils import create_consultation_request, get_consultation_requests
-from utils.gdrive import upload_file
+from ..utils.text_formatter import get_translated_text
+from ..utils.db_utils import create_consultation_request, get_consultation_requests
+from ..utils.gdrive import upload_file
 
 # States
 (

@@ -1,10 +1,10 @@
 import json
 from sentence_transformers import util
 
-from handlers.ai_handler import model
-from utils.text_extractor import search_in_documents
-from utils.redis_utils import get_cached_answer, cache_answer
-from utils.alert_admin import notify_admin_unanswered
+from ..handlers.ai_handler import model
+from .text_extractor import search_in_documents
+from .redis_utils import get_cached_answer, cache_answer
+from .alert_admin import notify_admin_unanswered
 
 
 def search_in_json(question):

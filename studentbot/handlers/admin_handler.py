@@ -1,8 +1,8 @@
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import ContextTypes, CommandHandler
 
-from utils.db_utils import get_all_consultation_requests, update_consultation_request_status
-from utils.text_formatter import get_translated_text
+from ..utils.db_utils import get_all_consultation_requests, update_consultation_request_status
+from ..utils.text_formatter import get_translated_text
 
 
 async def admin_consultations(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:

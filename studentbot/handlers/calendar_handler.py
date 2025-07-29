@@ -2,7 +2,7 @@ import json
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes, CommandHandler, CallbackQueryHandler
 
-from utils.text_formatter import get_translated_text
+from ..utils.text_formatter import get_translated_text
 
 # Load the calendar data
 with open("studentbot/calendar.json", "r", encoding="utf-8") as f:

@@ -18,9 +18,9 @@ from telegram.ext import (
     filters,
 )
 
-from utils.text_formatter import get_translated_text
-from utils.db_utils import create_user, add_points
-from utils.gsheets import add_user_to_sheet
+from ..utils.text_formatter import get_translated_text
+from ..utils.db_utils import create_user, add_points
+from ..utils.gsheets import add_user_to_sheet
 
 # States
 FIRST_NAME, LAST_NAME, AGE, EMAIL, COUNTRY, FIELD_OF_STUDY = range(6)

@@ -1,7 +1,7 @@
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import ContextTypes
 
-from utils.text_formatter import get_translated_text
+from ..utils.text_formatter import get_translated_text
 
 
 async def menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:

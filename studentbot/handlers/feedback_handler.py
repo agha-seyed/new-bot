@@ -1,9 +1,9 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes, CommandHandler, CallbackQueryHandler
 
-from utils.text_formatter import get_translated_text
-from utils.gsheets import add_user_to_sheet
-from utils.db_utils import add_score, update_user_level
+from ..utils.text_formatter import get_translated_text
+from ..utils.gsheets import add_user_to_sheet
+from ..utils.db_utils import add_score, update_user_level
 
 
 async def feedback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
