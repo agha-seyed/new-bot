@@ -1,72 +1,129 @@
-import os
-import gspread
+
 import logging
+from typing import List, Optional
+import gspread
+from gspread.exceptions import WorksheetNotFound, APIError
 from oauth2client.service_account import ServiceAccountCredentials
+from config import config
 
 logger = logging.getLogger(__name__)
 
 # Google Sheets API Scopes
 SCOPES = [
-    "https://spreadsheets.google.com/feeds",
-    "https://www.googleapis.com/auth/drive",
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive.file",
 ]
 
-def get_worksheet(sheet_name: str):
-    """
-    Connects to the Google Spreadsheet and returns the worksheet by name.
-    Raises error if credentials or sheet not found.
-    """
-    creds_path = os.getenv("GOOGLE_CREDS")
-    spreadsheet_name = os.getenv("SPREADSHEET_NAME")
+class GoogleSheetsClient:
+    """Manages Google Sheets API operations."""
+    
+    def __init__(self):
+        self.client = None
+        self.spreadsheet = None
+    
+    def initialize(self):
+        """Initialize Google Sheets client with service account credentials."""
+        if not config.GOOGLE_CREDS:
+            logger.error("❌ GOOGLE_CREDS is not set in configuration.")
+            raise RuntimeError("Missing Google Sheets credentials.")
+        if not config.SPREADSHEET_NAME:
+            logger.error("❌ SPREADSHEET_NAME is not set in configuration.")
+            raise RuntimeError("Missing spreadsheet name.")
+        
+        try:
+            creds = ServiceAccountCredentials.from_json_keyfile_name(config.GOOGLE_CREDS, SCOPES)
+            self.client = gspread.authorize(creds)
+            self.spreadsheet = self.client.open(config.SPREADSHEET_NAME)
+            logger.info(f"✅ Google Sheets client initialized for spreadsheet: {config.SPREADSHEET_NAME}")
+        except Exception as e:
+            logger.error(f"❌ Failed to initialize Google Sheets client: {str(e)}")
+            raise
+    
+    def get_worksheet(self, sheet_name: str) -> gspread.Worksheet:
+        """Get a worksheet by name."""
+        if not self.spreadsheet:
+            logger.error("❌ Google Sheets client is not initialized.")
+            raise RuntimeError("Google Sheets client not initialized.")
+        
+        try:
+            worksheet = self.spreadsheet.worksheet(sheet_name)
+            logger.info(f"✅ Accessed worksheet: {sheet_name}")
+            return worksheet
+        except WorksheetNotFound:
+            logger.error(f"❌ Worksheet '{sheet_name}' not found in spreadsheet.")
+            raise
+        except Exception as e:
+            logger.error(f"❌ Error accessing worksheet '{sheet_name}': {str(e)}")
+            raise
+    
+    def validate_user_data(self, user_data: List[Any], expected_columns: int) -> None:
+        """Validate user data list length and content."""
+        if not isinstance(user_data, list):
+            raise ValueError("User data must be a list.")
+        if len(user_data) != expected_columns:
+            raise ValueError(f"User data must have exactly {expected_columns} columns.")
+        if not user_data[0] or not isinstance(user_data[0], (int, str)):
+            raise ValueError("First column (user_id) must be a non-empty integer or string.")
+    
+    def add_user_to_sheet(self, sheet_name: str, user_data: List[Any]) -> None:
+        """Add a new row with user data to the sheet."""
+        try:
+            worksheet = self.get_worksheet(sheet_name)
+            # Assume first row is header; validate data length
+            header = worksheet.row_values(1)
+            self.validate_user_data(user_data, len(header))
+            
+            worksheet.append_row(user_data, value_input_option="RAW")
+            logger.info(f"✅ Added user to sheet '{sheet_name}': {user_data[0]}")
+        except APIError as e:
+            logger.error(f"❌ API error adding user to sheet '{sheet_name}': {str(e)}")
+            raise
+        except Exception as e:
+            logger.error(f"❌ Failed to add user to sheet '{sheet_name}': {str(e)}")
+            raise
+    
+    def update_user_in_sheet(self, sheet_name: str, user_id: int, user_data: List[Any]) -> None:
+        """Update a row in the sheet matching the user_id (assumed in column A)."""
+        try:
+            worksheet = self.get_worksheet(sheet_name)
+            header = worksheet.row_values(1)
+            self.validate_user_data(user_data, len(header))
+            
+            cell = worksheet.find(str(user_id), in_column=1)
+            if not cell:
+                raise ValueError(f"User ID {user_id} not found in sheet '{sheet_name}'.")
+            
+            worksheet.update(f"A{cell.row}", [user_data], value_input_option="RAW")
+            logger.info(f"✅ Updated user {user_id} in sheet '{sheet_name}'.")
+        except APIError as e:
+            logger.error(f"❌ API error updating user {user_id} in sheet '{sheet_name}': {str(e)}")
+            raise
+        except ValueError as e:
+            logger.error(f"❌ Value error updating user {user_id}: {str(e)}")
+            raise
+        except Exception as e:
+            logger.error(f"❌ Failed to update user {user_id} in sheet '{sheet_name}': {str(e)}")
+            raise
+    
+    def delete_user_from_sheet(self, sheet_name: str, user_id: int) -> None:
+        """Delete the row in the sheet corresponding to the user_id (in column A)."""
+        try:
+            worksheet = self.get_worksheet(sheet_name)
+            cell = worksheet.find(str(user_id), in_column=1)
+            if not cell:
+                raise ValueError(f"User ID {user_id} not found in sheet '{sheet_name}'.")
+            
+            worksheet.delete_rows(cell.row)
+            logger.info(f"✅ Deleted user {user_id} from sheet '{sheet_name}'.")
+        except APIError as e:
+            logger.error(f"❌ API error deleting user {user_id} from sheet '{sheet_name}': {str(e)}")
+            raise
+        except ValueError as e:
+            logger.error(f"❌ Value error deleting user {user_id}: {str(e)}")
+            raise
+        except Exception as e:
+            logger.error(f"❌ Failed to delete user {user_id} from sheet '{sheet_name}': {str(e)}")
+            raise
 
-    if not creds_path or not os.path.exists(creds_path):
-        logger.error("GOOGLE_CREDS path not found.")
-        raise FileNotFoundError("Google credentials file is missing.")
-
-    if not spreadsheet_name:
-        logger.error("SPREADSHEET_NAME not set.")
-        raise RuntimeError("Spreadsheet name not specified in environment.")
-
-    try:
-        creds = ServiceAccountCredentials.from_json_keyfile_name(creds_path, SCOPES)
-        client = gspread.authorize(creds)
-        worksheet = client.open(spreadsheet_name).worksheet(sheet_name)
-        return worksheet
-    except Exception as e:
-        logger.exception(f"Error accessing worksheet '{sheet_name}': {e}")
-        raise
-
-def add_user_to_sheet(sheet_name: str, user_data: list):
-    """
-    Adds a new row with user data to the sheet.
-    """
-    try:
-        worksheet = get_worksheet(sheet_name)
-        worksheet.append_row(user_data)
-        logger.info(f"User added to sheet '{sheet_name}': {user_data}")
-    except Exception as e:
-        logger.exception(f"Failed to add user to sheet: {e}")
-
-def update_user_in_sheet(sheet_name: str, user_id: int, user_data: list):
-    """
-    Updates a row in the sheet matching the user_id (assumed in column A).
-    """
-    try:
-        worksheet = get_worksheet(sheet_name)
-        cell = worksheet.find(str(user_id))
-        worksheet.update(f"A{cell.row}", [user_data])
-        logger.info(f"User {user_id} updated in sheet '{sheet_name}'.")
-    except Exception as e:
-        logger.exception(f"Failed to update user {user_id} in sheet: {e}")
-
-def delete_user_from_sheet(sheet_name: str, user_id: int):
-    """
-    Deletes the row in the sheet corresponding to the user_id (in column A).
-    """
-    try:
-        worksheet = get_worksheet(sheet_name)
-        cell = worksheet.find(str(user_id))
-        worksheet.delete_rows(cell.row)
-        logger.info(f"User {user_id} deleted from sheet '{sheet_name}'.")
-    except Exception as e:
-        logger.exception(f"Failed to delete user {user_id} from sheet: {e}")
+# Initialize Google Sheets client
+gsheets_client = GoogleSheetsClient()
