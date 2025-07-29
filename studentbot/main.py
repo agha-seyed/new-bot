@@ -1,8 +1,13 @@
 import os
 import logging
+import asyncio
+
 from telegram import Update
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackQueryHandler
+from telegram.ext import (
+    Application, CommandHandler, MessageHandler, filters, CallbackQueryHandler
+)
 from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 import uvicorn
 
 from handlers.cmd_start import start
@@ -30,36 +35,43 @@ from handlers.calendar_handler import get_calendar_handler
 from utils.db_utils import create_users_table, create_consultation_requests_table
 from utils.scheduler import start_scheduler
 
-# Enable logging
+# Logging
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    level=logging.INFO
 )
 logger = logging.getLogger(__name__)
 
+# FastAPI App
 app = FastAPI()
-application = Application.builder().token(os.getenv("TELEGRAM_TOKEN")).build()
+
+# Telegram Application
+application = Application.builder().token(os.getenv("TELEGRAM_BOT_TOKEN")).build()
+
+@app.get("/")
+async def root():
+    return {"status": "Bot is running!"}
 
 @app.post("/webhook")
 async def webhook(request: Request):
-    """Handle webhook updates from Telegram."""
-    await application.update_queue.put(
-        Update.de_json(await request.json(), application.bot)
-    )
-    return {"ok": True}
+    try:
+        data = await request.json()
+        await application.update_queue.put(Update.de_json(data, application.bot))
+        return {"ok": True}
+    except Exception as e:
+        logger.error(f"Webhook error: {e}")
+        return JSONResponse(status_code=500, content={"error": str(e)})
 
-async def main() -> None:
-    """Start the bot."""
-    # Create the users table if it doesn't already exist
+async def setup():
     create_users_table()
     create_consultation_requests_table()
 
-    # Set webhook
     await application.bot.set_webhook(
         url=f"{os.getenv('BASE_URL')}/webhook",
         secret_token=os.getenv("WEBHOOK_SECRET"),
     )
 
-    # on different commands - answer in Telegram
+    # Register Handlers
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("profile", profile))
     application.add_handler(CommandHandler("menu", menu))
@@ -69,56 +81,46 @@ async def main() -> None:
     application.add_handler(CommandHandler("points", points))
     application.add_handler(CommandHandler("leaderboard", leaderboard))
     application.add_handler(CommandHandler("news", news))
-    for handler in get_consultation_handler():
-        application.add_handler(handler)
-    for handler in get_document_handler():
-        application.add_handler(handler)
     application.add_handler(CommandHandler("weather", weather))
-    application.add_handler(get_cost_handler())
-    for handler in get_search_handler():
-        application.add_handler(handler)
-    for handler in get_ai_handler():
-        application.add_handler(handler)
-    for handler in get_info_handler():
-        application.add_handler(handler)
-    for handler in get_arrival_guide_handler():
-        application.add_handler(handler)
-    for handler in get_admin_handler():
-        application.add_handler(handler)
+
+    for handler_group in [
+        get_consultation_handler(),
+        get_document_handler(),
+        get_search_handler(),
+        get_ai_handler(),
+        get_info_handler(),
+        get_arrival_guide_handler(),
+        get_admin_handler(),
+        get_feedback_handler(),
+        get_migration_handler(),
+        get_calendar_handler(),
+    ]:
+        for handler in handler_group:
+            application.add_handler(handler)
+
     application.add_handler(get_question_handler())
-    for handler in get_feedback_handler():
-        application.add_handler(handler)
-    for handler in get_migration_handler():
-        application.add_handler(handler)
-    for handler in get_calendar_handler():
-        application.add_handler(handler)
+
     application.add_handler(
         MessageHandler(
             filters.Regex(r"^(🗑️ Delete Profile|🗑️ حذف پروفایل|🗑️ Elimina profilo)$"),
             delete_profile_handler,
         )
     )
+
     application.add_handler(
         MessageHandler(
-            filters.Regex(r"^(🇬🇧 English|🇮🇹 Italiano|🇮🇷 فارسی)$"), language_handler
+            filters.Regex(r"^(🇬🇧 English|🇮🇹 Italiano|🇮🇷 فارسی)$"),
+            language_handler,
         )
     )
 
-    # Run the bot until the user presses Ctrl-C
     start_scheduler()
-    application.run_polling()
 
+    logger.info("✅ Bot setup completed.")
 
+# Entrypoint
 if __name__ == "__main__":
-    main()
+    asyncio.run(setup())
+    uvicorn.run("main:app", host="0.0.0.0", port=int(os.getenv("PORT", 8080)))
 else:
-    import asyncio
-
-    application.bot_data["dp"] = application
-    application.bot_data["app"] = app
-
-    loop = asyncio.get_event_loop()
-    if loop.is_running():
-        loop.create_task(main())
-    else:
-        loop.run_until_complete(main())
+    asyncio.create_task(setup())
