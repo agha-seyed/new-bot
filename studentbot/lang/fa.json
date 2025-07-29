@@ -115,3 +115,56 @@
     "challenge_completed": "🏆 تبریک! چالش {challenge_name} رو با موفقیت تموم کردی! {points} امتیاز گرفتی!",
     "no_challenges_available": "😕 هنوز چالشی برات نداریم. به‌زودی کلی چالش باحال اضافه می‌کنیم!"
 }
+
+{
+    "invalid_number": {
+        "en": "🚫 Please enter a valid number (e.g., 100.50).",
+        "fa": "🚫 لطفاً یک عدد معتبر وارد کنید (مثلاً 100.50).",
+        "it": "🚫 Inserisci un numero valido (es. 100,50)."
+    },
+    "your_total_cost": {
+        "en": "Your Total Monthly Cost",
+        "fa": "کل هزینه ماهانه شما",
+        "it": "Il tuo costo mensile totale"
+    },
+    "total_cost_in": {
+        "en": "Total Monthly Cost in",
+        "fa": "کل هزینه ماهانه در",
+        "it": "Costo mensile totale a"
+    },
+    "details": {
+        "en": "Details",
+        "fa": "جزئیات",
+        "it": "Dettagli"
+    },
+    "rent": {
+        "en": "Rent",
+        "fa": "اجاره",
+        "it": "Affitto"
+    },
+    "food": {
+        "en": "Food",
+        "fa": "غذا",
+        "it": "Cibo"
+    },
+    "transportation": {
+        "en": "Transportation",
+        "fa": "حمل‌ونقل",
+        "it": "Trasporti"
+    },
+    "invalid_city": {
+        "en": "🚫 Invalid city! Please choose from the list.",
+        "fa": "🚫 شهر نامعتبر! لطفاً از لیست انتخاب کنید.",
+        "it": "🚫 Città non valida! Scegli dall'elenco."
+    },
+    "api_key_missing": {
+        "en": "🚫 Exchange rate API key is missing. Contact the admin.",
+        "fa": "🚫 کلید API نرخ ارز وجود ندارد. با ادمین تماس بگیرید.",
+        "it": "🚫 Chiave API per il tasso di cambio mancante. Contatta l'admin."
+    },
+    "exchange_rate_failed": {
+        "en": "😕 Unable to fetch exchange rate right now. Try again later!",
+        "fa": "😕 الان نمی‌تونیم نرخ ارز رو بگیریم. بعداً دوباره امتحان کن!",
+        "it": "😕 Impossibile ottenere il tasso di cambio ora. Riprova più tardi!"
+    }
+}
