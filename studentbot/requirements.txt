@@ -10,10 +10,13 @@ gTTS
 feedparser
 schedule
 python-dotenv
-requests
 HuggingFace-hub
 sentence-transformers
+httpx
 torch --extra-index-url https://download.pytorch.org/whl/cpu
 transformers
 fastapi
 uvicorn
+asyncpg
+sqlalchemy
+redis[hiredis]

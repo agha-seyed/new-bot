@@ -1,10 +1,14 @@
 import json
+import logging
+import asyncio
 from sentence_transformers import util
 
 from ..handlers.ai_handler import model
 from .text_extractor import search_in_documents
 from .redis_utils import get_cached_answer, cache_answer
 from .alert_admin import notify_admin_unanswered
+
+logger = logging.getLogger(__name__)
 
 
 def search_in_json(question):
@@ -27,6 +31,7 @@ def search_in_json(question):
             best_match_score = score
             best_match_index = i
 
+    logger.info(f"Question: {question}, Best match score: {best_match_score}")
     if best_match_score > 0.7:
         return qna_data["questions"][best_match_index]["a"]
     else:
@@ -67,5 +72,5 @@ def smart_search(question, user_id):
         return ai_result
 
     # 4. Notify admin
-    notify_admin_unanswered(question, user_id)
+    asyncio.create_task(notify_admin_unanswered(question, user_id))
     return "I'm sorry, I don't have an answer to that question. I have notified the admin about your question."

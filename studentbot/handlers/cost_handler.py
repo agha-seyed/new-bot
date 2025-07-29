@@ -1,4 +1,5 @@
 import json
+import httpx
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import (
     ContextTypes,
@@ -87,19 +88,35 @@ async def cancel_cost_calculation(
     return ConversationHandler.END
 
 
+async def exchange_rate(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Displays the current exchange rate between EUR and IRR."""
+    lang = context.user_data.get("lang", "en")
+    api_key = os.getenv("EXCHANGE_RATE_API_KEY")
+    url = f"https://v6.exchangerate-api.com/v6/{api_key}/latest/EUR"
+    async with httpx.AsyncClient() as client:
+        response = await client.get(url)
+        data = response.json()
+    exchange_rate = data["conversion_rates"]["IRR"]
+    cost_of_living_text = f"*{get_translated_text('cost_of_living_in_italy', lang)}*\n\n"
+    cost_of_living_text += f"1 EUR = {exchange_rate} IRR"
+    await update.message.reply_text(cost_of_living_text, parse_mode="Markdown")
+
 def get_cost_handler():
     """Returns the cost of living calculation conversation handler."""
-    return ConversationHandler(
-        entry_points=[CommandHandler("cost", start_cost_calculation)],
-        states={
-            RENT: [MessageHandler(filters.TEXT & ~filters.COMMAND, rent)],
-            FOOD: [MessageHandler(filters.TEXT & ~filters.COMMAND, food)],
-            TRANSPORTATION: [
-                MessageHandler(filters.TEXT & ~filters.COMMAND, transportation)
-            ],
-            COMPARE_CITY: [
-                MessageHandler(filters.TEXT & ~filters.COMMAND, compare_city)
-            ],
-        },
-        fallbacks=[CommandHandler("cancel", cancel_cost_calculation)],
-    )
+    return [
+        ConversationHandler(
+            entry_points=[CommandHandler("cost", start_cost_calculation)],
+            states={
+                RENT: [MessageHandler(filters.TEXT & ~filters.COMMAND, rent)],
+                FOOD: [MessageHandler(filters.TEXT & ~filters.COMMAND, food)],
+                TRANSPORTATION: [
+                    MessageHandler(filters.TEXT & ~filters.COMMAND, transportation)
+                ],
+                COMPARE_CITY: [
+                    MessageHandler(filters.TEXT & ~filters.COMMAND, compare_city)
+                ],
+            },
+            fallbacks=[CommandHandler("cancel", cancel_cost_calculation)],
+        ),
+        CommandHandler("exchange_rate", exchange_rate),
+    ]
