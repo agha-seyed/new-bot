@@ -1,8 +1,8 @@
 from telegram import Update, BotCommand
 from telegram.ext import ContextTypes, CommandHandler
 
-from utils.db_utils import get_user_points, get_leaderboard, reset_leaderboard
-from utils.text_formatter import get_translated_text
+from studentbot.utils.db_utils import get_user_points, get_leaderboard
+from studentbot.utils.text_formatter import get_translated_text
 
 
 async def points(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
