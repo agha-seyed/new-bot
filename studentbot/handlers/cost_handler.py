@@ -11,7 +11,7 @@ from telegram.ext import (
     filters,
 )
 
-from ..utils.text_formatter import get_translated_text
+from studentbot.utils.text_formatter import get_translated_text
 
 # Setup logging
 logger = logging.getLogger(__name__)
