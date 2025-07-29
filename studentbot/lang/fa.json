@@ -168,3 +168,30 @@
         "it": "😕 Impossibile ottenere il tasso di cambio ora. Riprova più tardi!"
     }
 }
+{
+    "no_document_received": {
+        "en": "🚫 No document received! Please send a valid file.",
+        "fa": "🚫 هیچ فایلی دریافت نشد! لطفاً یک فایل معتبر بفرستید.",
+        "it": "🚫 Nessun documento ricevuto! Invia un file valido."
+    },
+    "invalid_file_format": {
+        "en": "🚫 Invalid file format! Allowed formats: {allowed}.",
+        "fa": "🚫 فرمت فایل نامعتبره! فرمت‌های مجاز: {allowed}.",
+        "it": "🚫 Formato file non valido! Formati consentiti: {allowed}."
+    },
+    "file_too_large": {
+        "en": "🚫 File is too large! Maximum size: {max_size} MB.",
+        "fa": "🚫 فایل خیلی بزرگه! حداکثر حجم: {max_size} مگابایت.",
+        "it": "🚫 File troppo grande! Dimensione massima: {max_size} MB."
+    },
+    "upload_failed": {
+        "en": "😕 Failed to upload your document. Try again later!",
+        "fa": "😕 آپلود فایلت失败 کرد. بعداً دوباره امتحان کن!",
+        "it": "😕 Impossibile caricare il tuo documento. Riprova più tardi!"
+    },
+    "admin_document_uploaded": {
+        "en": "🔔 User {user_id} uploaded a document: {file_name}\nDrive URL: {drive_url}",
+        "fa": "🔔 کاربر {user_id} یه مدرک آپلود کرد: {file_name}\nلینک درایو: {drive_url}",
+        "it": "🔔 L'utente {user_id} ha caricato un documento: {file_name}\nURL Drive: {drive_url}"
+    }
+}
