@@ -1,8 +1,8 @@
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import ContextTypes, CommandHandler
 
-from ..utils.db_utils import get_all_consultation_requests, update_consultation_request_status
-from ..utils.text_formatter import get_translated_text
+from studentbot.utils.db_utils import get_all_consultation_requests, update_consultation_request_status
+from studentbot.utils.text_formatter import get_translated_text
 
 
 async def admin_consultations(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -42,7 +42,6 @@ async def admin_consultations(update: Update, context: ContextTypes.DEFAULT_TYPE
 
 async def reply_to_consultation(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Replies to a consultation request."""
-    # TODO: Implement reply logic
     await update.message.reply_text("This feature is not yet implemented.")
 
 
@@ -55,7 +54,6 @@ async def archive_consultation(update: Update, context: ContextTypes.DEFAULT_TYP
 
 async def view_consultation_file(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Views the file for a consultation request."""
-    # TODO: Implement file viewing logic
     await update.message.reply_text("This feature is not yet implemented.")
 
 
