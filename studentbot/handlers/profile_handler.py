@@ -1,8 +1,6 @@
-
-
-
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import ContextTypes
+from datetime import datetime
 
 from studentbot.utils.text_formatter import get_translated_text, sanitize_markdown
 from studentbot.utils.db_utils import (
@@ -46,6 +44,15 @@ async def profile(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         points = get_user_points(user_id)
         stats = get_user_activity_stats(user_id)
 
+        # Format registration time
+        created_at = "N/A"
+        if user[7]:  # Make sure timestamp exists
+            try:
+                dt = datetime.strptime(user[7], "%Y-%m-%d %H:%M:%S")
+                created_at = dt.strftime("%Y-%m-%d %H:%M")
+            except Exception:
+                created_at = sanitize_markdown(user[7])
+
         profile_text = f"""
 👤 *{get_translated_text("first_name", lang)}:* {sanitize_markdown(user[1])}
 👥 *{get_translated_text("last_name", lang)}:* {sanitize_markdown(user[2])}
@@ -53,6 +60,7 @@ async def profile(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 📧 *{get_translated_text("email", lang)}:* {sanitize_markdown(user[4])}
 🌍 *{get_translated_text("country", lang)}:* {sanitize_markdown(user[5])}
 📚 *{get_translated_text("field_of_study", lang)}:* {sanitize_markdown(user[6])}
+🕒 *{get_translated_text("registration_time", lang)}:* {created_at}
 
 🏆 *{get_translated_text("points", lang)}:* {points}
 🚀 *{get_translated_text("level", lang)}:* {level} ({get_level_badge(level)})
