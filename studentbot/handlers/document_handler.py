@@ -3,8 +3,9 @@ import logging
 from telegram import Update
 from telegram.ext import ContextTypes, CommandHandler, MessageHandler, filters
 
-from utils.text_formatter import get_translated_text
-from utils.gdrive import upload_file
+from studentbot.utils.text_formatter import get_translated_text
+from studentbot.utils.gdrive import upload_file
+
 
 # Setup logger
 logger = logging.getLogger(__name__)
