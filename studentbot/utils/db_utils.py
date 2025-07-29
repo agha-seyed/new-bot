@@ -66,6 +66,7 @@ async def create_consultation_requests_table():
                 work_experience TEXT,
                 special_needs TEXT,
                 status VARCHAR(255) DEFAULT 'pending' CHECK (status IN ('pending', 'responded', 'archived')),
+                file_id VARCHAR(255),
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
             CREATE INDEX IF NOT EXISTS idx_consultations_user_id ON consultation_requests(user_id);
@@ -87,6 +88,24 @@ async def create_events_table():
             CREATE INDEX IF NOT EXISTS idx_events_event_type ON events(event_type);
         """))
         logger.info("✅ Events table created or verified.")
+
+async def create_isee_results_table():
+    """Create the isee_results table for storing ISEE calculations."""
+    async with engine.begin() as conn:
+        await conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS isee_results (
+                id SERIAL PRIMARY KEY,
+                user_id BIGINT REFERENCES users(id),
+                family_members INTEGER NOT NULL CHECK (family_members > 0),
+                annual_income FLOAT NOT NULL CHECK (annual_income >= 0),
+                property_value FLOAT NOT NULL CHECK (property_value >= 0),
+                isee FLOAT NOT NULL,
+                status VARCHAR(255) NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE INDEX IF NOT EXISTS idx_isee_results_user_id ON isee_results(user_id);
+        """))
+        logger.info("✅ ISEE results table created or verified.")
 
 # ------------------------ Validation Helpers ------------------------
 
@@ -309,7 +328,7 @@ async def get_leaderboard() -> List[Dict[str, Any]]:
     try:
         async with AsyncSessionLocal() as session:
             result = await session.execute(
-                text("SELECT first_name, points FROM users ORDER BY points DESC LIMIT 10")
+                text("SELECT first_name, last_name, points, level FROM users ORDER BY points DESC LIMIT 10")
             )
             return [dict(row) for row in result.mappings().all()]
     except Exception as e:
@@ -353,13 +372,14 @@ async def update_user_migration_status(user_id: int, status: int) -> None:
 async def create_consultation_request(
     user_id: int, name: str, field_of_study: str, level: str,
     gpa: float, destination_country: str, language_level: str,
-    budget: str, work_experience: str, special_needs: str, status: str = "pending"
+    budget: str, work_experience: str, special_needs: str,
+    status: str = "pending", file_id: Optional[str] = None
 ) -> None:
     """Create a new consultation request."""
     validate_positive_integer(user_id, "user_id")
     if not name:
         raise ValueError("Name cannot be empty.")
-    if gpa is not None and (gpa < 0 or gpa > 20):  # Assuming GPA is out of 20
+    if gpa is not None and (gpa < 0 or gpa > 20):
         raise ValueError("GPA must be between 0 and 20.")
     if status not in ["pending", "responded", "archived"]:
         raise ValueError("Invalid status value.")
@@ -370,10 +390,10 @@ async def create_consultation_request(
                 await session.execute(text("""
                     INSERT INTO consultation_requests
                     (user_id, name, field_of_study, level, gpa, destination_country,
-                     language_level, budget, work_experience, special_needs, status)
+                     language_level, budget, work_experience, special_needs, status, file_id)
                     VALUES
                     (:user_id, :name, :field_of_study, :level, :gpa, :destination_country,
-                     :language_level, :budget, :work_experience, :special_needs, :status)
+                     :language_level, :budget, :work_experience, :special_needs, :status, :file_id)
                 """), {
                     "user_id": user_id,
                     "name": name,
@@ -386,6 +406,7 @@ async def create_consultation_request(
                     "work_experience": work_experience,
                     "special_needs": special_needs,
                     "status": status,
+                    "file_id": file_id,
                 })
                 logger.info(f"✅ Created consultation request for user {user_id}")
     except Exception as e:
@@ -455,4 +476,37 @@ async def log_event(user_id: int, event_type: str, details: Optional[str] = None
                 logger.info(f"✅ Logged event '{event_type}' for user {user_id}")
     except Exception as e:
         logger.error(f"❌ Error logging event for user {user_id}: {str(e)}")
+        raise
+
+# ------------------------ ISEE Results ------------------------
+
+async def store_isee_result(
+    user_id: int, family_members: int, annual_income: float, 
+    property_value: float, isee: float, status: str
+) -> None:
+    """Store ISEE calculation result in the database."""
+    validate_positive_integer(user_id, "user_id")
+    validate_positive_integer(family_members, "family_members")
+    if annual_income < 0:
+        raise ValueError("Annual income cannot be negative.")
+    if property_value < 0:
+        raise ValueError("Property value cannot be negative.")
+    
+    try:
+        async with AsyncSessionLocal() as session:
+            async with session.begin():
+                await session.execute(text("""
+                    INSERT INTO isee_results (user_id, family_members, annual_income, property_value, isee, status)
+                    VALUES (:user_id, :family_members, :annual_income, :property_value, :isee, :status)
+                """), {
+                    "user_id": user_id,
+                    "family_members": family_members,
+                    "annual_income": annual_income,
+                    "property_value": property_value,
+                    "isee": isee,
+                    "status": status,
+                })
+                logger.info(f"✅ Stored ISEE result for user {user_id}")
+    except Exception as e:
+        logger.error(f"❌ Error storing ISEE result for user {user_id}: {str(e)}")
         raise
