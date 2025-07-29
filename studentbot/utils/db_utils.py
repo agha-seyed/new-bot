@@ -72,6 +72,22 @@ async def create_consultation_requests_table():
         """))
         logger.info("✅ Consultation requests table created or verified.")
 
+async def create_events_table():
+    """Create the events table for logging user activities."""
+    async with engine.begin() as conn:
+        await conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS events (
+                id SERIAL PRIMARY KEY,
+                user_id BIGINT REFERENCES users(id),
+                event_type VARCHAR(255) NOT NULL,
+                details TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE INDEX IF NOT EXISTS idx_events_user_id ON events(user_id);
+            CREATE INDEX IF NOT EXISTS idx_events_event_type ON events(event_type);
+        """))
+        logger.info("✅ Events table created or verified.")
+
 # ------------------------ Validation Helpers ------------------------
 
 def validate_email(email: str) -> bool:
@@ -134,6 +150,16 @@ async def get_user(user_id: int) -> Optional[Dict[str, Any]]:
     except Exception as e:
         logger.error(f"❌ Error getting user {user_id}: {str(e)}")
         return None
+
+async def get_all_users() -> List[Dict[str, Any]]:
+    """Get all users from the database."""
+    try:
+        async with AsyncSessionLocal() as session:
+            result = await session.execute(text("SELECT * FROM users"))
+            return [dict(row) for row in result.mappings().all()]
+    except Exception as e:
+        logger.error(f"❌ Error getting all users: {str(e)}")
+        return []
 
 async def update_user(
     user_id: int, first_name: str, last_name: str, age: int, email: str,
@@ -405,4 +431,28 @@ async def update_consultation_request_status(request_id: int, status: str) -> No
                 logger.info(f"✅ Updated consultation request {request_id} to status {status}")
     except Exception as e:
         logger.error(f"❌ Error updating consultation request {request_id}: {str(e)}")
+        raise
+
+# ------------------------ Events ------------------------
+
+async def log_event(user_id: int, event_type: str, details: Optional[str] = None) -> None:
+    """Log a user event in the events table."""
+    validate_positive_integer(user_id, "user_id")
+    if not event_type:
+        raise ValueError("Event type cannot be empty.")
+    
+    try:
+        async with AsyncSessionLocal() as session:
+            async with session.begin():
+                await session.execute(text("""
+                    INSERT INTO events (user_id, event_type, details)
+                    VALUES (:user_id, :event_type, :details)
+                """), {
+                    "user_id": user_id,
+                    "event_type": event_type,
+                    "details": details,
+                })
+                logger.info(f"✅ Logged event '{event_type}' for user {user_id}")
+    except Exception as e:
+        logger.error(f"❌ Error logging event for user {user_id}: {str(e)}")
         raise
