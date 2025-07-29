@@ -1,54 +1,132 @@
+import logging
+from typing import List
 from telegram import Update, BotCommand
 from telegram.ext import ContextTypes, CommandHandler
+from telegram.error import TelegramError
+from sqlalchemy import text
+from config import config
+from studentbot.utils.db_utils import get_user_points, get_user_level, get_leaderboard, add_points, AsyncSessionLocal
+from studentbot.utils.text_formatter import get_translated_text, sanitize_markdown
 
-from studentbot.utils.db_utils import get_user_points, get_leaderboard
-from studentbot.utils.text_formatter import get_translated_text
-
+logger = logging.getLogger(__name__)
 
 async def points(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Displays the user's points."""
-    user_id = update.message.from_user.id
-    points = get_user_points(user_id)
+    """Display the user's points and level."""
+    user_id = update.effective_user.id
     lang = context.user_data.get("lang", "en")
-    await update.message.reply_text(
-        get_translated_text("points", lang).format(points=points)
-    )
-
+    
+    try:
+        points = await get_user_points(user_id)
+        level = await get_user_level(user_id)
+        message = get_translated_text("points", lang).format(points=points, level=level)
+        await update.message.reply_text(message, parse_mode="MarkdownV2")
+        logger.info(f"✅ Displayed points ({points}) and level ({level}) for user {user_id}")
+    except TelegramError as e:
+        logger.error(f"❌ Telegram error displaying points for user {user_id}: {str(e)}")
+        await update.message.reply_text(get_translated_text("error_occurred", lang))
+    except Exception as e:
+        logger.error(f"❌ Unexpected error displaying points for user {user_id}: {str(e)}")
+        await update.message.reply_text(get_translated_text("error_occurred", lang))
 
 async def leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Displays the leaderboard."""
-    board = get_leaderboard()
+    """Display the top 10 users by points with their levels."""
     lang = context.user_data.get("lang", "en")
-    leaderboard_text = f"*{get_translated_text('leaderboard', lang)}*
-\n"
-    for i, user in enumerate(board):
-        leaderboard_text += f"{i+1}. {user[0]}: {user[1]}\n"
-    await update.message.reply_text(leaderboard_text, parse_mode="Markdown")
+    
+    try:
+        board = await get_leaderboard()
+        if not board:
+            await update.message.reply_text(get_translated_text("empty_leaderboard", lang))
+            return
+        
+        leaderboard_text = f"*{sanitize_markdown(get_translated_text('leaderboard', lang))}*\n\n"
+        for i, user in enumerate(board):
+            leaderboard_text += (
+                f"{i+1}. *{sanitize_markdown(user['first_name'])} {sanitize_markdown(user['last_name'])}* "
+                f"- {user['points']} points ({sanitize_markdown(user['level'])})\n"
+            )
+        await update.message.reply_text(leaderboard_text, parse_mode="MarkdownV2")
+        logger.info(f"✅ Displayed leaderboard for user {update.effective_user.id}")
+    except TelegramError as e:
+        logger.error(f"❌ Telegram error displaying leaderboard: {str(e)}")
+        await update.message.reply_text(get_translated_text("error_occurred", lang))
+    except Exception as e:
+        logger.error(f"❌ Unexpected error displaying leaderboard: {str(e)}")
+        await update.message.reply_text(get_translated_text("error_occurred", lang))
 
+async def reset_leaderboard() -> None:
+    """Reset all users' points and levels in the database."""
+    try:
+        async with AsyncSessionLocal() as session:
+            async with session.begin():
+                await session.execute(
+                    text("UPDATE users SET points = 0, score = 0, level = '🎓 Newbie'")
+                )
+                logger.info("✅ Leaderboard reset successfully")
+    except Exception as e:
+        logger.error(f"❌ Error resetting leaderboard: {str(e)}")
+        raise
 
 async def reset(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Resets the leaderboard (admin only)."""
-    admin_id = int(context.bot_data.get("admin_id", 0))
-    if update.message.from_user.id == admin_id:
-        reset_leaderboard()
-        await update.message.reply_text("Leaderboard reset successfully.")
-    else:
-        await update.message.reply_text("You are not authorized to perform this action.")
+    """Reset the leaderboard (admin only)."""
+    lang = context.user_data.get("lang", "en")
+    user_id = update.effective_user.id
+    
+    if not config.ADMIN_CHAT_ID or str(user_id) != config.ADMIN_CHAT_ID:
+        await update.message.reply_text(get_translated_text("unauthorized", lang))
+        logger.warning(f"⚠️ Unauthorized reset attempt by user {user_id}")
+        return
+    
+    try:
+        await reset_leaderboard()
+        await update.message.reply_text(get_translated_text("leaderboard_reset", lang))
+        logger.info(f"✅ User {user_id} reset the leaderboard")
+    except TelegramError as e:
+        logger.error(f"❌ Telegram error resetting leaderboard for user {user_id}: {str(e)}")
+        await update.message.reply_text(get_translated_text("error_occurred", lang))
+    except Exception as e:
+        logger.error(f"❌ Unexpected error resetting leaderboard for user {user_id}: {str(e)}")
+        await update.message.reply_text(get_translated_text("error_occurred", lang))
 
+async def award_points_for_action(user_id: int, action: str) -> None:
+    """Award points to a user based on their action."""
+    points_map = {
+        "registration": 10,
+        "consultation": 20,
+        "file_upload": 15,
+        "feedback": 5,
+        "interaction": 2,
+    }
+    
+    points = points_map.get(action, 0)
+    if points > 0:
+        try:
+            await add_points(user_id, points)
+            logger.info(f"✅ Awarded {points} points to user {user_id} for action '{action}'")
+        except Exception as e:
+            logger.error(f"❌ Error awarding {points} points to user {user_id} for action '{action}': {str(e)}")
 
 async def set_gamification_commands(application) -> None:
-    """Sets bot commands for gamification."""
-    commands = [
-        BotCommand("points", "View your points"),
-        BotCommand("leaderboard", "View top users"),
-        BotCommand("reset", "Reset leaderboard (admin only)"),
-    ]
-    await application.bot.set_my_commands(commands)
-
-
-# Handlers to register
+    """Set bot commands for gamification with localized descriptions."""
+    languages = ["en", "fa", "it"]
+    commands_by_lang = {}
+    
+    for lang in languages:
+        commands = [
+            BotCommand("points", get_translated_text("points_command_desc", lang)),
+            BotCommand("leaderboard", get_translated_text("leaderboard_command_desc", lang)),
+            BotCommand("reset", get_translated_text("reset_command_desc", lang)),
+        ]
+        commands_by_lang[lang] = commands
+    
+    # Set default commands (English)
+    try:
+        await application.bot.set_my_commands(commands_by_lang["en"])
+        logger.info("✅ Set gamification commands for English")
+    except TelegramError as e:
+        logger.error(f"❌ Error setting gamification commands: {str(e)}")
 
 def get_gamification_handlers():
+    """Return the list of gamification command handlers."""
     return [
         CommandHandler("points", points),
         CommandHandler("leaderboard", leaderboard),
