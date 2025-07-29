@@ -1,74 +1,101 @@
 import os
 import logging
-
+from typing import Optional
+from datetime import datetime
 from googleapiclient.discovery import build
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
+from google.oauth2.service_account import Credentials
 from googleapiclient.http import MediaFileUpload
+from config import config
 
 logger = logging.getLogger(__name__)
 
+# Google Drive API Scopes
 SCOPES = ["https://www.googleapis.com/auth/drive.file"]
 
+class GoogleDriveClient:
+    """Manages Google Drive API operations."""
+    
+    def __init__(self):
+        self.service = None
+    
+    def initialize(self):
+        """Initialize Google Drive service with service account credentials."""
+        if not config.GOOGLE_DRIVE_CREDS:
+            logger.error("❌ GOOGLE_DRIVE_CREDS is not set in configuration.")
+            raise RuntimeError("Missing Google Drive credentials.")
+        
+        try:
+            # Load credentials from JSON string (Render stores secrets as strings)
+            creds = Credentials.from_service_account_file(
+                config.GOOGLE_DRIVE_CREDS, scopes=SCOPES
+            )
+            self.service = build("drive", "v3", credentials=creds)
+            logger.info("✅ Google Drive service initialized successfully.")
+        except Exception as e:
+            logger.error(f"❌ Failed to initialize Google Drive service: {str(e)}")
+            raise
+    
+    def validate_file(self, file_path: str) -> None:
+        """Validate file existence, type, and size."""
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f"File not found: {file_path}")
+        
+        # Check file size (max 10MB)
+        max_size = 10 * 1024 * 1024  # 10MB in bytes
+        if os.path.getsize(file_path) > max_size:
+            raise ValueError(f"File size exceeds 10MB limit: {file_path}")
+        
+        # Check file extension (e.g., only allow PDF, DOC, DOCX)
+        allowed_extensions = (".pdf", ".doc", ".docx")
+        if not file_path.lower().endswith(allowed_extensions):
+            raise ValueError(f"Invalid file type. Allowed: {', '.join(allowed_extensions)}")
+    
+    def upload_file(self, file_path: str, user_id: int, original_filename: str) -> Optional[str]:
+        """Upload a file to Google Drive and return its file ID."""
+        if not self.service:
+            logger.error("❌ Google Drive service is not initialized.")
+            raise RuntimeError("Google Drive service not initialized.")
+        
+        if not config.GOOGLE_DRIVE_UPLOAD_FOLDER_ID:
+            logger.error("❌ GOOGLE_DRIVE_UPLOAD_FOLDER_ID is not set.")
+            raise RuntimeError("Missing Google Drive folder ID.")
+        
+        try:
+            # Validate inputs
+            if not isinstance(user_id, int) or user_id <= 0:
+                raise ValueError("Invalid user_id: must be a positive integer.")
+            if not original_filename:
+                raise ValueError("Original filename cannot be empty.")
+            self.validate_file(file_path)
+            
+            # Generate unique filename with timestamp
+            timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+            file_name = f"{user_id}_{timestamp}_{original_filename}"
+            
+            file_metadata = {
+                "name": file_name,
+                "parents": [config.GOOGLE_DRIVE_UPLOAD_FOLDER_ID],
+            }
+            media = MediaFileUpload(file_path, resumable=True)  # Enable resumable uploads
+            uploaded = (
+                self.service.files()
+                .create(body=file_metadata, media_body=media, fields="id")
+                .execute()
+            )
+            file_id = uploaded.get("id")
+            logger.info(f"✅ File uploaded to Google Drive: {file_id} (name: {file_name})")
+            return file_id
+        
+        except Exception as e:
+            logger.error(f"❌ Failed to upload file to Google Drive: {str(e)}")
+            raise
+    
+    def close(self):
+        """Close Google Drive service (if needed)."""
+        if self.service:
+            # googleapiclient closes connections automatically, but we log it
+            logger.info("🛑 Google Drive service closed.")
+            self.service = None
 
-def get_gdrive_service():
-    """
-    Creates and returns an authorized Google Drive service instance.
-    Requires a 'token.json' for access tokens and a 'GOOGLE_DRIVE_CREDS' env variable pointing to client_secrets.json.
-    """
-    creds = None
-    token_path = "token.json"
-    secrets_path = os.getenv("GOOGLE_DRIVE_CREDS")
-
-    if not secrets_path or not os.path.exists(secrets_path):
-        logger.error("GOOGLE_DRIVE_CREDS not set or file does not exist.")
-        raise RuntimeError("Missing Google credentials.")
-
-    if os.path.exists(token_path):
-        creds = Credentials.from_authorized_user_file(token_path, SCOPES)
-
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(secrets_path, SCOPES)
-            creds = flow.run_local_server(port=0)
-        with open(token_path, "w") as token:
-            token.write(creds.to_json())
-
-    return build("drive", "v3", credentials=creds)
-
-
-def upload_file(file_path: str, user_id: int, original_filename: str) -> str:
-    """
-    Uploads a file to a Google Drive folder defined in GOOGLE_DRIVE_UPLOAD_FOLDER_ID.
-    Returns the file ID of the uploaded file.
-    """
-    if not os.path.exists(file_path):
-        logger.error(f"File not found: {file_path}")
-        raise FileNotFoundError(f"{file_path} not found.")
-
-    folder_id = os.getenv("GOOGLE_DRIVE_UPLOAD_FOLDER_ID")
-    if not folder_id:
-        logger.error("GOOGLE_DRIVE_UPLOAD_FOLDER_ID environment variable not set.")
-        raise RuntimeError("Missing Google Drive folder ID.")
-
-    try:
-        service = get_gdrive_service()
-        file_metadata = {
-            "name": f"{user_id}_{original_filename}",
-            "parents": [folder_id],
-        }
-        media = MediaFileUpload(file_path)
-        uploaded = (
-            service.files()
-            .create(body=file_metadata, media_body=media, fields="id")
-            .execute()
-        )
-        logger.info(f"File uploaded to Google Drive: {uploaded.get('id')}")
-        return uploaded.get("id")
-
-    except Exception as e:
-        logger.exception(f"Failed to upload file to Google Drive: {e}")
-        raise
+# Initialize Google Drive client
+gdrive_client = GoogleDriveClient()
