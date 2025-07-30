@@ -9,7 +9,6 @@ from email.message import EmailMessage
 from bs4 import BeautifulSoup
 from telegram.error import TelegramError
 from studentbot.utils.gsheets import gsheets_client
-from studentbot.handlers.gamification_handler import award_points_for_action
 from studentbot import config
 
 # Setup logging
@@ -21,9 +20,9 @@ logging.basicConfig(
 
 MAX_RESULT_LENGTH = 1200
 
-
 async def send_email(to_email: str, subject: str, body: str, user_id: int, lang: str = "en") -> bool:
     """Sends an email with the given subject and body."""
+    from studentbot.handlers.gamification_handler import award_points_for_action  # Import داخل تابع
     try:
         sender = config.EMAIL_SENDER
         password = config.EMAIL_PASSWORD
@@ -38,8 +37,10 @@ async def send_email(to_email: str, subject: str, body: str, user_id: int, lang:
         msg.set_content(sanitize_markdown(body))
 
         loop = asyncio.get_event_loop()
-        await loop.run_in_executor(None, lambda: smtplib.SMTP_SSL("smtp.gmail.com", 465).login(sender, password))
-        await loop.run_in_executor(None, lambda: smtplib.SMTP_SSL("smtp.gmail.com", 465).send_message(msg))
+        smtp_server = smtplib.SMTP_SSL("smtp.gmail.com", 465)
+        await loop.run_in_executor(None, lambda: smtp_server.login(sender, password))
+        await loop.run_in_executor(None, lambda: smtp_server.send_message(msg))
+        smtp_server.quit()
         
         await award_points_for_action(user_id, "interaction")
         await gsheets_client.add_interaction_to_sheet(
@@ -63,7 +64,6 @@ async def send_email(to_email: str, subject: str, body: str, user_id: int, lang:
         logger.error(f"❌ Failed to send email to {to_email}: {str(e)}")
         return False
 
-
 async def extract_text_from_html(file_path: str) -> str:
     """Extract visible text from an HTML file."""
     try:
@@ -75,9 +75,9 @@ async def extract_text_from_html(file_path: str) -> str:
         logger.error(f"⚠️ Error reading HTML {file_path}: {str(e)}")
         return ""
 
-
 async def search_in_documents(query: str, user_id: int = None, user_email: str = None, lang: str = "en") -> str | None:
     """Searches for a query in PDFs, DOCX, TXT, and HTML files."""
+    from studentbot.handlers.gamification_handler import award_points_for_action  # Import داخل تابع
     try:
         query = query.strip().lower()
         results = []
@@ -164,3 +164,51 @@ async def search_in_documents(query: str, user_id: int = None, user_email: str =
     except Exception as e:
         logger.error(f"❌ Unexpected error in document search for query {query}: {str(e)}")
         return None
+
+def sanitize_markdown(text: str) -> str:
+    """Sanitize text for Telegram MarkdownV2 by escaping special characters."""
+    if not text:
+        return ""
+    special_chars = ['_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!']
+    for char in special_chars:
+        text = text.replace(char, f"\\{char}")
+    return text
+
+def get_translated_text(key: str, lang: str = "en") -> str:
+    """Retrieve translated text based on the language code."""
+    translations = {
+        "en": {
+            "points": "You have {points} points and your level is {level}.",
+            "points_command_desc": "Show your points and level",
+            "leaderboard": "Leaderboard",
+            "leaderboard_command_desc": "Show top 10 users by points",
+            "reset_command_desc": "Reset leaderboard (admin only)",
+            "leaderboard_reset": "Leaderboard has been reset!",
+            "unauthorized": "You are not authorized to perform this action.",
+            "error_occurred": "An error occurred. Please try again later.",
+            "search_email_subject": "Your Document Search Results",
+        },
+        "fa": {
+            "points": "شما {points} امتیاز دارید و سطح شما {level} است.",
+            "points_command_desc": "نمایش امتیازات و سطح شما",
+            "leaderboard": "جدول امتیازات",
+            "leaderboard_command_desc": "نمایش 10 کاربر برتر بر اساس امتیاز",
+            "reset_command_desc": "ریست کردن جدول امتیازات (فقط ادمین)",
+            "leaderboard_reset": "جدول امتیازات ریست شد!",
+            "unauthorized": "شما اجازه انجام این عملیات را ندارید.",
+            "error_occurred": "خطایی رخ داد. لطفاً بعداً دوباره امتحان کنید.",
+            "search_email_subject": "نتایج جستجوی اسناد شما",
+        },
+        "it": {
+            "points": "Hai {points} punti e il tuo livello è {level}.",
+            "points_command_desc": "Mostra i tuoi punti e livello",
+            "leaderboard": "Classifica",
+            "leaderboard_command_desc": "Mostra i primi 10 utenti per punti",
+            "reset_command_desc": "Reimposta la classifica (solo admin)",
+            "leaderboard_reset": "La classifica è stata reimpostata!",
+            "unauthorized": "Non sei autorizzato a eseguire questa azione.",
+            "error_occurred": "Si è verificato un errore. Riprova più tardi.",
+            "search_email_subject": "Risultati della ricerca nei documenti",
+        },
+    }
+    return translations.get(lang, translations["en"]).get(key, key)
