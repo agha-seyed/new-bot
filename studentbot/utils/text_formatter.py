@@ -8,7 +8,6 @@ import asyncio
 from email.message import EmailMessage
 from bs4 import BeautifulSoup
 from telegram.error import TelegramError
-from studentbot.utils.text_formatter import get_translated_text, sanitize_markdown
 from studentbot.utils.gsheets import gsheets_client
 from studentbot.handlers.gamification_handler import award_points_for_action
 from studentbot import config
