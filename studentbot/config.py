@@ -4,9 +4,10 @@ from logging.handlers import RotatingFileHandler
 from dotenv import load_dotenv
 from pathlib import Path
 
-# Load environment variables
+# Load environment variables if .env exists
 env_path = Path(__file__).resolve().parent.parent / '.env'
-load_dotenv(dotenv_path=env_path)
+if env_path.exists():
+    load_dotenv(dotenv_path=env_path)
 
 class Config:
     """Configuration class for the StudentBot project."""
@@ -35,6 +36,10 @@ class Config:
     EXCHANGE_RATE_API_KEY = os.getenv("EXCHANGE_RATE_API_KEY")
     HUGGINGFACE_API_KEY = os.getenv("HUGGINGFACE_API_KEY")
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
+    # Email Settings
+    EMAIL_SENDER = os.getenv("EMAIL_SENDER")
+    EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
 
     # ISEE Calculation Constants
     ISEE_COEFFICIENTS = {
@@ -67,7 +72,9 @@ class Config:
             ("GOOGLE_CREDS", Config.GOOGLE_CREDS),
             ("SHEET_ID", Config.SHEET_ID),
             ("BASE_URL", Config.BASE_URL),
-            ("ADMIN_CHAT_ID", Config.ADMIN_CHAT_ID)
+            ("ADMIN_CHAT_ID", Config.ADMIN_CHAT_ID),
+            ("EMAIL_SENDER", Config.EMAIL_SENDER),  # Added for text_formatter
+            ("EMAIL_PASSWORD", Config.EMAIL_PASSWORD)  # Added for text_formatter
         ]
         missing_vars = [name for name, value in required_vars if not value]
         if missing_vars:
@@ -91,7 +98,7 @@ class Config:
 
         # File handler with rotation
         file_handler = RotatingFileHandler(
-            Config.LOG_FILE, maxBytes=2_000_000, backupCount=5  # Increased backup count
+            Config.LOG_FILE, maxBytes=5_000_000, backupCount=5
         )
         file_formatter = logging.Formatter("[%(asctime)s] %(levelname)s - %(name)s - %(message)s")
         file_handler.setFormatter(file_formatter)
