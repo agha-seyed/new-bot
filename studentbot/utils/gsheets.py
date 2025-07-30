@@ -1,5 +1,5 @@
 import logging
-from typing import List, Optional
+from typing import List, Optional, Any  # اضافه کردن Any به imports
 import gspread
 from gspread.exceptions import WorksheetNotFound, APIError
 from oauth2client.service_account import ServiceAccountCredentials
