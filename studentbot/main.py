@@ -61,6 +61,7 @@ async def webhook(request: Request):
     try:
         data = await request.json()
         await application.update_queue.put(Update.de_json(data, application.bot))
+        logger.info("✅ Webhook received and processed")
         return {"ok": True}
     except Exception as e:
         logger.error(f"❌ Webhook error: {str(e)}")
@@ -69,13 +70,14 @@ async def webhook(request: Request):
 async def setup():
     """Setup the bot, database, and webhook."""
     try:
-        create_users_table()
-        create_consultation_requests_table()
+        await create_users_table()
+        await create_consultation_requests_table()
 
         await application.bot.set_webhook(
             url=f"{config.BASE_URL}/webhook",
             secret_token=config.WEBHOOK_SECRET,
         )
+        logger.info(f"✅ Webhook set to {config.BASE_URL}/webhook")
 
         # Register Handlers
         application.add_handler(CommandHandler("start", start))
@@ -114,7 +116,7 @@ async def setup():
 
         application.add_handler(
             MessageHandler(
-                filters.Regex(r"^(🇬🇧 English|🇮🇹 Italiano|🇮🇷 فارسی)$"),
+                filters.Regex(r"^(🇬🇧 English|🇮🇷 فارسی|🇮🇹 Italiano)$"),
                 language_handler,
             )
         )
@@ -132,14 +134,15 @@ async def startup_event():
         logger.info("🚀 Starting Telegram bot...")
         await application.initialize()
         await application.start()
+        port = int(os.getenv("PORT", 8080))
         await application.updater.start_webhook(
             listen="0.0.0.0",
-            port=int(os.getenv("PORT", 8080)),
+            port=port,
             url_path="/webhook",
             webhook_url=f"{config.BASE_URL}/webhook",
             secret_token=config.WEBHOOK_SECRET
         )
-        logger.info("✅ Bot started successfully.")
+        logger.info(f"✅ Bot started successfully, listening on port {port}.")
     except Exception as e:
         logger.error(f"❌ Error starting bot: {str(e)}")
         raise
@@ -158,7 +161,10 @@ async def shutdown_event():
 
 # Entrypoint
 if __name__ == "__main__":
+    port = int(os.getenv("PORT", 8080))
+    logger.info(f"🚀 Starting server on port {port}...")
     asyncio.run(setup())
-    uvicorn.run("studentbot.main:app", host="0.0.0.0", port=int(os.getenv("PORT", 8080)))
+    uvicorn.run("studentbot.main:app", host="0.0.0.0", port=port)
 else:
+    logger.info("🚀 Scheduling setup task for non-main execution...")
     asyncio.create_task(setup())
