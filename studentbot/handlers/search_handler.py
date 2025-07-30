@@ -5,7 +5,7 @@ from telegram.constants import ChatAction
 from telegram.ext import ContextTypes, CommandHandler, MessageHandler, filters
 from telegram.error import TelegramError
 from studentbot.utils.text_formatter import get_translated_text, sanitize_markdown
-from studentbot.utils.redis_utils import get_cached_answer, cache_answer
+from studentbot.utils.redis_utils import redis_client  # اصلاح import
 from studentbot.utils.ai_utils import smart_search
 from studentbot.utils.db_utils import save_user_search, AsyncSessionLocal
 from studentbot.utils.gsheets import gsheets_client
@@ -55,8 +55,12 @@ async def search_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             logger.warning(f"⚠️ Search query too short by user {user_id}: {query}")
             return
 
+        # Initialize Redis client if not already done
+        if not redis_client.client:
+            await redis_client.initialize()
+
         # Check Redis cache
-        cached = await get_cached_answer(query)
+        cached = await redis_client.get_cached_answer(query)
         if cached:
             keyboard = [[InlineKeyboardButton(get_translated_text("search_again", lang), callback_data="search_again")]]
             await update.message.reply_text(
@@ -105,7 +109,7 @@ async def search_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
 
         # Cache the result
-        await cache_answer(query, answer)
+        await redis_client.cache_answer(query, answer)
 
         # Save search activity
         async with AsyncSessionLocal() as session:
