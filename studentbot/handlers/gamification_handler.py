@@ -4,16 +4,16 @@ from telegram import Update, BotCommand
 from telegram.ext import ContextTypes, CommandHandler
 from telegram.error import TelegramError
 from sqlalchemy import text
-from config import config
+from studentbot import config
 from studentbot.utils.db_utils import get_user_points, get_user_level, get_leaderboard, add_points, AsyncSessionLocal
-from studentbot.utils.text_formatter import get_translated_text, sanitize_markdown
-from studentbot.utils.gsheets import gsheets_client
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
 async def points(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Display the user's points and level."""
+    from studentbot.utils.text_formatter import get_translated_text, sanitize_markdown  # Import داخل تابع
+    from studentbot.utils.gsheets import gsheets_client  # Import داخل تابع
     user_id = update.effective_user.id
     lang = context.user_data.get("lang", "en")
     
@@ -36,6 +36,8 @@ async def points(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Display the top 10 users by points with their levels."""
+    from studentbot.utils.text_formatter import get_translated_text, sanitize_markdown  # Import داخل تابع
+    from studentbot.utils.gsheets import gsheets_client  # Import داخل تابع
     lang = context.user_data.get("lang", "en")
     user_id = update.effective_user.id
     
@@ -68,6 +70,7 @@ async def leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
 
 async def reset_leaderboard() -> None:
     """Reset all users' points and levels in the database."""
+    from studentbot.utils.gsheets import gsheets_client  # Import داخل تابع
     try:
         async with AsyncSessionLocal() as session:
             async with session.begin():
@@ -85,6 +88,7 @@ async def reset_leaderboard() -> None:
 
 async def reset(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Reset the leaderboard (admin only)."""
+    from studentbot.utils.text_formatter import get_translated_text, sanitize_markdown  # Import داخل تابع
     lang = context.user_data.get("lang", "en")
     user_id = update.effective_user.id
     
@@ -107,6 +111,7 @@ async def reset(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def award_points_for_action(user_id: int, action: str) -> None:
     """Award points to a user based on their action."""
+    from studentbot.utils.gsheets import gsheets_client  # Import داخل تابع
     points_map = {
         "registration": 10,        # For user registration
         "consultation": 20,        # For submitting a consultation request
@@ -133,6 +138,7 @@ async def award_points_for_action(user_id: int, action: str) -> None:
 
 async def set_gamification_commands(application) -> None:
     """Set bot commands for gamification with localized descriptions."""
+    from studentbot.utils.text_formatter import get_translated_text  # Import داخل تابع
     languages = ["en", "fa", "it"]
     commands_by_lang = {}
     
