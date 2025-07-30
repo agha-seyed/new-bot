@@ -5,40 +5,18 @@ from typing import Optional
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes, CommandHandler, MessageHandler, filters, CallbackQueryHandler
 from telegram.error import TelegramError
-from transformers import pipeline
 from gtts import gTTS
-from sentence_transformers import SentenceTransformer, util
 from studentbot import config
 from studentbot.utils.text_formatter import get_translated_text, sanitize_markdown
-from studentbot.utils.redis_utils import redis_client  # اصلاح import
+from studentbot.utils.redis_utils import redis_client
 from studentbot.utils.ai_utils import smart_search
-from studentbot.utils.db_utils import get_user, log_event  # اصلاح import برای get_user
+from studentbot.utils.db_utils import get_user, log_event
 from studentbot.utils.gsheets import gsheets_client
 from studentbot.handlers.gamification_handler import award_points_for_action
+from studentbot.utils.models import model, initialize_models
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
-
-# Load models with lazy initialization to save memory
-model = None
-qa_pipeline = None
-stt_pipeline = None
-
-def initialize_models():
-    """Initialize AI models with error handling."""
-    global model, qa_pipeline, stt_pipeline
-    try:
-        model = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
-        qa_pipeline = pipeline(
-            "question-answering",
-            model="distilbert-base-cased-distilled-squad",
-            tokenizer="distilbert-base-cased-distilled-squad",
-        )
-        stt_pipeline = pipeline("automatic-speech-recognition", model="openai/whisper-tiny")
-        logger.info("✅ AI models initialized successfully")
-    except Exception as e:
-        logger.error(f"❌ Error initializing AI models: {str(e)}")
-        raise
 
 async def ask(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Prompt user to ask a question."""
@@ -89,6 +67,7 @@ async def answer(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         if not model:
             initialize_models()
         
+        from sentence_transformers import util  # Import inside function to avoid circular import
         question_embedding = model.encode(question, convert_to_tensor=True)
         best_match_score = 0
         best_match_index = -1
@@ -182,6 +161,7 @@ async def speech_to_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         file_path = f"stt_{user_id}.ogg"
         await file.download_to_drive(file_path)
         
+        from studentbot.utils.models import stt_pipeline, initialize_models
         if not stt_pipeline:
             initialize_models()
         
