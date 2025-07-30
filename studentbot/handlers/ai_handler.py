@@ -1,6 +1,6 @@
+import logging
 import os
 import json
-import logging
 from typing import Optional
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes, CommandHandler, MessageHandler, filters, CallbackQueryHandler
@@ -8,13 +8,13 @@ from telegram.error import TelegramError
 from transformers import pipeline
 from gtts import gTTS
 from sentence_transformers import SentenceTransformer, util
-from config import config
+from studentbot import config
 from studentbot.utils.text_formatter import get_translated_text, sanitize_markdown
-from studentbot.utils.redis_utils import get_cached_answer, cache_answer
+from studentbot.utils.redis_utils import redis_client  # اصلاح import
 from studentbot.utils.ai_utils import smart_search
-from studentbot.utils.db_utils import log_event
+from studentbot.utils.db_utils import get_user, log_event  # اصلاح import برای get_user
 from studentbot.utils.gsheets import gsheets_client
-from studentbot.gamification_handler import award_points_for_action
+from studentbot.handlers.gamification_handler import award_points_for_action
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
@@ -22,12 +22,11 @@ logger = logging.getLogger(__name__)
 # Load models with lazy initialization to save memory
 model = None
 qa_pipeline = None
-tts_pipeline = None
 stt_pipeline = None
 
 def initialize_models():
     """Initialize AI models with error handling."""
-    global model, qa_pipeline, tts_pipeline, stt_pipeline
+    global model, qa_pipeline, stt_pipeline
     try:
         model = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
         qa_pipeline = pipeline(
@@ -35,9 +34,7 @@ def initialize_models():
             model="distilbert-base-cased-distilled-squad",
             tokenizer="distilbert-base-cased-distilled-squad",
         )
-        # Use gTTS instead of heavy tts_pipeline for memory efficiency
-        # tts_pipeline = pipeline("text-to-speech", model="espnet/kan-bayashi_ljspeech_vits")
-        stt_pipeline = pipeline("automatic-speech-recognition", model="openai/whisper-tiny")  # Lighter model
+        stt_pipeline = pipeline("automatic-speech-recognition", model="openai/whisper-tiny")
         logger.info("✅ AI models initialized successfully")
     except Exception as e:
         logger.error(f"❌ Error initializing AI models: {str(e)}")
@@ -61,10 +58,14 @@ async def answer(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     question = update.message.text.strip()
     
     try:
+        # Initialize Redis client if not already done
+        if not redis_client.client:
+            await redis_client.initialize()
+        
         # Check cache
-        cached_answer = await get_cached_answer(question)
+        cached_answer = await redis_client.get_cached_answer(question)
         if cached_answer:
-            await update.message.reply_text(cached_answer.decode("utf-8"))
+            await update.message.reply_text(sanitize_markdown(cached_answer), parse_mode="MarkdownV2")
             await log_event(user_id, "question_answered", f"Cached answer for: {question}")
             logger.info(f"✅ Served cached answer for user {user_id}: {question}")
             return
@@ -85,13 +86,13 @@ async def answer(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             return
         
         # Find best match
-        questions = [q["q"] for q in qna_data["questions"]]
         if not model:
             initialize_models()
         
         question_embedding = model.encode(question, convert_to_tensor=True)
         best_match_score = 0
         best_match_index = -1
+        questions = [q["q"] for q in qna_data["questions"]]
         for i, q in enumerate(questions):
             q_embedding = model.encode(q, convert_to_tensor=True)
             score = util.pytorch_cos_sim(question_embedding, q_embedding)
@@ -101,19 +102,19 @@ async def answer(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         
         if best_match_score > 0.7:
             answer = qna_data["questions"][best_match_index]["a"]
-            await cache_answer(question, answer)
+            await redis_client.cache_answer(question, answer)
         else:
             answer = await smart_search(question, user_id)
         
         # Store interaction in Google Sheets
-        user = await db_utils.get_user(user_id)
+        user = await get_user(user_id)
         if user:
             interaction_data = [
                 user_id,
-                user["first_name"],
-                user["last_name"],
-                user["age"],
-                user["email"],
+                user.get("first_name", "N/A"),
+                user.get("last_name", "N/A"),
+                user.get("age", 0),
+                user.get("email", "N/A"),
                 user.get("field_of_study", "N/A"),
                 user.get("country", "N/A"),
                 question,
@@ -227,14 +228,14 @@ async def stt_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
             answer = await smart_search(text, user_id)
             
             # Store interaction in Google Sheets
-            user = await db_utils.get_user(user_id)
+            user = await get_user(user_id)
             if user:
                 interaction_data = [
                     user_id,
-                    user["first_name"],
-                    user["last_name"],
-                    user["age"],
-                    user["email"],
+                    user.get("first_name", "N/A"),
+                    user.get("last_name", "N/A"),
+                    user.get("age", 0),
+                    user.get("email", "N/A"),
                     user.get("field_of_study", "N/A"),
                     user.get("country", "N/A"),
                     text,
