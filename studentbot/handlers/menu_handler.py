@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import ContextTypes, CommandHandler
+from telegram.ext import ContextTypes, CommandHandler, CallbackQueryHandler
 from telegram.error import TelegramError
 from studentbot.utils.text_formatter import get_translated_text, sanitize_markdown
 from studentbot.utils.gsheets import gsheets_client
@@ -60,6 +60,10 @@ async def menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 InlineKeyboardButton(get_translated_text("language_courses_menu", lang), callback_data="language_courses")
             ],
             [
+                InlineKeyboardButton(get_translated_text("language_menu", lang), callback_data="language"),
+                InlineKeyboardButton(get_translated_text("migration_status_menu", lang), callback_data="migration_status")
+            ],
+            [
                 InlineKeyboardButton(get_translated_text("help_menu", lang), callback_data="help"),
                 InlineKeyboardButton(get_translated_text("contact_menu", lang), callback_data="contact"),
                 InlineKeyboardButton(get_translated_text("about_menu", lang), callback_data="about")
@@ -116,6 +120,8 @@ async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
             "upload": "/upload",
             "gamification": "/points",
             "feedback": "/feedback",
+            "language": "/language",
+            "migration_status": "/update_migration_status",
             "help": "/help",
             "contact": "/contact",
             "about": "/about",
@@ -170,6 +176,6 @@ def get_menu_handler():
     """Return the menu handler."""
     return [
         CommandHandler("menu", menu),
-        CommandHandler("start", menu),  # Map /start to menu
+        CommandHandler("start", menu),
         CallbackQueryHandler(menu_callback)
     ]
