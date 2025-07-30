@@ -130,7 +130,14 @@ class GoogleSheetsClient:
             worksheet.delete_rows(cell.row)
             logger.info(f"✅ Deleted user {user_id} from sheet '{sheet_name}'.")
         except APIError as e:
-            logger.error(f"❌ API error deleting user {inventorss@inventorss.com
+            logger.error(f"❌ API error deleting user {user_id} in sheet '{sheet_name}': {str(e)}")
+            raise
+        except ValueError as e:
+            logger.error(f"❌ Value error deleting user {user_id}: {str(e)}")
+            raise
+        except Exception as e:
+            logger.error(f"❌ Failed to delete user {user_id} in sheet '{sheet_name}': {str(e)}")
+            raise
 
 # Initialize Google Sheets client
 gsheets_client = GoogleSheetsClient()
