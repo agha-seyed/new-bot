@@ -8,4 +8,3 @@ from .weekly_report import start_weekly_scheduler
 from .gsheets import gsheets_client
 from .db_utils import AsyncSessionLocal, create_users_table, create_consultation_requests_table
 from .redis_utils import get_cached_answer, cache_answer
-from .scheduler import start_scheduler
