@@ -510,3 +510,4 @@ async def store_isee_result(
     except Exception as e:
         logger.error(f"❌ Error storing ISEE result for user {user_id}: {str(e)}")
         raise
+        
