@@ -1,16 +1,19 @@
 import logging
 from typing import Optional
 import redis.asyncio as redis
-from redis.asyncio import Redis
-from config import config
+from studentbot import config
 
 logger = logging.getLogger(__name__)
+logging.basicConfig(
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    level=logging.INFO
+)
 
 class RedisClient:
     """Manages Redis connection and operations for caching."""
     
     def __init__(self):
-        self.client: Optional[Redis] = None
+        self.client: Optional[redis.Redis] = None
         self.namespace = "studentbot:"
         
     async def initialize(self):
@@ -22,8 +25,9 @@ class RedisClient:
         try:
             self.client = redis.from_url(
                 config.REDIS_URL,
-                decode_responses=True,  # Automatically decode responses to strings
-                max_connections=10,     # Limit connections for Render's 512MB
+                decode_responses=True,
+                max_connections=10,
+                ssl_cert_reqs=None  # برای Upstash
             )
             # Test connection
             await self.client.ping()
@@ -72,7 +76,7 @@ class RedisClient:
             
         try:
             key = f"{self.namespace}answer:{question}"
-            await self.client.set(key, answer, ex=ttl)
+            await self.client.setex(key, ttl, answer)
             logger.info(f"✅ Cached answer for question: {question} (key: {key}, TTL: {ttl}s)")
         except Exception as e:
             logger.error(f"❌ Error caching answer for {question}: {str(e)}")
