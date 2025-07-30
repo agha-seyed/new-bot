@@ -34,6 +34,7 @@ from studentbot.handlers.migration_handler import get_migration_handler
 from studentbot.handlers.calendar_handler import get_calendar_handler
 from studentbot.utils.db_utils import create_users_table, create_consultation_requests_table
 from studentbot.utils.scheduler import start_scheduler
+from studentbot.utils.redis_utils import redis_client
 from studentbot import config
 
 # Load environment variables
@@ -56,6 +57,10 @@ application = Application.builder().token(config.TELEGRAM_BOT_TOKEN).build()
 async def root():
     return {"status": "Bot is running!"}
 
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy", "port": int(os.getenv("PORT", 8080))}
+
 @app.post("/webhook")
 async def webhook(request: Request):
     try:
@@ -68,8 +73,9 @@ async def webhook(request: Request):
         return JSONResponse(status_code=500, content={"error": str(e)})
 
 async def setup():
-    """Setup the bot, database, and webhook."""
+    """Setup the bot, database, webhook, and Redis."""
     try:
+        await redis_client.initialize()  # Initialize Redis client
         await create_users_table()
         await create_consultation_requests_table()
 
@@ -149,9 +155,10 @@ async def startup_event():
 
 @app.on_event("shutdown")
 async def shutdown_event():
-    """Stop the Telegram bot on FastAPI shutdown."""
+    """Stop the Telegram bot and Redis on FastAPI shutdown."""
     try:
         logger.info("🛑 Stopping Telegram bot...")
+        await redis_client.close()  # Close Redis connection
         await application.updater.stop()
         await application.stop()
         await application.shutdown()
