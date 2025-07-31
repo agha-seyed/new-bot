@@ -76,21 +76,17 @@ async def smart_search(question: str, user_id: int, lang: str = "fa") -> str:
     start = time.time()
     
     try:
-        # Initialize Redis if needed
         if not redis_client.client:
             await redis_client.initialize()
 
-        # 1. Check cache
         cached = await redis_client.get_cached_answer(question)
         if cached:
             await award_points_for_action(user_id, "interaction")
             await gsheets_client.add_interaction_to_sheet(
                 config.QUESTIONS_SHEET_NAME,
-                [
-                    user_id, question, cached, 0, "N/A", "N/A", "N/A",
-                    "Search (Cached)", f"Cached search result for {question}",
-                    datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
-                ]
+                [user_id, question, cached, 0, "N/A", "N/A", "N/A",
+                 "Search (Cached)", f"Cached search result for {question}",
+                 datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")]
             )
             return (
                 f"📦 *{sanitize_markdown(get_translated_text('cached_result', lang))}*\n\n"
@@ -99,19 +95,16 @@ async def smart_search(question: str, user_id: int, lang: str = "fa") -> str:
                 f"{round(time.time() - start, 2)} s"
             )
 
-        # 2. JSON Knowledge Base
         json_result = await search_in_json(question, lang)
         if json_result:
             await redis_client.cache_answer(question, json_result["answer"])
             await award_points_for_action(user_id, "search")
             await gsheets_client.add_interaction_to_sheet(
                 config.QUESTIONS_SHEET_NAME,
-                [
-                    user_id, question, json_result["answer"], json_result["score"],
-                    json_result["category"], "N/A", "N/A", "Search (JSON)",
-                    f"JSON search result for {question}",
-                    datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
-                ]
+                [user_id, question, json_result["answer"], json_result["score"],
+                 json_result["category"], "N/A", "N/A", "Search (JSON)",
+                 f"JSON search result for {question}",
+                 datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")]
             )
             return (
                 f"📚 *{sanitize_markdown(get_translated_text('json_result', lang).format(category=json_result['category']))}*\n\n"
@@ -122,7 +115,6 @@ async def smart_search(question: str, user_id: int, lang: str = "fa") -> str:
                 f"{round(time.time() - start, 2)} s"
             )
 
-        # 3. Documents
         doc_result = await search_in_documents(question, user_id=user_id, lang=lang)
         if doc_result:
             await redis_client.cache_answer(question, doc_result)
@@ -134,19 +126,16 @@ async def smart_search(question: str, user_id: int, lang: str = "fa") -> str:
                 f"{round(time.time() - start, 2)} s"
             )
 
-        # 4. Hugging Face (fallback)
         hf_result = await ask_huggingface(question)
         if hf_result:
             await redis_client.cache_answer(question, hf_result["answer"])
             await award_points_for_action(user_id, "search")
             await gsheets_client.add_interaction_to_sheet(
                 config.QUESTIONS_SHEET_NAME,
-                [
-                    user_id, question, hf_result["answer"], hf_result["score"],
-                    "HuggingFace", "N/A", "N/A", "Search (HuggingFace)",
-                    f"HuggingFace search result for {question}",
-                    datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
-                ]
+                [user_id, question, hf_result["answer"], hf_result["score"],
+                 "HuggingFace", "N/A", "N/A", "Search (HuggingFace)",
+                 f"HuggingFace search result for {question}",
+                 datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")]
             )
             return (
                 f"🤖 *{sanitize_markdown(get_translated_text('hf_result', lang))}*\n\n"
@@ -155,7 +144,6 @@ async def smart_search(question: str, user_id: int, lang: str = "fa") -> str:
                 f"{round(time.time() - start, 2)} s"
             )
 
-        # 5. Notify admin
         await notify_admin_unanswered(question, user_id, lang)
         return (
             f"❗ *{sanitize_markdown(get_translated_text('no_answer_found', lang))}*\n\n"
