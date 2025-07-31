@@ -579,4 +579,65 @@
         "it": "✅ Selezionato: {command}"
     }
 }
-
+{
+    "respond_button": {
+        "en": "📬 Respond",
+        "fa": "📬 پاسخ دادن",
+        "it": "📬 Rispondi"
+    },
+    "archive_button": {
+        "en": "🗑 Archive",
+        "fa": "🗑 آرشیو کردن",
+        "it": "🗑 Archivia"
+    },
+    "consultation_responded": {
+        "en": "✅ Consultation responded by admin.",
+        "fa": "✅ مشاوره توسط ادمین پاسخ داده شد.",
+        "it": "✅ Consulenza risposta dall'admin."
+    },
+    "consultation_archived": {
+        "en": "🗑 Consultation archived.",
+        "fa": "🗑 مشاوره آرشیو شد.",
+        "it": "🗑 Consulenza archiviata."
+    },
+    "invalid_name": {
+        "en": "🚫 Invalid name! Please enter a valid name.",
+        "fa": "🚫 نام نامعتبر! لطفاً یک نام معتبر وارد کنید.",
+        "it": "🚫 Nome non valido! Inserisci un nome valido."
+    },
+    "invalid_field_of_study": {
+        "en": "🚫 Invalid field of study! Please enter a valid field.",
+        "fa": "🚫 رشته تحصیلی نامعتبر! لطفاً یک رشته معتبر وارد کنید.",
+        "it": "🚫 Campo di studio non valido! Inserisci un campo valido."
+    },
+    "invalid_level": {
+        "en": "🚫 Invalid level! Please choose: Bachelor, Master, PhD, or Other.",
+        "fa": "🚫 مقطع نامعتبر! لطفاً یکی از این‌ها رو انتخاب کنید: کارشناسی، ارشد، دکتری، یا سایر.",
+        "it": "🚫 Livello non valido! Scegli: Laurea, Master, Dottorato, o Altro."
+    },
+    "invalid_gpa": {
+        "en": "🚫 Invalid GPA! Please enter a number between 0 and 20.",
+        "fa": "🚫 معدل نامعتبر! لطفاً یک عدد بین 0 تا 20 وارد کنید.",
+        "it": "🚫 GPA non valido! Inserisci un numero tra 0 e 20."
+    },
+    "invalid_country": {
+        "en": "🚫 Invalid country! Please enter a valid country name.",
+        "fa": "🚫 کشور نامعتبر! لطفاً یک نام کشور معتبر وارد کنید.",
+        "it": "🚫 Paese non valido! Inserisci un nome di paese valido."
+    },
+    "invalid_language_level": {
+        "en": "🚫 Invalid language level! Please choose: A1, A2, B1, B2, C1, or C2.",
+        "fa": "🚫 سطح زبان نامعتبر! لطفاً یکی از این‌ها رو انتخاب کنید: A1، A2، B1، B2، C1 یا C2.",
+        "it": "🚫 Livello linguistico non valido! Scegli: A1, A2, B1, B2, C1 o C2."
+    },
+    "invalid_budget": {
+        "en": "🚫 Invalid budget! Please enter a valid number (e.g., 1000 or 1000 USD).",
+        "fa": "🚫 بودجه نامعتبر! لطفاً یک عدد معتبر وارد کنید (مثلاً 1000 یا 1000 USD).",
+        "it": "🚫 Budget non valido! Inserisci un numero valido (es. 1000 o 1000 USD)."
+    },
+    "search_email_subject": {
+        "en": "Your Document Search Results",
+        "fa": "نتایج جستجوی اسناد شما",
+        "it": "Risultati della ricerca nei documenti"
+    }
+}
