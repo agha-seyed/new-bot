@@ -1,6 +1,6 @@
 import logging
 from typing import Optional
-from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import (
     ContextTypes,
     ConversationHandler,
@@ -9,12 +9,14 @@ from telegram.ext import (
     filters,
 )
 from telegram.error import TelegramError
-from sqlalchemy import text
-from config import config
+from sqlalchemy import select
+from datetime import datetime
+from studentbot import config
 from studentbot.utils.text_formatter import get_translated_text, sanitize_markdown
 from studentbot.utils.db_utils import AsyncSessionLocal, get_user, log_event
 from studentbot.utils.gsheets import gsheets_client
-from studentbot.gamification_handler import award_points_for_action
+from studentbot.handlers.gamification_handler import award_points_for_action
+from studentbot.utils.models_db import ISEEResult
 
 logger = logging.getLogger(__name__)
 
@@ -31,48 +33,27 @@ SCHOLARSHIP_THRESHOLDS = {
     "partial": 23000,
 }
 
-async def create_isee_results_table():
-    """Create the isee_results table for storing ISEE calculations."""
-    async with AsyncSessionLocal() as session:
-        async with session.begin():
-            await session.execute(text("""
-                CREATE TABLE IF NOT EXISTS isee_results (
-                    id SERIAL PRIMARY KEY,
-                    user_id BIGINT REFERENCES users(id),
-                    family_members INTEGER NOT NULL CHECK (family_members > 0),
-                    annual_income FLOAT NOT NULL CHECK (annual_income >= 0),
-                    property_value FLOAT NOT NULL CHECK (property_value >= 0),
-                    isee FLOAT NOT NULL,
-                    status VARCHAR(255) NOT NULL,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                );
-                CREATE INDEX IF NOT EXISTS idx_isee_results_user_id ON isee_results(user_id);
-            """))
-            logger.info("✅ ISEE results table created or verified.")
-
 async def store_isee_result(
     user_id: int, family_members: int, annual_income: float, 
     property_value: float, isee: float, status: str
 ) -> None:
-    """Store ISEE calculation result in the database."""
+    """Store ISEE calculation result in the database using ORM."""
     try:
         async with AsyncSessionLocal() as session:
             async with session.begin():
-                await session.execute(text("""
-                    INSERT INTO isee_results (user_id, family_members, annual_income, property_value, isee, status)
-                    VALUES (:user_id, :family_members, :annual_income, :property_value, :isee, :status)
-                """), {
-                    "user_id": user_id,
-                    "family_members": family_members,
-                    "annual_income": annual_income,
-                    "property_value": property_value,
-                    "isee": isee,
-                    "status": status,
-                })
+                isee_result = ISEEResult(
+                    user_id=user_id,
+                    family_members=family_members,
+                    annual_income=annual_income,
+                    property_value=property_value,
+                    isee=isee,
+                    status=status
+                )
+                session.add(isee_result)
+                await session.commit()
                 logger.info(f"✅ Stored ISEE result for user {user_id}")
     except Exception as e:
-        logger.error(f"❌ Error storing ISEE result for user {user_id}: {str(e)}")
-        raise
+        logger.error(f"❌ Error storing ISEE_HANDLER
 
 async def validate_family_members(members_text: str) -> Optional[int]:
     """Validate family members input."""
@@ -108,14 +89,20 @@ async def start_isee_calculation(update: Update, context: ContextTypes.DEFAULT_T
     """Start the ISEE calculation process."""
     user_id = update.effective_user.id
     lang = context.user_data.get("lang", "en")
-    logger.info(f"ISEE calculation started by user {user_id}")
+    logger.info(f"📊 ISEE calculation started by user {user_id}")
     
     try:
-        await update.message.reply_text(get_translated_text("family_members_prompt", lang))
+        await update.message.reply_text(
+            sanitize_markdown(get_translated_text("family_members_prompt", lang)),
+            parse_mode="MarkdownV2"
+        )
         return FAMILY_MEMBERS
     except TelegramError as e:
         logger.error(f"❌ Telegram error starting ISEE calculation for user {user_id}: {str(e)}")
-        await update.message.reply_text(get_translated_text("error_occurred", lang))
+        await update.message.reply_text(
+            sanitize_markdown(get_translated_text("error_occurred", lang)),
+            parse_mode="MarkdownV2"
+        )
         return ConversationHandler.END
 
 async def family_members(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -125,16 +112,25 @@ async def family_members(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     members = await validate_family_members(members_text)
     
     if members is None:
-        await update.message.reply_text(get_translated_text("invalid_family_members", lang))
+        await update.message.reply_text(
+            sanitize_markdown(get_translated_text("invalid_family_members", lang)),
+            parse_mode="MarkdownV2"
+        )
         return FAMILY_MEMBERS
     
     context.user_data["family_members"] = members
     try:
-        await update.message.reply_text(get_translated_text("annual_income_prompt", lang))
+        await update.message.reply_text(
+            sanitize_markdown(get_translated_text("annual_income_prompt", lang)),
+            parse_mode="MarkdownV2"
+        )
         return ANNUAL_INCOME
     except TelegramError as e:
         logger.error(f"❌ Telegram error for user {update.effective_user.id}: {str(e)}")
-        await update.message.reply_text(get_translated_text("error_occurred", lang))
+        await update.message.reply_text(
+            sanitize_markdown(get_translated_text("error_occurred", lang)),
+            parse_mode="MarkdownV2"
+        )
         return ConversationHandler.END
 
 async def annual_income(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -144,40 +140,58 @@ async def annual_income(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     income = await validate_annual_income(income_text)
     
     if income is None:
-        await update.message.reply_text(get_translated_text("invalid_annual_income", lang))
+        await update.message.reply_text(
+            sanitize_markdown(get_translated_text("invalid_annual_income", lang)),
+            parse_mode="MarkdownV2"
+        )
         return ANNUAL_INCOME
     
     context.user_data["annual_income"] = income
     try:
-        keyboard = [[get_translated_text("yes", lang), get_translated_text("no", lang)]]
-        reply_markup = ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True)
+        keyboard = [
+            [
+                InlineKeyboardButton(get_translated_text("yes", lang), callback_data="owner_yes"),
+                InlineKeyboardButton(get_translated_text("no", lang), callback_data="owner_no")
+            ]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
         await update.message.reply_text(
-            get_translated_text("is_owner_prompt", lang),
-            reply_markup=reply_markup,
+            sanitize_markdown(get_translated_text("is_owner_prompt", lang)),
+            parse_mode="MarkdownV2",
+            reply_markup=reply_markup
         )
         return IS_OWNER
     except TelegramError as e:
         logger.error(f"❌ Telegram error for user {update.effective_user.id}: {str(e)}")
-        await update.message.reply_text(get_translated_text("error_occurred", lang))
+        await update.message.reply_text(
+            sanitize_markdown(get_translated_text("error_occurred", lang)),
+            parse_mode="MarkdownV2"
+        )
         return ConversationHandler.END
 
 async def is_owner(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Handle property ownership input."""
+    query = update.callback_query
+    await query.answer()
     lang = context.user_data.get("lang", "en")
-    text = update.message.text.strip().lower()
+    choice = query.data.split("_")[1]
     
     try:
-        if text == get_translated_text("yes", lang).lower():
-            await update.message.reply_text(
-                get_translated_text("property_area_prompt", lang),
-                reply_markup=ReplyKeyboardRemove(),
+        if choice == "yes":
+            await query.message.reply_text(
+                sanitize_markdown(get_translated_text("property_area_prompt", lang)),
+                parse_mode="MarkdownV2",
+                reply_markup=ReplyKeyboardRemove()
             )
             return PROPERTY_AREA
         else:
             return await calculate_and_send_result(update, context, property_value=0)
     except TelegramError as e:
         logger.error(f"❌ Telegram error for user {update.effective_user.id}: {str(e)}")
-        await update.message.reply_text(get_translated_text("error_occurred", lang))
+        await query.message.reply_text(
+            sanitize_markdown(get_translated_text("error_occurred", lang)),
+            parse_mode="MarkdownV2"
+        )
         return ConversationHandler.END
 
 async def property_area(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -187,7 +201,10 @@ async def property_area(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     area = await validate_property_area(area_text)
     
     if area is None:
-        await update.message.reply_text(get_translated_text("invalid_property_area", lang))
+        await update.message.reply_text(
+            sanitize_markdown(get_translated_text("invalid_property_area", lang)),
+            parse_mode="MarkdownV2"
+        )
         return PROPERTY_AREA
     
     property_value = area * PROPERTY_VALUE_FACTOR * PROPERTY_VALUE_MULTIPLIER
@@ -205,7 +222,7 @@ async def calculate_and_send_result(update: Update, context: ContextTypes.DEFAUL
         isee = (income + property_value) / coefficient
         status = get_scholarship_status(isee, lang)
         
-        # Store result in database
+        # Store result in database using ORM
         await store_isee_result(user_id, members, income, property_value, isee, status)
         
         # Store in Google Sheets (StudentBotQuestions)
@@ -213,29 +230,28 @@ async def calculate_and_send_result(update: Update, context: ContextTypes.DEFAUL
         if user:
             isee_data = [
                 user_id,
-                user["first_name"],
-                user["last_name"],
-                user["age"],
-                user["email"],
-                user.get("field_of_study", "N/A"),
-                user.get("country", "N/A"),
-                f"ISEE Calculation: {isee:.2f}",  # Question/Field/Income
-                f"Status: {status}, Members: {members}, Income: {income}, Property: {property_value}",  # Answer/Details/Assets
+                user.first_name,
+                user.last_name or "N/A",
+                user.age or 0,
+                user.email or "N/A",
+                user.field_of_study or "N/A",
+                user.country or "N/A",
+                f"ISEE Calculation: {isee:.2f}",
+                f"Status: {status}, Members: {members}, Income: {income}, Property: {property_value}",
                 datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
             ]
-            await gsheets_client.add_consultation_to_sheet("StudentBotQuestions", isee_data)
+            await gsheets_client.add_consultation_to_sheet(config.QUESTIONS_SHEET_NAME, isee_data)
         
         # Award points for ISEE calculation
         await award_points_for_action(user_id, "isee_calculation")
         await log_event(user_id, "isee_calculated", f"ISEE: {isee:.2f}, Status: {status}")
         
         # Send result to user
-        message = f"""*ISEE:* {isee:.2f}
-{status}"""
+        message = f"""📊 *ISEE:* {isee:.2f}\n{status}"""
         await update.message.reply_text(
             message,
             parse_mode="MarkdownV2",
-            reply_markup=ReplyKeyboardRemove(),
+            reply_markup=ReplyKeyboardRemove()
         )
         logger.info(f"✅ ISEE calculated: {isee:.2f} for user {user_id}")
         
@@ -246,11 +262,17 @@ async def calculate_and_send_result(update: Update, context: ContextTypes.DEFAUL
     
     except TelegramError as e:
         logger.error(f"❌ Telegram error sending ISEE result for user {user_id}: {str(e)}")
-        await update.message.reply_text(get_translated_text("error_occurred", lang))
+        await update.message.reply_text(
+            sanitize_markdown(get_translated_text("error_occurred", lang)),
+            parse_mode="MarkdownV2"
+        )
         return ConversationHandler.END
     except Exception as e:
         logger.error(f"❌ Unexpected error calculating ISEE for user {user_id}: {str(e)}")
-        await update.message.reply_text(get_translated_text("error_occurred", lang))
+        await update.message.reply_text(
+            sanitize_markdown(get_translated_text("error_occurred", lang)),
+            parse_mode="MarkdownV2"
+        )
         return ConversationHandler.END
 
 def get_scholarship_status(isee: float, lang: str) -> str:
@@ -270,8 +292,9 @@ async def cancel_isee_calculation(update: Update, context: ContextTypes.DEFAULT_
     user_id = update.effective_user.id
     try:
         await update.message.reply_text(
-            get_translated_text("isee_calculation_cancelled", lang),
-            reply_markup=ReplyKeyboardRemove(),
+            sanitize_markdown(get_translated_text("isee_calculation_cancelled", lang)),
+            parse_mode="MarkdownV2",
+            reply_markup=ReplyKeyboardRemove()
         )
         context.user_data.clear()
         context.user_data["lang"] = lang  # Preserve language
@@ -288,7 +311,7 @@ def get_isee_handler():
         states={
             FAMILY_MEMBERS: [MessageHandler(filters.TEXT & ~filters.COMMAND, family_members)],
             ANNUAL_INCOME: [MessageHandler(filters.TEXT & ~filters.COMMAND, annual_income)],
-            IS_OWNER: [MessageHandler(filters.TEXT & ~filters.COMMAND, is_owner)],
+            IS_OWNER: [CallbackQueryHandler(is_owner, pattern="^owner_")],
             PROPERTY_AREA: [MessageHandler(filters.TEXT & ~filters.COMMAND, property_area)],
         },
         fallbacks=[CommandHandler("cancel", cancel_isee_calculation)],
