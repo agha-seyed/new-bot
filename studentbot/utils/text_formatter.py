@@ -7,7 +7,7 @@ import smtplib
 from email.message import EmailMessage
 from pathlib import Path
 from typing import Optional
-import fitz  # PyMuPDF
+import fitz
 import docx
 from bs4 import BeautifulSoup
 from telegram.error import TelegramError
@@ -18,7 +18,7 @@ from studentbot import config
 logger = logging.getLogger(__name__)
 
 MAX_RESULT_LENGTH = 1200
-MAX_TELEGRAM_MESSAGE_LENGTH = 4096
+MAX_TELEGRAM_MESSAGE_LENGTH = 4000
 MAX_EMAIL_BODY_LENGTH = 4000
 
 async def send_email(to_email: str, subject: str, body: str, user_id: int, lang: str = "en") -> bool:
@@ -90,6 +90,7 @@ async def search_in_documents(query: str, user_id: int = None, user_email: str =
             "HTML": "studentbot/assets/html",
         }
 
+        loop = asyncio.get_event_loop()
         for file_type, dir_path in directories.items():
             if not os.path.exists(dir_path):
                 continue
@@ -98,16 +99,18 @@ async def search_in_documents(query: str, user_id: int = None, user_email: str =
                 file_path = os.path.join(dir_path, filename)
                 try:
                     if file_type == "PDF" and filename.endswith(".pdf"):
-                        doc = await asyncio.get_event_loop().run_in_executor(None, fitz.open, file_path)
-                        for page in doc:
-                            text = page.get_text().lower()
-                            if query in text:
-                                snippet = text[text.find(query):text.find(query)+MAX_RESULT_LENGTH]
-                                results.append(f"📄 [{file_type}] {sanitize_markdown(filename)}:\n{sanitize_markdown(snippet)}")
-                        doc.close()
+                        doc = await loop.run_in_executor(None, fitz.open, file_path)
+                        try:
+                            for page in doc:
+                                text = page.get_text().lower()
+                                if query in text:
+                                    snippet = text[max(0, text.find(query)-50):text.find(query)+MAX_RESULT_LENGTH]
+                                    results.append(f"📄 [{file_type}] {sanitize_markdown(filename)}:\n{sanitize_markdown(snippet)}")
+                        finally:
+                            doc.close()
 
                     elif file_type == "Word" and filename.endswith(".docx"):
-                        doc = await asyncio.get_event_loop().run_in_executor(None, docx.Document, file_path)
+                        doc = await loop.run_in_executor(None, docx.Document, file_path)
                         for para in doc.paragraphs:
                             text = para.text.strip().lower()
                             if query in text:
@@ -123,7 +126,7 @@ async def search_in_documents(query: str, user_id: int = None, user_email: str =
                         text = await extract_text_from_html(file_path)
                         text = text.lower()
                         if query in text:
-                            snippet = text[text.find(query):text.find(query)+MAX_RESULT_LENGTH]
+                            snippet = text[max(0, text.find(query)-50):text.find(query)+MAX_RESULT_LENGTH]
                             results.append(f"🌐 [{file_type}] {sanitize_markdown(filename)}:\n{sanitize_markdown(snippet)}")
                 except Exception as e:
                     logger.error(f"⚠️ Error processing {file_type} file {filename}: {str(e)}")
@@ -136,7 +139,7 @@ async def search_in_documents(query: str, user_id: int = None, user_email: str =
             final_result = final_result[:MAX_TELEGRAM_MESSAGE_LENGTH-3] + "..."
 
         if user_id:
-            await award_points_for_action(user_id, "search")
+            await award_points_for_action(user_id, "interaction")
             await gsheets_client.add_interaction_to_sheet(
                 config.QUESTIONS_SHEET_NAME,
                 [
@@ -148,7 +151,7 @@ async def search_in_documents(query: str, user_id: int = None, user_email: str =
                     user_email or "N/A",
                     "N/A",
                     "Document Search",
-                    f"Document search result for {query}",
+                    f"Search query: {query}",
                     datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
                 ]
             )
@@ -158,14 +161,14 @@ async def search_in_documents(query: str, user_id: int = None, user_email: str =
             body = final_result[:MAX_EMAIL_BODY_LENGTH]
             await send_email(user_email, subject, body, user_id, lang)
 
-        logger.info(f"✅ Document search for query: {query}, found {len(results)} results")
+        logger.info(f"✅ Search for '{query}' found {len(results)} results")
         return final_result
     except Exception as e:
-        logger.error(f"❌ Unexpected error in document search for query {query}: {str(e)}")
+        logger.error(f"❌ Error in document search for '{query}': {str(e)}")
         return get_translated_text("search_failed", lang)
 
 def sanitize_markdown(text: str) -> str:
-    """Sanitize text for Telegram MarkdownV2 by escaping special characters."""
+    """Sanitize text for Telegram MarkdownV2."""
     if not text:
         return ""
     special_chars = ['_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!']
@@ -174,7 +177,7 @@ def sanitize_markdown(text: str) -> str:
     return text
 
 def get_translated_text(key: str, lang: str = "en") -> str:
-    """Retrieve translated text from JSON files based on the language code."""
+    """Retrieve translated text from JSON files."""
     lang_dir = Path(__file__).resolve().parent.parent / "lang"
     lang_file = lang_dir / f"{lang}.json"
     
@@ -186,7 +189,6 @@ def get_translated_text(key: str, lang: str = "en") -> str:
         with open(lang_file, "r", encoding="utf-8") as f:
             translations = json.load(f)
         
-        # Handle nested translations
         result = translations
         for part in key.split("."):
             result = result.get(part, part)
@@ -196,4 +198,4 @@ def get_translated_text(key: str, lang: str = "en") -> str:
         return result if isinstance(result, str) else key
     except Exception as e:
         logger.error(f"❌ Error loading translations for {lang}: {str(e)}")
-        return key  # Fallback to key if translation fails
+        return key
