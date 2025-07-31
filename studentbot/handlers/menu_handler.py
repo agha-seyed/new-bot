@@ -8,71 +8,63 @@ from studentbot.utils.gsheets import gsheets_client
 from studentbot.handlers.gamification_handler import award_points_for_action
 from studentbot import config
 
-# Setup logging
 logger = logging.getLogger(__name__)
-logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    level=logging.INFO
-)
-
 
 async def menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Display the main menu with all available features."""
+    """Display the main menu with a modern, horizontal layout."""
     user_id = update.effective_user.id
     lang = context.user_data.get("lang", "en")
     
     try:
         keyboard = [
             [
-                InlineKeyboardButton(get_translated_text("register_menu", lang), callback_data="register"),
-                InlineKeyboardButton(get_translated_text("profile_menu", lang), callback_data="profile")
+                InlineKeyboardButton(f"📝 {get_translated_text('register_menu', lang)}", callback_data="register"),
+                InlineKeyboardButton(f"👤 {get_translated_text('profile_menu', lang)}", callback_data="profile"),
+                InlineKeyboardButton(f"❓ {get_translated_text('question_menu', lang)}", callback_data="question"),
             ],
             [
-                InlineKeyboardButton(get_translated_text("question_menu", lang), callback_data="question"),
-                InlineKeyboardButton(get_translated_text("search_menu", lang), callback_data="search")
+                InlineKeyboardButton(f"🔍 {get_translated_text('search_menu', lang)}", callback_data="search"),
+                InlineKeyboardButton(f"📰 {get_translated_text('news_menu', lang)}", callback_data="news"),
+                InlineKeyboardButton(f"☁️ {get_translated_text('weather_menu', lang)}", callback_data="weather"),
             ],
             [
-                InlineKeyboardButton(get_translated_text("news_menu", lang), callback_data="news"),
-                InlineKeyboardButton(get_translated_text("weather_menu", lang), callback_data="weather")
+                InlineKeyboardButton(f"💰 {get_translated_text('cost_of_living_menu', lang)}", callback_data="cost"),
+                InlineKeyboardButton(f"📤 {get_translated_text('upload_document_menu', lang)}", callback_data="upload"),
+                InlineKeyboardButton(f"🎮 {get_translated_text('gamification_menu', lang)}", callback_data="gamification"),
             ],
             [
-                InlineKeyboardButton(get_translated_text("cost_of_living_menu", lang), callback_data="cost"),
-                InlineKeyboardButton(get_translated_text("upload_document_menu", lang), callback_data="upload")
+                InlineKeyboardButton(f"📢 {get_translated_text('feedback_menu', lang)}", callback_data="feedback"),
+                InlineKeyboardButton(f"🎓 {get_translated_text('scholarships_menu', lang)}", callback_data="scholarships"),
+                InlineKeyboardButton(f"🌍 {get_translated_text('migration_menu', lang)}", callback_data="migration"),
             ],
             [
-                InlineKeyboardButton(get_translated_text("gamification_menu", lang), callback_data="gamification"),
-                InlineKeyboardButton(get_translated_text("feedback_menu", lang), callback_data="feedback")
+                InlineKeyboardButton(f"🏠 {get_translated_text('housing_menu', lang)}", callback_data="housing"),
+                InlineKeyboardButton(f"📄 {get_translated_text('documents_menu', lang)}", callback_data="documents"),
+                InlineKeyboardButton(f"🗣️ {get_translated_text('consulting_menu', lang)}", callback_data="consulting"),
             ],
             [
-                InlineKeyboardButton(get_translated_text("scholarships_menu", lang), callback_data="scholarships"),
-                InlineKeyboardButton(get_translated_text("migration_menu", lang), callback_data="migration")
+                InlineKeyboardButton(f"📊 {get_translated_text('isee_menu', lang)}", callback_data="isee"),
+                InlineKeyboardButton(f"⏰ {get_translated_text('deadlines_menu', lang)}", callback_data="deadlines"),
+                InlineKeyboardButton(f"🗣️ {get_translated_text('language_courses_menu', lang)}", callback_data="language_courses"),
             ],
             [
-                InlineKeyboardButton(get_translated_text("housing_menu", lang), callback_data="housing"),
-                InlineKeyboardButton(get_translated_text("documents_menu", lang), callback_data="documents")
+                InlineKeyboardButton(f"🌐 {get_translated_text('language_menu', lang)}", callback_data="language"),
+                InlineKeyboardButton(f"📋 {get_translated_text('migration_status_menu', lang)}", callback_data="migration_status"),
+                InlineKeyboardButton(f"❔ {get_translated_text('help_menu', lang)}", callback_data="help"),
             ],
             [
-                InlineKeyboardButton(get_translated_text("consulting_menu", lang), callback_data="consulting"),
-                InlineKeyboardButton(get_translated_text("isee_menu", lang), callback_data="isee")
-            ],
-            [
-                InlineKeyboardButton(get_translated_text("deadlines_menu", lang), callback_data="deadlines"),
-                InlineKeyboardButton(get_translated_text("language_courses_menu", lang), callback_data="language_courses")
-            ],
-            [
-                InlineKeyboardButton(get_translated_text("language_menu", lang), callback_data="language"),
-                InlineKeyboardButton(get_translated_text("migration_status_menu", lang), callback_data="migration_status")
-            ],
-            [
-                InlineKeyboardButton(get_translated_text("help_menu", lang), callback_data="help"),
-                InlineKeyboardButton(get_translated_text("contact_menu", lang), callback_data="contact"),
-                InlineKeyboardButton(get_translated_text("about_menu", lang), callback_data="about")
+                InlineKeyboardButton(f"📞 {get_translated_text('contact_menu', lang)}", callback_data="contact"),
+                InlineKeyboardButton(f"ℹ️ {get_translated_text('about_menu', lang)}", callback_data="about"),
             ]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         
+        welcome_message = (
+            f"🎉 *{sanitize_markdown(get_translated_text('welcome_message', lang))}*\n\n"
+            f"{sanitize_markdown(get_translated_text('main_menu', lang))}"
+        )
         await update.message.reply_text(
-            sanitize_markdown(get_translated_text("main_menu", lang)),
+            welcome_message,
             parse_mode="MarkdownV2",
             reply_markup=reply_markup
         )
@@ -80,18 +72,8 @@ async def menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await award_points_for_action(user_id, "interaction")
         await gsheets_client.add_interaction_to_sheet(
             config.QUESTIONS_SHEET_NAME,
-            [
-                user_id,
-                "N/A",
-                "N/A",
-                0,
-                "N/A",
-                "N/A",
-                "N/A",
-                "Menu Display",
-                "Displayed main menu",
-                datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
-            ]
+            [user_id, "N/A", "N/A", 0, "N/A", "N/A", "N/A", "Menu Display",
+             "Displayed main menu", datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")]
         )
     except TelegramError as e:
         logger.error(f"❌ Telegram error displaying menu for user {user_id}: {str(e)}")
@@ -99,7 +81,6 @@ async def menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             sanitize_markdown(get_translated_text("error_occurred", lang)),
             parse_mode="MarkdownV2"
         )
-
 
 async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Handle menu callback actions."""
@@ -145,18 +126,8 @@ async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
             await award_points_for_action(user_id, "interaction")
             await gsheets_client.add_interaction_to_sheet(
                 config.QUESTIONS_SHEET_NAME,
-                [
-                    user_id,
-                    "N/A",
-                    "N/A",
-                    0,
-                    "N/A",
-                    "N/A",
-                    "N/A",
-                    "Menu Selection",
-                    f"Selected {query.data}",
-                    datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
-                ]
+                [user_id, "N/A", "N/A", 0, "N/A", "N/A", "N/A", "Menu Selection",
+                 f"Selected {query.data}", datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")]
             )
         else:
             await query.edit_message_text(
@@ -170,7 +141,6 @@ async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
             sanitize_markdown(get_translated_text("error_occurred", lang)),
             parse_mode="MarkdownV2"
         )
-
 
 def get_menu_handler():
     """Return the menu handler."""
