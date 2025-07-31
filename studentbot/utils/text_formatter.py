@@ -1,46 +1,46 @@
 import os
+import json
 import logging
 from datetime import datetime
+import asyncio
+import smtplib
+from email.message import EmailMessage
+from pathlib import Path
+from typing import Optional
 import fitz  # PyMuPDF
 import docx
-import smtplib
-import asyncio
-from email.message import EmailMessage
 from bs4 import BeautifulSoup
 from telegram.error import TelegramError
 from studentbot.utils.gsheets import gsheets_client
+from studentbot.handlers.gamification_handler import award_points_for_action
 from studentbot import config
 
-# Setup logging
 logger = logging.getLogger(__name__)
-logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    level=logging.INFO
-)
 
 MAX_RESULT_LENGTH = 1200
+MAX_TELEGRAM_MESSAGE_LENGTH = 4096
+MAX_EMAIL_BODY_LENGTH = 4000
 
 async def send_email(to_email: str, subject: str, body: str, user_id: int, lang: str = "en") -> bool:
-    """Sends an email with the given subject and body."""
-    from studentbot.handlers.gamification_handler import award_points_for_action  # Import داخل تابع
+    """Send an email with the given subject and body."""
     try:
-        sender = config.EMAIL_SENDER
-        password = config.EMAIL_PASSWORD
-        if not sender or not password:
+        if not config.EMAIL_SENDER or not config.EMAIL_PASSWORD:
             logger.error("❌ EMAIL_SENDER or EMAIL_PASSWORD not set.")
             return False
 
         msg = EmailMessage()
-        msg["From"] = sender
+        msg["From"] = config.EMAIL_SENDER
         msg["To"] = to_email
         msg["Subject"] = sanitize_markdown(subject)
-        msg.set_content(sanitize_markdown(body))
+        msg.set_content(sanitize_markdown(body[:MAX_EMAIL_BODY_LENGTH]))
 
         loop = asyncio.get_event_loop()
         smtp_server = smtplib.SMTP_SSL("smtp.gmail.com", 465)
-        await loop.run_in_executor(None, lambda: smtp_server.login(sender, password))
-        await loop.run_in_executor(None, lambda: smtp_server.send_message(msg))
-        smtp_server.quit()
+        try:
+            await loop.run_in_executor(None, lambda: smtp_server.login(config.EMAIL_SENDER, config.EMAIL_PASSWORD))
+            await loop.run_in_executor(None, lambda: smtp_server.send_message(msg))
+        finally:
+            smtp_server.quit()
         
         await award_points_for_action(user_id, "interaction")
         await gsheets_client.add_interaction_to_sheet(
@@ -75,13 +75,14 @@ async def extract_text_from_html(file_path: str) -> str:
         logger.error(f"⚠️ Error reading HTML {file_path}: {str(e)}")
         return ""
 
-async def search_in_documents(query: str, user_id: int = None, user_email: str = None, lang: str = "en") -> str | None:
-    """Searches for a query in PDFs, DOCX, TXT, and HTML files."""
-    from studentbot.handlers.gamification_handler import award_points_for_action  # Import داخل تابع
+async def search_in_documents(query: str, user_id: int = None, user_email: str = None, lang: str = "en") -> Optional[str]:
+    """Search for a query in PDFs, DOCX, TXT, and HTML files."""
     try:
         query = query.strip().lower()
+        if len(query) < 3:
+            return get_translated_text("search_too_short", lang)
+        
         results = []
-
         directories = {
             "PDF": "studentbot/assets/pdfs",
             "Word": "studentbot/assets/docs",
@@ -95,47 +96,45 @@ async def search_in_documents(query: str, user_id: int = None, user_email: str =
 
             for filename in os.listdir(dir_path):
                 file_path = os.path.join(dir_path, filename)
-                if file_type == "PDF" and filename.endswith(".pdf"):
-                    try:
+                try:
+                    if file_type == "PDF" and filename.endswith(".pdf"):
                         doc = await asyncio.get_event_loop().run_in_executor(None, fitz.open, file_path)
                         for page in doc:
                             text = page.get_text().lower()
                             if query in text:
                                 snippet = text[text.find(query):text.find(query)+MAX_RESULT_LENGTH]
                                 results.append(f"📄 [{file_type}] {sanitize_markdown(filename)}:\n{sanitize_markdown(snippet)}")
-                    except Exception as e:
-                        logger.error(f"⚠️ PDF Error {filename}: {str(e)}")
+                        doc.close()
 
-                elif file_type == "Word" and filename.endswith(".docx"):
-                    try:
+                    elif file_type == "Word" and filename.endswith(".docx"):
                         doc = await asyncio.get_event_loop().run_in_executor(None, docx.Document, file_path)
                         for para in doc.paragraphs:
                             text = para.text.strip().lower()
                             if query in text:
                                 results.append(f"📝 [{file_type}] {sanitize_markdown(filename)}:\n{sanitize_markdown(text[:MAX_RESULT_LENGTH])}")
-                    except Exception as e:
-                        logger.error(f"⚠️ DOCX Error {filename}: {str(e)}")
 
-                elif file_type == "Text" and filename.endswith(".txt"):
-                    try:
+                    elif file_type == "Text" and filename.endswith(".txt"):
                         with open(file_path, "r", encoding="utf-8") as f:
                             for line in f:
                                 if query in line.lower():
                                     results.append(f"📜 [{file_type}] {sanitize_markdown(filename)}:\n{sanitize_markdown(line.strip()[:MAX_RESULT_LENGTH])}")
-                    except Exception as e:
-                        logger.error(f"⚠️ TXT Error {filename}: {str(e)}")
 
-                elif file_type == "HTML" and filename.endswith(".html"):
-                    text = await extract_text_from_html(file_path)
-                    text = text.lower()
-                    if query in text:
-                        snippet = text[text.find(query):text.find(query)+MAX_RESULT_LENGTH]
-                        results.append(f"🌐 [{file_type}] {sanitize_markdown(filename)}:\n{sanitize_markdown(snippet)}")
+                    elif file_type == "HTML" and filename.endswith(".html"):
+                        text = await extract_text_from_html(file_path)
+                        text = text.lower()
+                        if query in text:
+                            snippet = text[text.find(query):text.find(query)+MAX_RESULT_LENGTH]
+                            results.append(f"🌐 [{file_type}] {sanitize_markdown(filename)}:\n{sanitize_markdown(snippet)}")
+                except Exception as e:
+                    logger.error(f"⚠️ Error processing {file_type} file {filename}: {str(e)}")
 
         if not results:
-            return None
+            return get_translated_text("search_failed", lang)
 
         final_result = "\n\n---\n\n".join(results)
+        if len(final_result) > MAX_TELEGRAM_MESSAGE_LENGTH:
+            final_result = final_result[:MAX_TELEGRAM_MESSAGE_LENGTH-3] + "..."
+
         if user_id:
             await award_points_for_action(user_id, "search")
             await gsheets_client.add_interaction_to_sheet(
@@ -156,14 +155,14 @@ async def search_in_documents(query: str, user_id: int = None, user_email: str =
 
         if user_email:
             subject = get_translated_text("search_email_subject", lang)
-            body = final_result[:4000]  # Limit to avoid SMTP errors
+            body = final_result[:MAX_EMAIL_BODY_LENGTH]
             await send_email(user_email, subject, body, user_id, lang)
 
         logger.info(f"✅ Document search for query: {query}, found {len(results)} results")
         return final_result
     except Exception as e:
         logger.error(f"❌ Unexpected error in document search for query {query}: {str(e)}")
-        return None
+        return get_translated_text("search_failed", lang)
 
 def sanitize_markdown(text: str) -> str:
     """Sanitize text for Telegram MarkdownV2 by escaping special characters."""
@@ -175,40 +174,26 @@ def sanitize_markdown(text: str) -> str:
     return text
 
 def get_translated_text(key: str, lang: str = "en") -> str:
-    """Retrieve translated text based on the language code."""
-    translations = {
-        "en": {
-            "points": "You have {points} points and your level is {level}.",
-            "points_command_desc": "Show your points and level",
-            "leaderboard": "Leaderboard",
-            "leaderboard_command_desc": "Show top 10 users by points",
-            "reset_command_desc": "Reset leaderboard (admin only)",
-            "leaderboard_reset": "Leaderboard has been reset!",
-            "unauthorized": "You are not authorized to perform this action.",
-            "error_occurred": "An error occurred. Please try again later.",
-            "search_email_subject": "Your Document Search Results",
-        },
-        "fa": {
-            "points": "شما {points} امتیاز دارید و سطح شما {level} است.",
-            "points_command_desc": "نمایش امتیازات و سطح شما",
-            "leaderboard": "جدول امتیازات",
-            "leaderboard_command_desc": "نمایش 10 کاربر برتر بر اساس امتیاز",
-            "reset_command_desc": "ریست کردن جدول امتیازات (فقط ادمین)",
-            "leaderboard_reset": "جدول امتیازات ریست شد!",
-            "unauthorized": "شما اجازه انجام این عملیات را ندارید.",
-            "error_occurred": "خطایی رخ داد. لطفاً بعداً دوباره امتحان کنید.",
-            "search_email_subject": "نتایج جستجوی اسناد شما",
-        },
-        "it": {
-            "points": "Hai {points} punti e il tuo livello è {level}.",
-            "points_command_desc": "Mostra i tuoi punti e livello",
-            "leaderboard": "Classifica",
-            "leaderboard_command_desc": "Mostra i primi 10 utenti per punti",
-            "reset_command_desc": "Reimposta la classifica (solo admin)",
-            "leaderboard_reset": "La classifica è stata reimpostata!",
-            "unauthorized": "Non sei autorizzato a eseguire questa azione.",
-            "error_occurred": "Si è verificato un errore. Riprova più tardi.",
-            "search_email_subject": "Risultati della ricerca nei documenti",
-        },
-    }
-    return translations.get(lang, translations["en"]).get(key, key)
+    """Retrieve translated text from JSON files based on the language code."""
+    lang_dir = Path(__file__).resolve().parent.parent / "lang"
+    lang_file = lang_dir / f"{lang}.json"
+    
+    try:
+        if not lang_file.exists():
+            logger.warning(f"⚠️ Language file {lang_file} not found, falling back to 'en'")
+            lang_file = lang_dir / "en.json"
+        
+        with open(lang_file, "r", encoding="utf-8") as f:
+            translations = json.load(f)
+        
+        # Handle nested translations
+        result = translations
+        for part in key.split("."):
+            result = result.get(part, part)
+        
+        if isinstance(result, dict):
+            return result.get(lang, result.get("en", key))
+        return result if isinstance(result, str) else key
+    except Exception as e:
+        logger.error(f"❌ Error loading translations for {lang}: {str(e)}")
+        return key  # Fallback to key if translation fails
