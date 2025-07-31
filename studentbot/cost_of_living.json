@@ -1,132 +1,124 @@
 {
-    "cities": {
-        "Perugia": {
-            "name": {
-                "en": "Perugia",
-                "fa": "پروجا",
-                "it": "Perugia"
-            },
-            "currency": "EUR",
-            "rent": {
-                "value": 300,
-                "description": {
-                    "en": "Average rent for a single room in a shared apartment. Prices may vary (€250-€400).",
-                    "fa": "میانگین اجاره برای یک اتاق تک‌نفره در آپارتمان اشتراکی. قیمت‌ها ممکنه متغیر باشه (250-400 یورو).",
-                    "it": "Affitto medio per una stanza singola in un appartamento condiviso. I prezzi possono variare (€250-€400)."
-                }
-            },
-            "food": {
-                "value": 200,
-                "description": {
-                    "en": "Monthly grocery and dining costs for a student. Includes supermarkets like Coop or Conad.",
-                    "fa": "هزینه‌های ماهانه خرید مواد غذایی و غذا خوردن برای یک دانشجو. شامل سوپرمارکت‌هایی مثل Coop یا Conad.",
-                    "it": "Costi mensili per generi alimentari e pasti per uno studente. Include supermercati come Coop o Conad."
-                }
-            },
-            "transportation": {
-                "value": 30,
-                "description": {
-                    "en": "Monthly public transport pass (bus). Single ticket: €1.50. Info: https://www.umbriamobilita.it",
-                    "fa": "اشتراک ماهانه حمل‌ونقل عمومی (اتوبوس). بلیط تک: 1.50 یورو. اطلاعات: https://www.umbriamobilita.it",
-                    "it": "Abbonamento mensile per i trasporti pubblici (autobus). Biglietto singolo: €1,50. Info: https://www.umbriamobilita.it"
-                }
-            }
-        },
-        "Rome": {
-            "name": {
-                "en": "Rome",
-                "fa": "رم",
-                "it": "Roma"
-            },
-            "currency": "EUR",
-            "rent": {
-                "value": 600,
-                "description": {
-                    "en": "Average rent for a single room in a shared apartment. Prices range from €500-€800.",
-                    "fa": "میانگین اجاره برای یک اتاق تک‌نفره در آپارتمان اشتراکی. قیمت‌ها بین 500-800 یورو متغیره.",
-                    "it": "Affitto medio per una stanza singola in un appartamento condiviso. Prezzi variano da €500 a €800."
-                }
-            },
-            "food": {
-                "value": 300,
-                "description": {
-                    "en": "Monthly grocery and dining costs. Includes supermarkets like Carrefour or Esselunga.",
-                    "fa": "هزینه‌های ماهانه مواد غذایی و غذا خوردن. شامل سوپرمارکت‌هایی مثل Carrefour یا Esselunga.",
-                    "it": "Costi mensili per generi alimentari e pasti. Include supermercati come Carrefour o Esselunga."
-                }
-            },
-            "transportation": {
-                "value": 50,
-                "description": {
-                    "en": "Monthly public transport pass (bus/metro). Single ticket: €1.50. Info: https://www.atac.roma.it",
-                    "fa": "اشتراک ماهانه حمل‌ونقل عمومی (اتوبوس/مترو). بلیط تک: 1.50 یورو. اطلاعات: https://www.atac.roma.it",
-                    "it": "Abbonamento mensile per i trasporti pubblici (autobus/metro). Biglietto singolo: €1,50. Info: https://www.atac.roma.it"
-                }
-            }
-        },
-        "Milan": {
-            "name": {
-                "en": "Milan",
-                "fa": "میلان",
-                "it": "Milano"
-            },
-            "currency": "EUR",
-            "rent": {
-                "value": 700,
-                "description": {
-                    "en": "Average rent for a single room in a shared apartment. Prices range from €600-€900.",
-                    "fa": "میانگین اجاره برای یک اتاق تک‌نفره در آپارتمان اشتراکی. قیمت‌ها بین 600-900 یورو متغیره.",
-                    "it": "Affitto medio per una stanza singola in un appartamento condiviso. Prezzi variano da €600 a €900."
-                }
-            },
-            "food": {
-                "value": 350,
-                "description": {
-                    "en": "Monthly grocery and dining costs. Includes supermarkets like Esselunga or Lidl.",
-                    "fa": "هزینه‌های ماهانه مواد غذایی و غذا خوردن. شامل سوپرمارکت‌هایی مثل Esselunga یا Lidl.",
-                    "it": "Costi mensili per generi alimentari e pasti. Include supermercati come Esselunga o Lidl."
-                }
-            },
-            "transportation": {
-                "value": 60,
-                "description": {
-                    "en": "Monthly public transport pass (bus/metro). Single ticket: €2. Info: https://www.atm.it",
-                    "fa": "اشتراک ماهانه حمل‌ونقل عمومی (اتوبوس/مترو). بلیط تک: 2 یورو. اطلاعات: https://www.atm.it",
-                    "it": "Abbonamento mensile per i trasporti pubblici (autobus/metro). Biglietto singolo: €2. Info: https://www.atm.it"
-                }
-            }
-        },
-        "Florence": {
-            "name": {
-                "en": "Florence",
-                "fa": "فلورانس",
-                "it": "Firenze"
-            },
-            "currency": "EUR",
-            "rent": {
-                "value": 550,
-                "description": {
-                    "en": "Average rent for a single room in a shared apartment. Prices range from €450-€700.",
-                    "fa": "میانگین اجاره برای یک اتاق تک‌نفره در آپارتمان اشتراکی. قیمت‌ها بین 450-700 یورو متغیره.",
-                    "it": "Affitto medio per una stanza singola in un appartamento condiviso. Prezzi variano da €450 a €700."
-                }
-            },
-            "food": {
-                "value": 280,
-                "description": {
-                    "en": "Monthly grocery and dining costs. Includes supermarkets like Coop or Esselunga.",
-                    "fa": "هزینه‌های ماهانه مواد غذایی و غذا خوردن. شامل سوپرمارکت‌هایی مثل Coop یا Esselunga.",
-                    "it": "Costi mensili per generi alimentari e pasti. Include supermercati come Coop o Esselunga."
-                }
-            },
-            "transportation": {
-                "value": 40,
-                "description": {
-                    "en": "Monthly public transport pass (bus). Single ticket: €1.50. Info: https://www.at-bus.it",
-                    "fa": "اشتراک ماهانه حمل‌ونقل عمومی (اتوبوس). بلیط تک: 1.50 یورو. اطلاعات: https://www.at-bus.it",
-                    "it": "Abbonamento mensile per i trasporti pubblici (autobus). Biglietto singolo: €1,50. Info: https://www.at-bus.it"
-                }
-            }
+  "cities": {
+    "Perugia": {
+      "name": {
+        "fa": "پروجا"
+      },
+      "currency": "EUR",
+      "rent": {
+        "value": 300,
+        "description": {
+          "fa": "میانگین اجاره برای یه اتاق تک‌نفره در آپارتمان اشتراکی در پروجا. قیمت‌ها معمولاً بین 250 تا 400 یورو متغیره. **نکته**: برای قراردادهای قانونی، حتماً کد مالیاتی (Codice Fiscale) داشته باشید و قرارداد رو در آژانس مالیاتی ثبت کنید. سایت‌های پیشنهادی: https://www.idealista.it یا https://www.uniplaces.com."
         }
+      },
+      "food": {
+        "value": 200,
+        "description": {
+          "fa": "هزینه ماهانه خرید مواد غذایی و غذا خوردن برای یه دانشجو. شامل خرید از سوپرمارکت‌هایی مثل Coop، Conad یا Lidl. **نکته**: برای صرفه‌جویی، از تخفیف‌های دانشجویی در سوپرمارکت‌ها استفاده کنید و غذای خونه بپزید!"
+        }
+      },
+      "transportation": {
+        "value": 30,
+        "description": {
+          "fa": "اشتراک ماهانه حمل‌ونقل عمومی (اتوبوس) در پروجا. قیمت بلیط تک: 1.50 یورو. **اطلاعات بیشتر**: https://www.umbriamobilita.it. **نکته**: اشتراک دانشجویی می‌تونه ارزون‌تر باشه، با دانشگاه چک کنید!"
+        }
+      }
+    },
+    "Rome": {
+      "name": {
+        "fa": "رم"
+      },
+      "currency": "EUR",
+      "rent": {
+        "value": 600,
+        "description": {
+          "fa": "میانگین اجاره برای یه اتاق تک‌نفره در آپارتمان اشتراکی در رم. قیمت‌ها بین 500 تا 800 یورو متغیره. **نکته**: مناطق نزدیک دانشگاه (مثل Sapienza) گرون‌ترن. سایت‌های پیشنهادی: https://www.housinganywhere.com یا https://www.stanzazoo.com."
+        }
+      },
+      "food": {
+        "value": 300,
+        "description": {
+          "fa": "هزینه ماهانه مواد غذایی و غذا خوردن. شامل خرید از سوپرمارکت‌هایی مثل Carrefour یا Esselunga. **نکته**: رستوران‌های دانشجویی (Mensa) گزینه‌های ارزون‌تری دارن!"
+        }
+      },
+      "transportation": {
+        "value": 50,
+        "description": {
+          "fa": "اشتراک ماهانه حمل‌ونقل عمومی (اتوبوس/مترو) در رم. قیمت بلیط تک: 1.50 یورو. **اطلاعات بیشتر**: https://www.atac.roma.it. **نکته**: اشتراک‌های سالانه می‌تونن به‌صرفه‌تر باشن."
+        }
+      }
+    },
+    "Milan": {
+      "name": {
+        "fa": "میلان"
+      },
+      "currency": "EUR",
+      "rent": {
+        "value": 700,
+        "description": {
+          "fa": "میانگین اجاره برای یه اتاق تک‌نفره در آپارتمان اشتراکی در میلان. قیمت‌ها بین 600 تا 900 یورو متغیره. **نکته**: مناطق مرکزی گرون‌ترن، مناطق حومه رو هم چک کنید. سایت پیشنهادی: https://www.idealista.it."
+        }
+      },
+      "food": {
+        "value": 350,
+        "description": {
+          "fa": "هزینه ماهانه مواد غذایی و غذا خوردن. شامل خرید از سوپرمارکت‌هایی مثل Esselunga یا Lidl. **نکته**: برای صرفه‌جویی، از بازارهای محلی (Mercato) خرید کنید."
+        }
+      },
+      "transportation": {
+        "value": 60,
+        "description": {
+          "fa": "اشتراک ماهانه حمل‌ونقل عمومی (اتوبوس/مترو) در میلان. قیمت بلیط تک: 2 یورو. **اطلاعات بیشتر**: https://www.atm.it. **نکته**: دوچرخه‌های اشتراکی (مثل BikeMi) هم گزینه خوبی برای دانشجوهاست."
+        }
+      }
+    },
+    "Florence": {
+      "name": {
+        "fa": "فلورانس"
+      },
+      "currency": "EUR",
+      "rent": {
+        "value": 550,
+        "description": {
+          "fa": "میانگین اجاره برای یه اتاق تک‌نفره در آپارتمان اشتراکی در فلورانس. قیمت‌ها بین 450 تا 700 یورو متغیره. **نکته**: قراردادهای کوتاه‌مدت (6 ماهه) هم پیدا می‌شن. سایت پیشنهادی: https://www.uniplaces.com."
+        }
+      },
+      "food": {
+        "value": 280,
+        "description": {
+          "fa": "هزینه ماهانه مواد غذایی و غذا خوردن. شامل خرید از سوپرمارکت‌هایی مثل Coop یا Esselunga. **نکته**: غذاهای خیابانی (مثل پیتزا و پانینی) گزینه‌های ارزونی هستن."
+        }
+      },
+      "transportation": {
+        "value": 40,
+        "description": {
+          "fa": "اشتراک ماهانه حمل‌ونقل عمومی (اتوبوس) در فلورانس. قیمت بلیط تک: 1.50 یورو. **اطلاعات بیشتر**: https://www.at-bus.it. **نکته**: فلورانس شهر کوچیکیه، پیاده‌روی هم گزینه خوبیه!"
+        }
+      }
+    },
+    "Bologna": {
+      "name": {
+        "fa": "بولونیا"
+      },
+      "currency": "EUR",
+      "rent": {
+        "value": 500,
+        "description": {
+          "fa": "میانگین اجاره برای یه اتاق تک‌نفره در آپارتمان اشتراکی در بولونیا. قیمت‌ها بین 400 تا 650 یورو متغیره. **نکته**: خوابگاه‌های دانشجویی (مثل ER.GO) گزینه‌های ارزون‌تری دارن. سایت پیشنهادی: https://www.housinganywhere.com."
+        }
+      },
+      "food": {
+        "value": 270,
+        "description": {
+          "fa": "هزینه ماهانه مواد غذایی و غذا خوردن. شامل خرید از سوپرمارکت‌هایی مثل Conad یا Coop. **نکته**: رستوران‌های دانشجویی در بولونیا غذاهای ارزون و باکیفیتی دارن."
+        }
+      },
+      "transportation": {
+        "value": 45,
+        "description": {
+          "fa": "اشتراک ماهانه حمل‌ونقل عمومی (اتوبوس) در بولونیا. قیمت بلیط تک: 1.50 یورو. **اطلاعات بیشتر**: https://www.tper.it. **نکته**: دوچرخه‌سواری در بولونیا خیلی رایجه و می‌تونه به‌صرفه باشه."
+        }
+      }
     }
+  ]
 }
