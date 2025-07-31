@@ -2,23 +2,35 @@ import logging
 from datetime import datetime
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.constants import ChatAction
-from telegram.ext import ContextTypes, CommandHandler, MessageHandler, filters
+from telegram.ext import ContextTypes, CommandHandler, MessageHandler, filters, CallbackQueryHandler
 from telegram.error import TelegramError
+from sqlalchemy import select
 from studentbot.utils.text_formatter import get_translated_text, sanitize_markdown
-from studentbot.utils.redis_utils import redis_client  # اصلاح import
+from studentbot.utils.redis_utils import redis_client
 from studentbot.utils.ai_utils import smart_search
-from studentbot.utils.db_utils import save_user_search, AsyncSessionLocal
+from studentbot.utils.db_utils import get_user, AsyncSessionLocal, log_event
 from studentbot.utils.gsheets import gsheets_client
+from studentbot.utils.models_db import SearchHistory
 from studentbot.handlers.gamification_handler import award_points_for_action
 from studentbot import config
 
-# Setup logging
 logger = logging.getLogger(__name__)
-logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    level=logging.INFO
-)
 
+async def save_user_search(session: AsyncSession, user_id: int, query: str, answer: str) -> None:
+    """Save user search to the database."""
+    try:
+        async with session.begin():
+            search = SearchHistory(
+                user_id=user_id,
+                query=query,
+                answer=answer
+            )
+            session.add(search)
+            await session.commit()
+            logger.info(f"✅ Saved search for user {user_id}: {query}")
+    except Exception as e:
+        logger.error(f"❌ Error saving search for user {user_id}: {str(e)}")
+        raise
 
 async def start_search(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Prompt user to enter a search query."""
@@ -32,13 +44,13 @@ async def start_search(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         logger.info(f"✅ User {user_id} started search")
         await award_points_for_action(user_id, "interaction")
+        await log_event(user_id, "search_started", "Started search process")
     except TelegramError as e:
         logger.error(f"❌ Telegram error starting search for user {user_id}: {str(e)}")
         await update.message.reply_text(
             sanitize_markdown(get_translated_text("error_occurred", lang)),
             parse_mode="MarkdownV2"
         )
-
 
 async def search_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle search queries."""
@@ -68,23 +80,25 @@ async def search_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 parse_mode="MarkdownV2",
                 reply_markup=InlineKeyboardMarkup(keyboard)
             )
-            logger.info(f"✅ User {user_id} received cached search result for query: {query}")
+            async with AsyncSessionLocal() as session:
+                user = await get_user(session, user_id)
+                if user:
+                    interaction_data = [
+                        user_id,
+                        user.first_name,
+                        user.last_name or "N/A",
+                        user.age or 0,
+                        user.email or "N/A",
+                        user.field_of_study or "N/A",
+                        user.country or "N/A",
+                        "Search (Cached)",
+                        f"Cached search result for {query}",
+                        datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+                    ]
+                    await gsheets_client.add_interaction_to_sheet(config.QUESTIONS_SHEET_NAME, interaction_data)
             await award_points_for_action(user_id, "interaction")
-            await gsheets_client.add_interaction_to_sheet(
-                config.QUESTIONS_SHEET_NAME,
-                [
-                    user_id,
-                    query,
-                    cached,
-                    0,
-                    "N/A",
-                    "N/A",
-                    "N/A",
-                    "Search (Cached)",
-                    f"Cached search result for {query}",
-                    datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
-                ]
-            )
+            await log_event(user_id, "search_cached", f"Cached search result for {query}")
+            logger.info(f"✅ User {user_id} received cached search result for query: {query}")
             return
 
         # Send typing action
@@ -114,24 +128,25 @@ async def search_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # Save search activity
         async with AsyncSessionLocal() as session:
             await save_user_search(session, user_id, query, answer)
+            user = await get_user(session, user_id)
+            if user:
+                interaction_data = [
+                    user_id,
+                    user.first_name,
+                    user.last_name or "N/A",
+                    user.age or 0,
+                    user.email or "N/A",
+                    user.field_of_study or "N/A",
+                    user.country or "N/A",
+                    "Search",
+                    f"New search for {query}",
+                    datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+                ]
+                await gsheets_client.add_interaction_to_sheet(config.QUESTIONS_SHEET_NAME, interaction_data)
 
-        logger.info(f"✅ User {user_id} received search result for query: {query}")
         await award_points_for_action(user_id, "search")
-        await gsheets_client.add_interaction_to_sheet(
-            config.QUESTIONS_SHEET_NAME,
-            [
-                user_id,
-                query,
-                answer,
-                0,
-                "N/A",
-                "N/A",
-                "N/A",
-                "Search",
-                f"New search for {query}",
-                datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
-            ]
-        )
+        await log_event(user_id, "search_completed", f"New search for {query}")
+        logger.info(f"✅ User {user_id} received search result for query: {query}")
     except TelegramError as e:
         logger.error(f"❌ Telegram error during search for user {user_id}: {str(e)}")
         await update.message.reply_text(
@@ -144,7 +159,6 @@ async def search_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             sanitize_markdown(get_translated_text("search_failed", lang)),
             parse_mode="MarkdownV2"
         )
-
 
 async def search_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Handle search-related callbacks."""
@@ -159,15 +173,15 @@ async def search_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
                 sanitize_markdown(get_translated_text("search_prompt", lang)),
                 parse_mode="MarkdownV2"
             )
-            logger.info(f"✅ User {user_id} requested to search again")
             await award_points_for_action(user_id, "interaction")
+            await log_event(user_id, "search_again", "Requested to search again")
+            logger.info(f"✅ User {user_id} requested to search again")
     except TelegramError as e:
         logger.error(f"❌ Telegram error handling search callback for user {user_id}: {str(e)}")
         await query.edit_message_text(
             sanitize_markdown(get_translated_text("error_occurred", lang)),
             parse_mode="MarkdownV2"
         )
-
 
 def get_search_handler():
     """Return the search handler."""
