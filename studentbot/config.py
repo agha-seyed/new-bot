@@ -1,13 +1,7 @@
 import os
 import logging
 from logging.handlers import RotatingFileHandler
-from dotenv import load_dotenv
 from pathlib import Path
-
-# Load environment variables if .env exists
-env_path = Path(__file__).resolve().parent.parent / '.env'
-if env_path.exists():
-    load_dotenv(dotenv_path=env_path)
 
 class Config:
     """Configuration class for the StudentBot project."""
@@ -46,16 +40,21 @@ class Config:
         1: 1, 2: 1.57, 3: 2.04, 4: 2.46, 5: 2.85,
         6: 3.20, 7: 3.50, 8: 3.80, 9: 4.00, 10: 4.20
     }
+    """Coefficients for ISEE calculation based on family size."""
     PROPERTY_VALUE_FACTOR = 500
+    """Factor for calculating property value in ISEE (euros per square meter)."""
     PROPERTY_VALUE_MULTIPLIER = 0.2
+    """Multiplier for property value in ISEE calculation."""
     SCHOLARSHIP_THRESHOLDS = {
         "full": 12650,
         "medium": 16445,
         "partial": 23000,
     }
+    """Thresholds for scholarship eligibility based on ISEE value (euros)."""
 
     # Logging Settings
-    LOG_DIR = "logs"
+    BASE_DIR = Path(__file__).resolve().parent
+    LOG_DIR = os.getenv("LOG_DIR", "/tmp/logs")  # Use /tmp for Render
     LOG_FILE = os.path.join(LOG_DIR, "studentbot.log")
 
     # Other Settings
@@ -65,18 +64,21 @@ class Config:
     @staticmethod
     def validate():
         """Validate critical environment variables."""
-        required_vars = [
-            ("TELEGRAM_BOT_TOKEN", Config.TELEGRAM_BOT_TOKEN),
-            ("DATABASE_URL", Config.DATABASE_URL),
-            ("REDIS_URL", Config.REDIS_URL),
-            ("GOOGLE_CREDS", Config.GOOGLE_CREDS),
-            ("SHEET_ID", Config.SHEET_ID),
-            ("BASE_URL", Config.BASE_URL),
-            ("ADMIN_CHAT_ID", Config.ADMIN_CHAT_ID),
-            ("EMAIL_SENDER", Config.EMAIL_SENDER),  # Added for text_formatter
-            ("EMAIL_PASSWORD", Config.EMAIL_PASSWORD)  # Added for text_formatter
-        ]
-        missing_vars = [name for name, value in required_vars if not value]
+        required_vars = {
+            "TELEGRAM_BOT_TOKEN": Config.TELEGRAM_BOT_TOKEN,
+            "DATABASE_URL": Config.DATABASE_URL,
+            "REDIS_URL": Config.REDIS_URL,
+            "GOOGLE_CREDS": Config.GOOGLE_CREDS,
+            "GOOGLE_DRIVE_CREDS": Config.GOOGLE_DRIVE_CREDS,
+            "SHEET_ID": Config.SHEET_ID,
+            "BASE_URL": Config.BASE_URL,
+            "ADMIN_CHAT_ID": Config.ADMIN_CHAT_ID,
+            "EMAIL_SENDER": Config.EMAIL_SENDER,
+            "EMAIL_PASSWORD": Config.EMAIL_PASSWORD,
+            "HUGGINGFACE_API_KEY": Config.HUGGINGFACE_API_KEY,
+            "OPENWEATHERMAP_API_KEY": Config.OPENWEATHERMAP_API_KEY,
+        }
+        missing_vars = [name for name, value in required_vars.items() if not value]
         if missing_vars:
             raise ValueError(f"Missing required environment variables: {', '.join(missing_vars)}")
 
@@ -86,6 +88,8 @@ class Config:
             if Config.PORT <= 0:
                 raise ValueError("PORT must be a positive integer")
             Config.ADMIN_CHAT_ID = int(Config.ADMIN_CHAT_ID)
+            if Config.ADMIN_CHAT_ID <= 0:
+                raise ValueError("ADMIN_CHAT_ID must be a positive integer")
         except (ValueError, TypeError) as e:
             raise ValueError(f"Invalid format for numeric variables: {str(e)}")
 
@@ -117,6 +121,4 @@ class Config:
 config = Config()
 config.validate()
 logger = config.setup_logging()
-
-# Log configuration loaded
 logger.info("Configuration loaded successfully")
