@@ -5,10 +5,11 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from datetime import datetime, timedelta
 from sqlalchemy import text
 from studentbot import config
-from studentbot.utils.db_utils import get_all_consultation_requests, AsyncSessionLocal
+from studentbot.utils.db_utils import AsyncSessionLocal, get_all_consultation_requests
 from studentbot.utils.text_formatter import get_translated_text, sanitize_markdown
 from studentbot.utils.gsheets import gsheets_client
 from studentbot.handlers.gamification_handler import award_points_for_action
+import random
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +35,7 @@ REMINDER_MESSAGES = {
 }
 
 class Scheduler:
-    """Manages scheduled tasks for the bot."""
+    """Manages all scheduled tasks for the bot."""
     
     def __init__(self):
         self.scheduler = AsyncIOScheduler()
@@ -111,12 +112,12 @@ class Scheduler:
             pending_consultations = len([c for c in consultations if c["status"] == "pending"])
             
             report_text = (
-                f"📊 *Daily Report*\n\n"
-                f"👤 *Total Users*: {users_count}\n"
-                f"🆕 *New Users Today*: {new_users_count}\n"
-                f"📩 *Total Consultation Requests*: {len(consultations)}\n"
-                f"⏳ *Pending Consultations*: {pending_consultations}\n"
-                f"🕒 *Time*: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')}"
+                f"📊 *{sanitize_markdown(get_translated_text('daily_report', 'en'))}*\n\n"
+                f"👤 *{sanitize_markdown(get_translated_text('total_users', 'en'))}*: {users_count}\n"
+                f"🆕 *{sanitize_markdown(get_translated_text('new_users', 'en'))}*: {new_users_count}\n"
+                f"📩 *{sanitize_markdown(get_translated_text('consultation_requests', 'en'))}*: {len(consultations)}\n"
+                f"⏳ *{sanitize_markdown(get_translated_text('pending_consultations', 'en'))}*: {pending_consultations}\n"
+                f"🕒 *{sanitize_markdown(get_translated_text('time', 'en'))}*: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')}"
             )
             await self.bot.send_message(
                 chat_id=config.ADMIN_CHAT_ID,
@@ -124,6 +125,12 @@ class Scheduler:
                 parse_mode="MarkdownV2"
             )
             logger.info("✅ Daily report sent")
+            await gsheets_client.add_interaction_to_sheet(
+                config.QUESTIONS_SHEET_NAME,
+                ["N/A", "N/A", report_text[:1000], 0, "N/A", config.ADMIN_CHAT_ID, "N/A",
+                 "Daily Report", "Sent daily report to admin",
+                 datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")]
+            )
         except TelegramError as e:
             logger.error(f"❌ Telegram error sending daily report: {str(e)}")
         except Exception as e:
@@ -154,11 +161,9 @@ class Scheduler:
             logger.info("✅ Weekly admin report sent")
             await gsheets_client.add_interaction_to_sheet(
                 config.QUESTIONS_SHEET_NAME,
-                [
-                    "N/A", "N/A", report_text[:1000], 0, "N/A", admin_chat_id, "N/A",
-                    "Weekly Report", "Sent weekly report to admin",
-                    datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
-                ]
+                ["N/A", "N/A", report_text[:1000], 0, "N/A", admin_chat_id, "N/A",
+                 "Weekly Report", "Sent weekly report to admin",
+                 datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")]
             )
 
             for user in inactive_users:
@@ -174,11 +179,9 @@ class Scheduler:
                     logger.info(f"✅ Reminder sent to {first_name} ({user_id})")
                     await gsheets_client.add_interaction_to_sheet(
                         config.QUESTIONS_SHEET_NAME,
-                        [
-                            user_id, "N/A", message[:1000], 0, "N/A", "N/A", "N/A",
-                            "Inactive User Reminder", f"Sent reminder to {first_name}",
-                            datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
-                        ]
+                        [user_id, "N/A", message[:1000], 0, "N/A", "N/A", "N/A",
+                         "Inactive User Reminder", f"Sent reminder to {first_name}",
+                         datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")]
                     )
                 except TelegramError as e:
                     logger.warning(f"⚠️ Failed to message {user_id}: {str(e)}")
@@ -188,13 +191,27 @@ class Scheduler:
         except Exception as e:
             logger.error(f"❌ Unexpected error in weekly report: {str(e)}")
     
+    async def expire_tokens(self):
+        """Remove expired tokens from the database."""
+        try:
+            async with AsyncSessionLocal() as session:
+                async with session.begin():
+                    await session.execute(
+                        text("DELETE FROM tokens WHERE expiry_date < :now"),
+                        {"now": datetime.utcnow()}
+                    )
+                    logger.info("✅ Expired tokens removed")
+        except Exception as e:
+            logger.error(f"❌ Error removing expired tokens: {str(e)}")
+    
     def start(self):
         """Start the scheduler."""
         try:
             self.scheduler.add_job(self.send_daily_report, "cron", hour=0, minute=0)
             self.scheduler.add_job(self.send_weekly_report, "cron", day_of_week="mon", hour=10, minute=0)
+            self.scheduler.add_job(self.expire_tokens, "cron", hour=0, minute=0)
             self.scheduler.start()
-            logger.info("🕓 Scheduler started for daily and weekly reports")
+            logger.info("🕓 Scheduler started for daily, weekly, and token expiration tasks")
         except Exception as e:
             logger.error(f"❌ Error starting scheduler: {str(e)}")
             raise
