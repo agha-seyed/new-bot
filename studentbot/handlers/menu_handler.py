@@ -4,6 +4,7 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes, CommandHandler, CallbackQueryHandler
 from telegram.error import TelegramError
 from studentbot.utils.text_formatter import get_translated_text, sanitize_markdown
+from studentbot.utils.db_utils import get_user, AsyncSessionLocal, log_event
 from studentbot.utils.gsheets import gsheets_client
 from studentbot.handlers.gamification_handler import award_points_for_action
 from studentbot import config
@@ -68,13 +69,26 @@ async def menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             parse_mode="MarkdownV2",
             reply_markup=reply_markup
         )
-        logger.info(f"✅ Main menu displayed for user {user_id}")
+        async with AsyncSessionLocal() as session:
+            user = await get_user(session, user_id)
+            if user:
+                interaction_data = [
+                    user_id,
+                    user.first_name,
+                    user.last_name or "N/A",
+                    user.age or 0,
+                    user.email or "N/A",
+                    user.field_of_study or "N/A",
+                    user.country or "N/A",
+                    "Menu Display",
+                    "Displayed main menu",
+                    datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+                ]
+                await gsheets_client.add_interaction_to_sheet(config.QUESTIONS_SHEET_NAME, interaction_data)
+        
         await award_points_for_action(user_id, "interaction")
-        await gsheets_client.add_interaction_to_sheet(
-            config.QUESTIONS_SHEET_NAME,
-            [user_id, "N/A", "N/A", 0, "N/A", "N/A", "N/A", "Menu Display",
-             "Displayed main menu", datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")]
-        )
+        await log_event(user_id, "menu_displayed", "Displayed main menu")
+        logger.info(f"✅ Main menu displayed for user {user_id}")
     except TelegramError as e:
         logger.error(f"❌ Telegram error displaying menu for user {user_id}: {str(e)}")
         await update.message.reply_text(
@@ -102,7 +116,7 @@ async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
             "gamification": "/points",
             "feedback": "/feedback",
             "language": "/language",
-            "migration_status": "/update_migration_status",
+            "migration_status": "/migration_status",
             "help": "/help",
             "contact": "/contact",
             "about": "/about",
@@ -122,13 +136,25 @@ async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
                 sanitize_markdown(get_translated_text("menu_selected", lang).format(command=command)),
                 parse_mode="MarkdownV2"
             )
-            logger.info(f"✅ User {user_id} selected menu option: {query.data}")
+            async with AsyncSessionLocal() as session:
+                user = await get_user(session, user_id)
+                if user:
+                    interaction_data = [
+                        user_id,
+                        user.first_name,
+                        user.last_name or "N/A",
+                        user.age or 0,
+                        user.email or "N/A",
+                        user.field_of_study or "N/A",
+                        user.country or "N/A",
+                        "Menu Selection",
+                        f"Selected {query.data}",
+                        datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+                    ]
+                    await gsheets_client.add_interaction_to_sheet(config.QUESTIONS_SHEET_NAME, interaction_data)
             await award_points_for_action(user_id, "interaction")
-            await gsheets_client.add_interaction_to_sheet(
-                config.QUESTIONS_SHEET_NAME,
-                [user_id, "N/A", "N/A", 0, "N/A", "N/A", "N/A", "Menu Selection",
-                 f"Selected {query.data}", datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")]
-            )
+            await log_event(user_id, "menu_selected", f"Selected menu option: {query.data}")
+            logger.info(f"✅ User {user_id} selected menu option: {query.data}")
         else:
             await query.edit_message_text(
                 sanitize_markdown(get_translated_text("invalid_selection", lang)),
