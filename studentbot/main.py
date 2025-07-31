@@ -16,10 +16,10 @@ from studentbot.handlers.registration_flow import get_registration_handler
 from studentbot.handlers.edit_profile_flow import get_edit_profile_handler
 from studentbot.handlers.isee_handler import get_isee_handler
 from studentbot.handlers.gamification_handler import points, leaderboard
-from studentbot.handlers.news_handler import news
+from studentbot.handlers.news_handler import get_news_handler
 from studentbot.handlers.consult_handler import get_consultation_handler
 from studentbot.handlers.document_handler import get_document_handler
-from studentbot.handlers.weather_handler import weather
+from studentbot.handlers.weather_handler import get_weather_handler
 from studentbot.handlers.cost_handler import get_cost_handler
 from studentbot.handlers.search_handler import get_search_handler
 from studentbot.handlers.ai_handler import get_ai_handler
@@ -35,20 +35,14 @@ from studentbot.utils.scheduler import start_scheduler
 from studentbot.utils.redis_utils import redis_client
 from studentbot import config
 
-# Load environment variables
 load_dotenv()
-
-# Logging
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     level=logging.INFO
 )
 logger = logging.getLogger(__name__)
 
-# FastAPI App
 app = FastAPI()
-
-# Telegram Application
 application = Application.builder().token(config.TELEGRAM_BOT_TOKEN).build()
 
 @app.get("/")
@@ -78,15 +72,11 @@ async def webhook(request: Request):
 async def setup():
     """Setup the bot, database, webhook, and Redis."""
     try:
-        # Initialize Redis
         await redis_client.initialize()
-        # Test database connection
         await test_db_connection()
-        # Create database tables
         await create_users_table()
         await create_consultation_requests_table()
 
-        # Set webhook
         await application.bot.set_webhook(
             url=f"{config.BASE_URL}/webhook",
             secret_token=config.WEBHOOK_SECRET,
@@ -94,7 +84,6 @@ async def setup():
         )
         logger.info(f"✅ Webhook set to {config.BASE_URL}/webhook")
 
-        # Register Handlers
         application.add_handler(CommandHandler("start", start))
         application.add_handler(CommandHandler("profile", profile))
         application.add_handler(CommandHandler("menu", menu))
@@ -103,11 +92,9 @@ async def setup():
         application.add_handler(get_isee_handler())
         application.add_handler(CommandHandler("points", points))
         application.add_handler(CommandHandler("leaderboard", leaderboard))
-        application.add_handler(CommandHandler("news", news))
-        application.add_handler(CommandHandler("weather", weather))
-
         handler_groups = [
-            get_consultation_handler(), get_document_handler(), get_search_handler(),
+            get_news_handler(), get_consultation_handler(), get_document_handler(),
+            get_weather_handler(), get_cost_handler(), get_search_handler(),
             get_ai_handler(), get_info_handler(), get_arrival_guide_handler(),
             get_admin_handler(), get_feedback_handler(), get_migration_handler(),
             get_calendar_handler(), get_question_handler()
@@ -125,7 +112,6 @@ async def setup():
             language_handler
         ))
 
-        # Start scheduler
         start_scheduler()
         logger.info("✅ Bot setup completed")
     except Exception as e:
@@ -138,7 +124,7 @@ async def startup_event():
     try:
         logger.info("🚀 Starting Telegram bot...")
         await application.initialize()
-        await setup()  # Run setup tasks
+        await setup()
         await application.start()
         logger.info(f"✅ Bot started successfully, listening on port {config.PORT}")
     except Exception as e:
@@ -157,7 +143,6 @@ async def shutdown_event():
     except Exception as e:
         logger.error(f"❌ Error stopping bot: {str(e)}")
 
-# Entrypoint
 if __name__ == "__main__":
     logger.info(f"🚀 Starting server on port {config.PORT}...")
     uvicorn.run(app, host="0.0.0.0", port=config.PORT)
