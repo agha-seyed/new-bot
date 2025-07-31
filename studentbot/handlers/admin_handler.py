@@ -3,10 +3,10 @@ from typing import Optional
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import ContextTypes, CommandHandler, MessageHandler, CallbackQueryHandler, filters
 from telegram.error import TelegramError
-from config import config
+from studentbot import config
 from studentbot.utils.db_utils import get_all_consultation_requests, update_consultation_request_status, get_all_users, log_event
 from studentbot.utils.text_formatter import get_translated_text, sanitize_markdown
-from studentbot.gamification_handler import award_points_for_action
+from studentbot.handlers.gamification_handler import award_points_for_action
 
 logger = logging.getLogger(__name__)
 
@@ -20,14 +20,20 @@ async def admin_consultations(update: Update, context: ContextTypes.DEFAULT_TYPE
     user_id = update.effective_user.id
     
     if not await is_admin(user_id):
-        await update.message.reply_text(get_translated_text("unauthorized", lang))
+        await update.message.reply_text(
+            sanitize_markdown(get_translated_text("unauthorized", lang)),
+            parse_mode="MarkdownV2"
+        )
         logger.warning(f"⚠️ Unauthorized admin_consultations attempt by user {user_id}")
         return
     
     try:
         requests = await get_all_consultation_requests()
         if not requests:
-            await update.message.reply_text(get_translated_text("no_consultation_requests", lang))
+            await update.message.reply_text(
+                sanitize_markdown(get_translated_text("no_consultation_requests", lang)),
+                parse_mode="MarkdownV2"
+            )
             return
         
         for req in requests:
@@ -40,10 +46,10 @@ async def admin_consultations(update: Update, context: ContextTypes.DEFAULT_TYPE
             ]
             reply_markup = InlineKeyboardMarkup(keyboard)
             request_text = f"""
-📌 *Request ID:* {req['id']}
+📌 *Request ID:* {sanitize_markdown(str(req['id']))}
 👤 *User:* {sanitize_markdown(req['name'])}
 🎓 *Field:* {sanitize_markdown(req['field_of_study'] or 'N/A')}
-📊 *GPA:* {req['gpa'] or 'N/A'}
+📊 *GPA:* {sanitize_markdown(str(req['gpa']) or 'N/A')}
 🌍 *Destination Country:* {sanitize_markdown(req['destination_country'] or 'N/A')}
 🗂 *Status:* {sanitize_markdown(req['status'])}
 📎 *File ID:* {sanitize_markdown(req['file_id'] or 'N/A')}
@@ -51,16 +57,22 @@ async def admin_consultations(update: Update, context: ContextTypes.DEFAULT_TYPE
             await update.message.reply_text(
                 request_text.strip(),
                 parse_mode="MarkdownV2",
-                reply_markup=reply_markup,
+                reply_markup=reply_markup
             )
         logger.info(f"✅ Displayed consultation requests for admin {user_id}")
         await award_points_for_action(user_id, "admin_action")
     except TelegramError as e:
         logger.error(f"❌ Telegram error displaying consultations for admin {user_id}: {str(e)}")
-        await update.message.reply_text(get_translated_text("error_occurred", lang))
+        await update.message.reply_text(
+            sanitize_markdown(get_translated_text("error_occurred", lang)),
+            parse_mode="MarkdownV2"
+        )
     except Exception as e:
         logger.error(f"❌ Unexpected error displaying consultations for admin {user_id}: {str(e)}")
-        await update.message.reply_text(get_translated_text("error_occurred", lang))
+        await update.message.reply_text(
+            sanitize_markdown(get_translated_text("error_occurred", lang)),
+            parse_mode="MarkdownV2"
+        )
 
 async def archive_consultation(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Archive a consultation request."""
@@ -68,7 +80,10 @@ async def archive_consultation(update: Update, context: ContextTypes.DEFAULT_TYP
     user_id = update.effective_user.id
     
     if not await is_admin(user_id):
-        await update.message.reply_text(get_translated_text("unauthorized", lang))
+        await update.message.reply_text(
+            sanitize_markdown(get_translated_text("unauthorized", lang)),
+            parse_mode="MarkdownV2"
+        )
         logger.warning(f"⚠️ Unauthorized archive attempt by user {user_id}")
         return
     
@@ -79,18 +94,25 @@ async def archive_consultation(update: Update, context: ContextTypes.DEFAULT_TYP
         request_id = int(query.data.split("_")[-1])
         await update_consultation_request_status(request_id, "archived")
         await query.message.reply_text(
-            get_translated_text("consultation_archived", lang).format(request_id=request_id),
-            reply_markup=ReplyKeyboardRemove(),
+            sanitize_markdown(get_translated_text("consultation_archived", lang).format(request_id=request_id)),
+            parse_mode="MarkdownV2",
+            reply_markup=ReplyKeyboardRemove()
         )
         await log_event(user_id, "consultation_archived", f"Request ID: {request_id}")
         await award_points_for_action(user_id, "admin_action")
         logger.info(f"✅ Archived consultation request {request_id} by admin {user_id}")
     except ValueError:
         logger.error(f"❌ Invalid request ID format for admin {user_id}")
-        await query.message.reply_text(get_translated_text("error_occurred", lang))
+        await query.message.reply_text(
+            sanitize_markdown(get_translated_text("error_occurred", lang)),
+            parse_mode="MarkdownV2"
+        )
     except Exception as e:
         logger.error(f"❌ Error archiving consultation request for admin {user_id}: {str(e)}")
-        await query.message.reply_text(get_translated_text("error_occurred", lang))
+        await query.message.reply_text(
+            sanitize_markdown(get_translated_text("error_occurred", lang)),
+            parse_mode="MarkdownV2"
+        )
 
 async def reply_to_consultation(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Initiate replying to a consultation request."""
@@ -98,7 +120,10 @@ async def reply_to_consultation(update: Update, context: ContextTypes.DEFAULT_TY
     user_id = update.effective_user.id
     
     if not await is_admin(user_id):
-        await update.message.reply_text(get_translated_text("unauthorized", lang))
+        await update.message.reply_text(
+            sanitize_markdown(get_translated_text("unauthorized", lang)),
+            parse_mode="MarkdownV2"
+        )
         logger.warning(f"⚠️ Unauthorized reply attempt by user {user_id}")
         return
     
@@ -109,16 +134,23 @@ async def reply_to_consultation(update: Update, context: ContextTypes.DEFAULT_TY
         request_id = int(query.data.split("_")[-1])
         context.user_data["awaiting_reply"] = {"request_id": request_id}
         await query.message.reply_text(
-            get_translated_text("enter_reply_message", lang),
-            reply_markup=ReplyKeyboardRemove(),
+            sanitize_markdown(get_translated_text("enter_reply_message", lang)),
+            parse_mode="MarkdownV2",
+            reply_markup=ReplyKeyboardRemove()
         )
         logger.info(f"✅ Admin {user_id} started replying to consultation {request_id}")
     except ValueError:
         logger.error(f"❌ Invalid request ID format for admin {user_id}")
-        await query.message.reply_text(get_translated_text("error_occurred", lang))
+        await query.message.reply_text(
+            sanitize_markdown(get_translated_text("error_occurred", lang)),
+            parse_mode="MarkdownV2"
+        )
     except Exception as e:
         logger.error(f"❌ Error initiating reply for admin {user_id}: {str(e)}")
-        await query.message.reply_text(get_translated_text("error_occurred", lang))
+        await query.message.reply_text(
+            sanitize_markdown(get_translated_text("error_occurred", lang)),
+            parse_mode="MarkdownV2"
+        )
 
 async def handle_reply_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Handle the reply message for a consultation request."""
@@ -126,11 +158,17 @@ async def handle_reply_message(update: Update, context: ContextTypes.DEFAULT_TYP
     user_id = update.effective_user.id
     
     if not await is_admin(user_id):
-        await update.message.reply_text(get_translated_text("unauthorized", lang))
+        await update.message.reply_text(
+            sanitize_markdown(get_translated_text("unauthorized", lang)),
+            parse_mode="MarkdownV2"
+        )
         return
     
     if not context.user_data.get("awaiting_reply"):
-        await update.message.reply_text(get_translated_text("no_reply_context", lang))
+        await update.message.reply_text(
+            sanitize_markdown(get_translated_text("no_reply_context", lang)),
+            parse_mode="MarkdownV2"
+        )
         return
     
     try:
@@ -138,18 +176,23 @@ async def handle_reply_message(update: Update, context: ContextTypes.DEFAULT_TYP
         reply_text = update.message.text.strip()
         request = await get_consultation_requests(request_id)
         if not request:
-            await update.message.reply_text(get_translated_text("request_not_found", lang))
+            await update.message.reply_text(
+                sanitize_markdown(get_translated_text("request_not_found", lang)),
+                parse_mode="MarkdownV2"
+            )
             context.user_data.pop("awaiting_reply", None)
             return
         
         user_id_to_reply = request[0]["user_id"]
         await context.bot.send_message(
             chat_id=user_id_to_reply,
-            text=f"📬 {get_translated_text('admin_reply', lang)}:\n{reply_text}",
+            text=sanitize_markdown(f"📬 {get_translated_text('admin_reply', lang)}:\n{reply_text}"),
+            parse_mode="MarkdownV2"
         )
         await update_consultation_request_status(request_id, "responded")
         await update.message.reply_text(
-            get_translated_text("consultation_responded", lang).format(request_id=request_id),
+            sanitize_markdown(get_translated_text("consultation_responded", lang).format(request_id=request_id)),
+            parse_mode="MarkdownV2"
         )
         await log_event(user_id, "consultation_responded", f"Request ID: {request_id}, Reply: {reply_text}")
         await award_points_for_action(user_id, "admin_action")
@@ -157,10 +200,16 @@ async def handle_reply_message(update: Update, context: ContextTypes.DEFAULT_TYP
         logger.info(f"✅ Admin {user_id} replied to consultation {request_id}")
     except TelegramError as e:
         logger.error(f"❌ Telegram error replying to consultation for admin {user_id}: {str(e)}")
-        await update.message.reply_text(get_translated_text("error_occurred", lang))
+        await update.message.reply_text(
+            sanitize_markdown(get_translated_text("error_occurred", lang)),
+            parse_mode="MarkdownV2"
+        )
     except Exception as e:
         logger.error(f"❌ Unexpected error replying to consultation for admin {user_id}: {str(e)}")
-        await update.message.reply_text(get_translated_text("error_occurred", lang))
+        await update.message.reply_text(
+            sanitize_markdown(get_translated_text("error_occurred", lang)),
+            parse_mode="MarkdownV2"
+        )
 
 async def view_consultation_file(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Display the file associated with a consultation request."""
@@ -168,7 +217,10 @@ async def view_consultation_file(update: Update, context: ContextTypes.DEFAULT_T
     user_id = update.effective_user.id
     
     if not await is_admin(user_id):
-        await update.message.reply_text(get_translated_text("unauthorized", lang))
+        await update.message.reply_text(
+            sanitize_markdown(get_translated_text("unauthorized", lang)),
+            parse_mode="MarkdownV2"
+        )
         logger.warning(f"⚠️ Unauthorized file view attempt by user {user_id}")
         return
     
@@ -180,23 +232,32 @@ async def view_consultation_file(update: Update, context: ContextTypes.DEFAULT_T
         requests = await get_all_consultation_requests()
         request = next((r for r in requests if r["id"] == request_id), None)
         if not request or not request["file_id"]:
-            await query.message.reply_text(get_translated_text("no_file_found", lang))
+            await query.message.reply_text(
+                sanitize_markdown(get_translated_text("no_file_found", lang)),
+                parse_mode="MarkdownV2"
+            )
             return
         
-        file_url = f"https://drive.google.com/file/d/{request['file_id']}/view"
+        file_url = f"https://drive.google.com/file/d/{sanitize_markdown(request['file_id'])}/view"
         await query.message.reply_text(
-            get_translated_text("file_link", lang).format(file_url=file_url),
-            parse_mode="MarkdownV2",
+            sanitize_markdown(get_translated_text("file_link", lang).format(file_url=file_url)),
+            parse_mode="MarkdownV2"
         )
         await log_event(user_id, "file_viewed", f"Request ID: {request_id}, File ID: {request['file_id']}")
         await award_points_for_action(user_id, "admin_action")
         logger.info(f"✅ Admin {user_id} viewed file for consultation {request_id}")
     except ValueError:
         logger.error(f"❌ Invalid request ID format for admin {user_id}")
-        await query.message.reply_text(get_translated_text("error_occurred", lang))
+        await query.message.reply_text(
+            sanitize_markdown(get_translated_text("error_occurred", lang)),
+            parse_mode="MarkdownV2"
+        )
     except Exception as e:
         logger.error(f"❌ Error viewing file for admin {user_id}: {str(e)}")
-        await query.message.reply_text(get_translated_text("error_occurred", lang))
+        await query.message.reply_text(
+            sanitize_markdown(get_translated_text("error_occurred", lang)),
+            parse_mode="MarkdownV2"
+        )
 
 async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Initiate broadcasting a message to users."""
@@ -204,17 +265,26 @@ async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user_id = update.effective_user.id
     
     if not await is_admin(user_id):
-        await update.message.reply_text(get_translated_text("unauthorized", lang))
+        await update.message.reply_text(
+            sanitize_markdown(get_translated_text("unauthorized", lang)),
+            parse_mode="MarkdownV2"
+        )
         logger.warning(f"⚠️ Unauthorized broadcast attempt by user {user_id}")
         return
     
     try:
-        await update.message.reply_text(get_translated_text("enter_broadcast_message", lang))
+        await update.message.reply_text(
+            sanitize_markdown(get_translated_text("enter_broadcast_message", lang)),
+            parse_mode="MarkdownV2"
+        )
         context.user_data["awaiting_broadcast"] = True
         logger.info(f"✅ Admin {user_id} started broadcast process")
     except TelegramError as e:
         logger.error(f"❌ Telegram error initiating broadcast for admin {user_id}: {str(e)}")
-        await update.message.reply_text(get_translated_text("error_occurred", lang))
+        await update.message.reply_text(
+            sanitize_markdown(get_translated_text("error_occurred", lang)),
+            parse_mode="MarkdownV2"
+        )
 
 async def handle_broadcast_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Handle broadcast message and field filter."""
@@ -222,13 +292,19 @@ async def handle_broadcast_message(update: Update, context: ContextTypes.DEFAULT
     user_id = update.effective_user.id
     
     if not await is_admin(user_id):
-        await update.message.reply_text(get_translated_text("unauthorized", lang))
+        await update.message.reply_text(
+            sanitize_markdown(get_translated_text("unauthorized", lang)),
+            parse_mode="MarkdownV2"
+        )
         return
     
     try:
         if context.user_data.get("awaiting_broadcast"):
             context.user_data["broadcast_text"] = update.message.text.strip()
-            await update.message.reply_text(get_translated_text("enter_field_filter", lang))
+            await update.message.reply_text(
+                sanitize_markdown(get_translated_text("enter_field_filter", lang)),
+                parse_mode="MarkdownV2"
+            )
             context.user_data["awaiting_field_filter"] = True
             context.user_data.pop("awaiting_broadcast")
             logger.info(f"✅ Admin {user_id} entered broadcast message")
@@ -245,8 +321,8 @@ async def handle_broadcast_message(update: Update, context: ContextTypes.DEFAULT
                 try:
                     await update.get_bot().send_message(
                         chat_id=u["id"],
-                        text=context.user_data["broadcast_text"],
-                        parse_mode="MarkdownV2",
+                        text=sanitize_markdown(context.user_data["broadcast_text"]),
+                        parse_mode="MarkdownV2"
                     )
                     count += 1
                 except TelegramError:
@@ -254,7 +330,8 @@ async def handle_broadcast_message(update: Update, context: ContextTypes.DEFAULT
                     continue
             
             await update.message.reply_text(
-                get_translated_text("broadcast_sent", lang).format(count=count),
+                sanitize_markdown(get_translated_text("broadcast_sent", lang).format(count=count)),
+                parse_mode="MarkdownV2"
             )
             await log_event(user_id, "broadcast_sent", f"Sent to {count} users, Field: {field}")
             await award_points_for_action(user_id, "admin_action")
@@ -264,10 +341,16 @@ async def handle_broadcast_message(update: Update, context: ContextTypes.DEFAULT
     
     except TelegramError as e:
         logger.error(f"❌ Telegram error handling broadcast for admin {user_id}: {str(e)}")
-        await update.message.reply_text(get_translated_text("error_occurred", lang))
+        await update.message.reply_text(
+            sanitize_markdown(get_translated_text("error_occurred", lang)),
+            parse_mode="MarkdownV2"
+        )
     except Exception as e:
         logger.error(f"❌ Unexpected error handling broadcast for admin {user_id}: {str(e)}")
-        await update.message.reply_text(get_translated_text("error_occurred", lang))
+        await update.message.reply_text(
+            sanitize_markdown(get_translated_text("error_occurred", lang)),
+            parse_mode="MarkdownV2"
+        )
 
 def get_admin_handler():
     """Return the admin handlers."""
