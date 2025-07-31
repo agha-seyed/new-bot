@@ -1,5 +1,6 @@
 import logging
-from typing import List, Optional, Any  # اضافه کردن Any به imports
+import json
+from typing import List, Optional, Any
 import gspread
 from gspread.exceptions import WorksheetNotFound, APIError
 from oauth2client.service_account import ServiceAccountCredentials
@@ -7,7 +8,6 @@ from config import config
 
 logger = logging.getLogger(__name__)
 
-# Google Sheets API Scopes
 SCOPES = [
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive.file",
@@ -30,7 +30,8 @@ class GoogleSheetsClient:
             raise RuntimeError("Missing spreadsheet name.")
         
         try:
-            creds = ServiceAccountCredentials.from_json_keyfile_name(config.GOOGLE_CREDS, SCOPES)
+            creds_info = json.loads(config.GOOGLE_CREDS)
+            creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_info, SCOPES)
             self.client = gspread.authorize(creds)
             self.spreadsheet = self.client.open(config.SPREADSHEET_NAME)
             logger.info(f"✅ Google Sheets client initialized for spreadsheet: {config.SPREADSHEET_NAME}")
@@ -64,8 +65,8 @@ class GoogleSheetsClient:
         if not user_data[0] or not isinstance(user_data[0], (int, str)):
             raise ValueError("First column (user_id) must be a non-empty integer or string.")
     
-    def add_user_to_sheet(self, sheet_name: str, user_data: List[Any]) -> None:
-        """Add a new row with user data to the Scholarship sheet."""
+    async def add_user_to_sheet(self, sheet_name: str, user_data: List[Any]) -> None:
+        """Add a new row with user data to the specified sheet."""
         try:
             worksheet = self.get_worksheet(sheet_name)
             header = worksheet.row_values(1)
@@ -80,8 +81,8 @@ class GoogleSheetsClient:
             logger.error(f"❌ Failed to add user to sheet '{sheet_name}': {str(e)}")
             raise
     
-    def add_consultation_to_sheet(self, sheet_name: str, consultation_data: List[Any]) -> None:
-        """Add a new consultation request to the StudentBotQuestions sheet."""
+    async def add_consultation_to_sheet(self, sheet_name: str, consultation_data: List[Any]) -> None:
+        """Add a new consultation request to the specified sheet."""
         try:
             worksheet = self.get_worksheet(sheet_name)
             header = worksheet.row_values(1)
@@ -96,8 +97,8 @@ class GoogleSheetsClient:
             logger.error(f"❌ Failed to add consultation to sheet '{sheet_name}': {str(e)}")
             raise
     
-    def update_user_in_sheet(self, sheet_name: str, user_id: int, user_data: List[Any]) -> None:
-        """Update a row in the Scholarship sheet matching the user_id (in column A)."""
+    async def update_user_in_sheet(self, sheet_name: str, user_id: int, user_data: List[Any]) -> None:
+        """Update a row in the specified sheet matching the user_id."""
         try:
             worksheet = self.get_worksheet(sheet_name)
             header = worksheet.row_values(1)
@@ -119,8 +120,8 @@ class GoogleSheetsClient:
             logger.error(f"❌ Failed to update user {user_id} in sheet '{sheet_name}': {str(e)}")
             raise
     
-    def delete_user_from_sheet(self, sheet_name: str, user_id: int) -> None:
-        """Delete the row in the Scholarship sheet corresponding to the user_id (in column A)."""
+    async def delete_user_from_sheet(self, sheet_name: str, user_id: int) -> None:
+        """Delete the row in the specified sheet corresponding to the user_id."""
         try:
             worksheet = self.get_worksheet(sheet_name)
             cell = worksheet.find(str(user_id), in_column=1)
@@ -139,5 +140,4 @@ class GoogleSheetsClient:
             logger.error(f"❌ Failed to delete user {user_id} in sheet '{sheet_name}': {str(e)}")
             raise
 
-# Initialize Google Sheets client
 gsheets_client = GoogleSheetsClient()
