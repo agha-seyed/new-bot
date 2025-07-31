@@ -1,64 +1,65 @@
 {
-    "questions": [
-        {
-            "q": {
-                "en": "How can I apply for a scholarship?",
-                "fa": "چگونه می‌توانم برای بورسیه درخواست کنم؟",
-                "it": "Come posso richiedere una borsa di studio?"
-            },
-            "a": {
-                "en": "Apply for scholarships via the ADiSU Umbria portal (https://www.adisu.umbria.it). Required documents: ISEE certificate, academic records, proof of enrollment. Estimated funding: €2,000-€5,000/year. Deadline: September 15, 2025. Check the 'Deadlines Calendar' for updates.",
-                "fa": "برای بورسیه از طریق پورتال ADiSU Umbria اقدام کنید (https://www.adisu.umbria.it). مدارک مورد نیاز: گواهی ISEE، سوابق تحصیلی، مدرک ثبت‌نام. بودجه تخمینی: 2000-5000 یورو/سال. آخرین مهلت: 15 سپتامبر 2025. برای به‌روزرسانی‌ها، 'تقویم مهلت‌ها' را بررسی کنید.",
-                "it": "Richiedi borse di studio tramite il portale ADiSU Umbria (https://www.adisu.umbria.it). Documenti richiesti: certificato ISEE, documenti accademici, prova di iscrizione. Finanziamento stimato: €2.000-€5.000/anno. Scadenza: 15 settembre 2025. Controlla il 'Calendario delle scadenze' per aggiornamenti."
-            }
-        },
-        {
-            "q": {
-                "en": "What are the deadlines for the scholarships?",
-                "fa": "مهلت‌های درخواست بورسیه چیست؟",
-                "it": "Quali sono le scadenze per le borse di studio?"
-            },
-            "a": {
-                "en": "The scholarship application deadline is September 15, 2025. Check the 'Deadlines Calendar' in the main menu for updates and other deadlines.",
-                "fa": "آخرین مهلت درخواست بورسیه 15 سپتامبر 2025 است. برای به‌روزرسانی‌ها و سایر مهلت‌ها، 'تقویم مهلت‌ها' را در منوی اصلی بررسی کنید.",
-                "it": "La scadenza per la domanda di borsa di studio è il 15 settembre 2025. Controlla il 'Calendario delle scadenze' nel menu principale per aggiornamenti e altre scadenze."
-            }
-        },
-        {
-            "q": {
-                "en": "How can I find housing in Perugia?",
-                "fa": "چگونه می‌توانم در پروجا مسکن پیدا کنم؟",
-                "it": "Come posso trovare un alloggio a Perugia?"
-            },
-            "a": {
-                "en": "Use platforms like Idealista (https://www.idealista.it, €400-€800/month), Uniplaces (https://www.uniplaces.com, €350-€700/month), or HousingAnywhere (https://housinganywhere.com, €400-€900/month). Required: Codice Fiscale, rental contract. Check the 'Finding Housing' section in the Arrival Guide.",
-                "fa": "از پلتفرم‌هایی مثل ایدیالیستا (https://www.idealista.it، 400-800 یورو/ماه)، یونی‌پلیس (https://www.uniplaces.com، 350-700 یورو/ماه)، یا هاوزینگ‌انی‌ور (https://housinganywhere.com، 400-900 یورو/ماه) استفاده کنید. مدارک مورد نیاز: کد مالیاتی، قرارداد اجاره. بخش 'یافتن مسکن' در راهنمای ورود را بررسی کنید.",
-                "it": "Utilizza piattaforme come Idealista (https://www.idealista.it, €400-€800/mese), Uniplaces (https://www.uniplaces.com, €350-€700/mese) o HousingAnywhere (https://housinganywhere.com, €400-€900/mese). Richiesti: Codice Fiscale, contratto di affitto. Controlla la sezione 'Trovare un alloggio' nella Guida all'arrivo."
-            }
-        },
-        {
-            "q": {
-                "en": "How do I calculate my ISEE?",
-                "fa": "چگونه ISEE خود را محاسبه کنم؟",
-                "it": "Come calcolo il mio ISEE?"
-            },
-            "a": {
-                "en": "Use the /isee command to calculate your ISEE. You'll need: number of family members, annual income, and property value. The bot will calculate your ISEE and determine scholarship eligibility. More info: https://www.inps.it/en/isee.",
-                "fa": "از دستور /isee برای محاسبه ISEE استفاده کنید. نیاز دارید: تعداد اعضای خانواده، درآمد سالیانه، و ارزش املاک. ربات ISEE شما را محاسبه کرده و واجد شرایط بودن برای بورسیه را مشخص می‌کند. اطلاعات بیشتر: https://www.inps.it/en/isee.",
-                "it": "Usa il comando /isee per calcolare il tuo ISEE. Servono: numero di membri della famiglia, reddito annuale e valore della proprietà. Il bot calcolerà il tuo ISEE e determinerà l'idoneità alla borsa di studio. Ulteriori informazioni: https://www.inps.it/en/isee."
-            }
-        },
-        {
-            "q": {
-                "en": "What documents are needed for a student visa?",
-                "fa": "چه مدارکی برای ویزای دانشجویی لازم است؟",
-                "it": "Quali documenti sono necessari per il visto studentesco?"
-            },
-            "a": {
-                "en": "Required documents: valid passport, admission letter, proof of funds (€5,000-€10,000), health insurance, accommodation proof. Apply at the Italian embassy in your country. More info: https://vistoperitalia.esteri.it.",
-                "fa": "مدارک مورد نیاز: پاسپورت معتبر، نامه پذیرش، مدرک تمکن مالی (5000-10000 یورو)، بیمه درمانی، مدرک اقامت. در سفارت ایتالیا در کشور خود درخواست دهید. اطلاعات بیشتر: https://vistoperitalia.esteri.it.",
-                "it": "Documenti richiesti: passaporto valido, lettera di ammissione, prova di fondi (€5.000-€10.000), assicurazione sanitaria, prova di alloggio. Richiedi presso l'ambasciata italiana nel tuo paese. Ulteriori informazioni: https://vistoperitalia.esteri.it."
-            }
-        }
-    ]
+  "questions": [
+    {
+      "q": {
+        "fa": "چطور می‌تونم برای بورسیه درخواست بدم؟"
+      },
+      "a": {
+        "fa": "برای درخواست بورسیه‌های منطقه‌ای (ADiSU Umbria) یا دانشگاهی، به پورتال ADiSU مراجعه کنید: https://www.adisu.umbria.it. **مدارک مورد نیاز**: گواهی ISEE (از طریق /isee محاسبه کنید)، سوابق تحصیلی (ریزنمرات و مدرک دیپلم)، مدرک ثبت‌نام دانشگاه، و فرم درخواست بورسیه. **بودجه تخمینی**: 2000 تا 5000 یورو در سال، بسته به ISEE. **آخرین مهلت**: 15 سپتامبر 2025. **تماس**: info@adisu.umbria.it یا +39 075 573 6111. **نکته**: برای اطمینان، مدارک رو حداقل 2 هفته قبل از مهلت آپلود کنید و وضعیت درخواست رو از پورتال پیگیری کنید. برای به‌روزرسانی‌ها، 'تقویم مهلت‌ها' رو در منوی اصلی چک کنید!"
+      }
+    },
+    {
+      "q": {
+        "fa": "مهلت‌های درخواست بورسیه چیه؟"
+      },
+      "a": {
+        "fa": "آخرین مهلت درخواست بورسیه 15 سپتامبر 2025 است. برای به‌روزرسانی‌ها و سایر مهلت‌های مهم (مثل ثبت‌نام یا امتحانات)، 'تقویم مهلت‌ها' رو از منوی اصلی چک کنید یا به https://www.adisu.umbria.it سر بزنید. **نکته**: یادآورهای ربات رو فعال کنید تا مهلت‌ها رو از دست ندید!"
+      }
+    },
+    {
+      "q": {
+        "fa": "چطور می‌تونم در پروجا خونه پیدا کنم؟"
+      },
+      "a": {
+        "fa": "برای پیدا کردن خونه در پروجا، از این پلتفرم‌ها استفاده کنید:  
+- **ایدیالیستا**: https://www.idealista.it (400-800 یورو/ماه).  
+- **یونی‌پلیس**: https://www.uniplaces.com (350-700 یورو/ماه).  
+- **هاوزینگ‌انی‌ور**: https://housinganywhere.com (400-900 یورو/ماه).  
+**مدارک مورد نیاز**: کد مالیاتی (Codice Fiscale)، قرارداد اجاره (ثبت‌شده). **میانگین اجاره**: اتاق تک‌نفره 250-400 یورو، آپارتمان کامل 600-1000 یورو. **تماس**: آژانس Immobiliare Perugia (+39 075 500 0000). **نکته**: برای اطلاعات بیشتر، بخش 'یافتن مسکن' در راهنمای ورود رو از منوی اصلی چک کنید!"
+      }
+    },
+    {
+      "q": {
+        "fa": "چطور ISEE خودم رو محاسبه کنم؟"
+      },
+      "a": {
+        "fa": "برای محاسبه ISEE، از دستور /isee در ربات استفاده کنید. **اطلاعات مورد نیاز**: تعداد اعضای خانواده، درآمد سالانه (به یورو)، و ارزش املاک (در صورت مالکیت). ربات ISEE شما رو محاسبه می‌کنه و واجد شرایط بودن برای بورسیه رو مشخص می‌کنه. **اطلاعات بیشتر**: https://www.inps.it/en/isee. **تماس**: برای سؤالات، با ADiSU تماس بگیرید: info@adisu.umbria.it. **نکته**: اطلاعات دقیق وارد کنید تا محاسبه درست باشه!"
+      }
+    },
+    {
+      "q": {
+        "fa": "چه مدارکی برای ویزای دانشجویی لازمه؟"
+      },
+      "a": {
+        "fa": "برای ویزای دانشجویی (نوع D)، این مدارک رو آماده کنید:  
+- **پاسپورت معتبر** (با حداقل 6 ماه اعتبار).  
+- **نامه پذیرش دانشگاه** (از دانشگاه پروجا).  
+- **مدرک تمکن مالی** (حداقل 5000-10000 یورو، مثل صورت‌حساب بانکی).  
+- **بیمه درمانی** (معتبر در ایتالیا).  
+- **مدرک محل اقامت** (مثل قرارداد اجاره یا رزرو هتل).  
+**گام‌ها**: وقت سفارت ایتالیا رو رزرو کنید، مدارک رو آپلود کنید، و در مصاحبه شرکت کنید. **اطلاعات بیشتر**: https://vistoperitalia.esteri.it. **نکته**: حداقل 3 ماه قبل از سفر اقدام کنید تا زمان کافی داشته باشید!"
+      }
+    },
+    {
+      "q": {
+        "fa": "چطور می‌تونم اجازه اقامت بگیرم؟"
+      },
+      "a": {
+        "fa": "دانشجویان غیر اتحادیه اروپا باید ظرف 8 روز از ورود به ایتالیا برای اجازه اقامت اقدام کنن. **مدارک مورد نیاز**: پاسپورت، ویزای دانشجویی، نامه پذیرش، بیمه درمانی، مدرک آدرس، کد مالیاتی. **گام‌ها**:  
+1. به اداره پست برید و کیت اجازه اقامت (Kit Permesso di Soggiorno) رو بگیرید (هزینه: 30-70 یورو).  
+2. وقت ملاقات با اداره مهاجرت (Questura) در Via XIV Settembre 81، پروجا رزرو کنید: +39 075 506 3211.  
+**زمان پردازش**: 1-2 ماه. **اطلاعات بیشتر**: https://www.poliziadistato.it. **نکته**: کپی مدارک رو همراه داشته باشید و وقت رو زود رزرو کنید!"
+      }
+    }
+  ]
 }
