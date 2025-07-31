@@ -1,73 +1,68 @@
 import logging
 from typing import Optional
-from studentbot import config
 from transformers import pipeline
 from sentence_transformers import SentenceTransformer
+from optimum.onnxruntime import ORTModelForQuestionAnswering
+from transformers import AutoTokenizer
 
 logger = logging.getLogger(__name__)
 
 class AIModels:
-    """Manages AI models for NLP tasks."""
-    
     def __init__(self):
-        self.model: Optional[SentenceTransformer] = None
+        self.sentence_transformer = None
         self.qa_pipeline = None
         self.stt_pipeline = None
-    
+        self.tokenizer = None
+
     def initialize(self):
-        """Initialize AI models with lazy loading."""
-        if not config.HUGGINGFACE_API_KEY:
-            logger.error("❌ HUGGINGFACE_API_KEY not set")
-            raise ValueError("HUGGINGFACE_API_KEY is required")
-        
-        logger.info("🚀 Initializing AI models...")
+        """Initialize AI models with quantization."""
         try:
-            # Lazy initialization to save memory
-            if not self.model:
-                self.model = SentenceTransformer(
-                    "paraphrase-multilingual-MiniLM-L12-v2",
-                    device="cpu"
-                )
-                logger.info("✅ SentenceTransformer model loaded")
-            
-            if not self.qa_pipeline:
-                self.qa_pipeline = pipeline(
-                    "question-answering",
-                    model="distilbert-base-cased-distilled-squad",
-                    tokenizer="distilbert-base-cased-distilled-squad",
-                    device=-1
-                )
-                logger.info("✅ QA pipeline loaded")
-            
-            if not self.stt_pipeline:
-                self.stt_pipeline = pipeline(
-                    "automatic-speech-recognition",
-                    model="openai/whisper-tiny",
-                    device=-1
-                )
-                logger.info("✅ STT pipeline loaded")
-            
-            logger.info("✅ AI models initialized successfully")
+            # Sentence Transformer with quantization
+            self.sentence_transformer = SentenceTransformer(
+                'sentence-transformers/paraphrase-MiniLM-L6-v2',
+                device='cpu',
+                quantize=True  # Dynamic quantization
+            )
+            logger.info("✅ Initialized quantized SentenceTransformer")
+
+            # Quantized QA model using ONNX
+            model_name = "distilbert-base-uncased"
+            ort_model = ORTModelForQuestionAnswering.from_pretrained(
+                model_name,
+                export=True,
+                provider="CPUExecutionProvider"
+            )
+            self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+            self.qa_pipeline = pipeline(
+                "question-answering",
+                model=ort_model,
+                tokenizer=self.tokenizer,
+                device=-1  # CPU
+            )
+            logger.info("✅ Initialized quantized QA pipeline")
+
+            # STT pipeline (unchanged for now)
+            self.stt_pipeline = pipeline(
+                "automatic-speech-recognition",
+                model="openai/whisper-tiny",
+                device=-1
+            )
+            logger.info("✅ Initialized STT pipeline")
         except Exception as e:
-            logger.error(f"❌ Error initializing AI models: {str(e)}")
+            logger.error(f"❌ Error initializing models: {str(e)}")
             raise
-    
-    def get_sentence_transformer(self) -> SentenceTransformer:
-        """Get SentenceTransformer model, initializing if necessary."""
-        if not self.model:
+
+    def get_sentence_transformer(self) -> Optional[SentenceTransformer]:
+        if not self.sentence_transformer:
             self.initialize()
-        return self.model
-    
-    def get_qa_pipeline(self):
-        """Get QA pipeline, initializing if necessary."""
+        return self.sentence_transformer
+
+    def get_qa_pipeline(self) -> Optional[pipeline]:
         if not self.qa_pipeline:
             self.initialize()
         return self.qa_pipeline
-    
-    def get_stt_pipeline(self):
-        """Get STT pipeline, initializing if necessary."""
+
+    def get_stt_pipeline(self) -> Optional[pipeline]:
         if not self.stt_pipeline:
             self.initialize()
         return self.stt_pipeline
-
-ai_models = AIModels()
