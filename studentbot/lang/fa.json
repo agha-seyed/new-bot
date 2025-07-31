@@ -1,643 +1,206 @@
 {
-    "welcome": "🌟 به ربات راهنمای دانشجویان بین‌المللی خوش اومدی! 🚀 آماده‌ایم تا قدم‌به‌قدم کنارت باشیم!",
-    "language_selection": "🌍 لطفاً زبانی که دوست داری رو انتخاب کن:",
-    "profile_placeholder": "📋 اینجا پروفایلت نمایش داده می‌شه. هنوز ثبت‌نام نکردی؟ با /register شروع کن!",
-    "main_menu": "🏠 منوی اصلی",
-    "scholarships_menu": "🎓 بورسیه‌های تحصیلی",
-    "migration_menu": "🛂 مراحل مهاجرت",
-    "housing_menu": "🏡 پیدا کردن خونه در پروجا",
-    "documents_menu": "🧾 مدارک مورد نیاز",
-    "consulting_menu": "🧠 مشاوره مهاجرتی",
-    "upload_document_menu": "📤 آپلود مدارک",
-    "isee_menu": "🧮 محاسبه ISEE",
-    "deadlines_menu": "📅 تقویم مهلت‌ها",
-    "weather_menu": "🌤 آب‌وهوای پروجا",
-    "search_menu": "🔍 جستجوی اطلاعات",
-    "news_menu": "📢 اخبار دانشگاهی",
-    "cost_of_living_menu": "💸 هزینه‌های زندگی در ایتالیا",
-    "language_courses_menu": "🗣 دوره‌های زبان",
-    "feedback_menu": "💬 بازخورد و نظرات",
-    "gamification_menu": "👑 گیمیفیکیشن و امتیازات",
-    "first_name_prompt": "✍️ لطفاً اسم خودت رو وارد کن:",
-    "last_name_prompt": "✍️ حالا نام خانوادگیت رو بنویس:",
-    "age_prompt": "🎂 سنت رو به ما بگو:",
-    "email_prompt": "📧 آدرس ایمیلت رو وارد کن:",
-    "country_prompt": "🌎 از کدوم کشور میای؟",
-    "field_of_study_prompt": "📚 رشته تحصیلیت چیه؟",
-    "registration_complete": "🎉 ثبت‌نامت با موفقیت انجام شد! حالا آماده‌ای که باهم کلی کار باحال انجام بدیم!",
-    "registration_cancelled": "🙁 ثبت‌نام لغو شد. اگه خواستی دوباره امتحان کنی، با /register بیا!",
-    "not_registered": "⚠️ هنوز ثبت‌نام نکردی! لطفاً با /register شروع کن.",
-    "edit_profile": "✏️ ویرایش پروفایل",
-    "edit_first_name_prompt": "✍️ اسم جدیدت رو وارد کن (فعلی: {first_name}):",
-    "edit_last_name_prompt": "✍️ نام خانوادگی جدیدت رو بنویس (فعلی: {last_name}):",
-    "edit_age_prompt": "🎂 سن جدیدت رو بگو (فعلی: {age}):",
-    "edit_email_prompt": "📧 ایمیل جدیدت رو وارد کن (فعلی: {email}):",
-    "edit_country_prompt": "🌎 کشور جدیدت رو بگو (فعلی: {country}):",
-    "edit_field_of_study_prompt": "📚 رشته تحصیلی جدیدت رو بنویس (فعلی: {field_of_study}):",
-    "profile_updated": "🎉 پروفایلت با موفقیت آپدیت شد! حالا همه‌چیز به‌روزه!",
-    "edit_cancelled": "🙁 ویرایش پروفایل لغو شد. اگه خواستی دوباره امتحان کن!",
-    "invalid_age": "🚫 سنت معتبر نیست! لطفاً یه عدد درست وارد کن.",
-    "invalid_email": "🚫 ایمیلت درست نیست! یه ایمیل معتبر وارد کن.",
-    "family_members_prompt": "👨‍👩‍👧 تعداد اعضای خونوادت رو بگو:",
-    "annual_income_prompt": "💰 درآمد سالانه خونوادت رو وارد کن (به یورو):",
-    "is_owner_prompt": "🏠 آیا مالک یه ملک هستی؟ (بله/خیر)",
-    "property_area_prompt": "📏 متراژ ملکت رو به متر مربع وارد کن:",
-    "isee_calculation_cancelled": "🙁 محاسبه ISEE لغو شد. اگه خواستی دوباره با /isee امتحان کن!",
-    "yes": "✅ بله",
-    "no": "❌ خیر",
-    "scholarship_status_full": "🎉 تبریک! تو واجد شرایط بورسیه کامل هستی!",
-    "scholarship_status_medium": "👏 خوبه! تو واجد شرایط بورسیه متوسط هستی.",
-    "scholarship_status_partial": "👍 تو واجد شرایط بورسیه جزئی هستی.",
-    "scholarship_status_none": "🙁 متأسفیم، به نظر میاد واجد شرایط بورسیه نیستی.",
-    "points": "🌟 امتیازاتت: {points} | سطح: {level}",
-    "leaderboard": "🏆 جدول امتیازات",
-    "empty_leaderboard": "😕 هنوز هیچ‌کس امتیازی نداره! تو اولین باش!",
-    "leaderboard_reset": "🔄 جدول امتیازات با موفقیت ریست شد!",
-    "points_command_desc": "🌟 امتیازات و سطحت رو چک کن",
-    "leaderboard_command_desc": "🏆 بهترین‌های جدول امتیازات رو ببین",
-    "reset_command_desc": "🔄 جدول امتیازات رو ریست کن (فقط ادمین)",
-    "unauthorized": "🚫 اوپس! تو اجازه انجام این کار رو نداری!",
-    "consultation_name_prompt": "✍️ اسم کاملت رو بنویس:",
-    "consultation_field_of_study_prompt": "📚 رشته تحصیلیت چیه؟",
-    "consultation_level_prompt": "🎓 مقطع تحصیلیت رو بگو (کارشناسی، ارشد، دکتری):",
-    "consultation_gpa_prompt": "📊 معدلت رو وارد کن:",
-    "consultation_destination_country_prompt": "🌍 کشور مقصدت کجاست؟",
-    "consultation_language_level_prompt": "🗣 سطح زبانت رو بگو (مثلاً B2، C1):",
-    "consultation_budget_prompt": "💸 بودجه‌ات برای مهاجرت چقدره؟",
-    "consultation_work_experience_prompt": "💼 سابقه کاریت رو برامون تعریف کن:",
-    "consultation_special_needs_prompt": "❓ نیازهای خاص یا شرایط ویژه‌ای داری؟ بگو:",
-    "consultation_upload_resume_prompt": "📄 لطفاً رزومه‌ات رو آپلود کن:",
-    "consultation_complete": "🎉 درخواست مشاوره‌ات ثبت شد! به‌زودی باهات تماس می‌گیریم!",
-    "consultation_cancelled": "🙁 درخواست مشاوره لغو شد. اگه خواستی دوباره با /consult امتحان کن!",
-    "no_consultation_requests": "📭 هنوز هیچ درخواست مشاوره‌ای نداری.",
-    "document_submission_prompt": "📤 لطفاً مدرکت رو آپلود کن:",
-    "document_submission_complete": "✅ مدرکت با موفقیت آپلود شد! حالا خیالت راحته!",
-    "weather_in_perugia": "🌤 آب‌وهوای پروجا",
-    "weather": "🌦 وضعیت آب‌وهوا",
-    "temperature": "🌡 دما",
-    "humidity": "💧 رطوبت",
-    "cost_of_living_in_italy": "💸 هزینه‌های زندگی در ایتالیا",
-    "search_prompt": "🔍 چی دوست داری بدونی؟ عبارتت رو وارد کن:",
-    "ask_prompt": "❓ سؤالت چیه؟ بپرس تا برات جواب بدم!",
-    "tts_prompt": "📢 متنی که می‌خوای به گفتار تبدیل بشه رو بنویس:",
-    "stt_confirm_prompt": "🎙 شنیدم: `{text}`\nدرسته؟",
-    "stt_cancelled": "🙁 باشه، جستجو رو کنسل کردم. بازم بگو چی می‌خوای!",
-    "tts_button": "📢 پخش صوتی",
-    "searching": "🔍 در حال جستجوی پاسخ... یه لحظه صبر کن!",
-    "calendar": "📅 تقویم مهلت‌ها",
-    "arrival_guide_menu": "🗺 منوی راهنمای ورود",
-    "item_not_found": "🚫 اوپس! این آیتم پیدا نشد. یه گزینه دیگه انتخاب کن!",
-    "event_not_found": "🚫 اوپس! این رویداد پیدا نشد. تقویم رو دوباره چک کن!",
-    "error_occurred": "😕 یه خطایی پیش اومد! دوباره امتحان کن یا با ادمین تماس بگیر.",
-    "question_title_prompt": "✍️ عنوان سؤالت رو بنویس:",
-    "question_description_prompt": "📝 حالا سؤالت رو با جزئیات توضیح بده:",
-    "question_topic_prompt": "🏷 موضوع سؤالت چیه؟ (مثلاً بورسیه، ویزا، مسکن)",
-    "question_complete": "✅ سؤالت ثبت شد! به‌زودی جوابش رو بهت می‌دیم!",
-    "question_cancelled": "🙁 ارسال سؤال لغو شد. اگه خواستی دوباره امتحان کن!",
-    "feedback_prompt": "🌟 تجربه‌ات با ربات چطور بود؟ یه امتیاز بده:",
-    "excellent": "😍 عالی",
-    "average": "🙂 معمولی",
-    "poor": "😕 ضعیف",
-    "feedback_thanks": "🙏 مرسی از بازخوردت! کمک می‌کنه بهتر بشیم!",
-    "delete_profile": "🗑️ حذف پروفایل",
-    "profile_deleted": "🗑️ پروفایلت با موفقیت حذف شد. از نو شروع کن!",
-    "rent_prompt": "🏠 هزینه اجاره ماهانه‌ات رو بنویس (به یورو):",
-    "food_prompt": "🍽 هزینه ماهانه غذا رو وارد کن (به یورو):",
-    "transportation_prompt": "🚍 هزینه ماهانه حمل‌ونقل رو بگو (به یورو):",
-    "compare_city_prompt": "🌆 یه شهر برای مقایسه هزینه‌ها انتخاب کن:",
-    "cost_calculation_cancelled": "🙁 محاسبه هزینه زندگی لغو شد. با /cost دوباره امتحان کن!",
-    "migration_status": "📊 نوار پیشرفت مهاجرت",
-    "migration_status_updated": "✅ وضعیت مهاجرتت آپدیت شد! یه قدم به هدفت نزدیک‌تر شدی!",
-    "help_text": "ℹ️ به کمک نیاز داری؟ من اینجام تا همه‌چیز رو برات توضیح بدم! از منوی اصلی گزینه‌ها رو چک کن یا سؤالت رو بپرس!",
-    "contact_us_text": "📞 با ما تماس بگیر! ایمیل: support@unipg.it | تلگرام: @UniPGSupport",
-    "about_us_text": "🌍 ما یه تیم هستیم که به دانشجوهای بین‌المللی کمک می‌کنیم تا تجربه‌ای فوق‌العاده تو ایتالیا داشته باشن! 🚀",
-    "challenge_menu": "🎮 چالش‌های گیمیفیکیشن",
-    "challenge_completed": "🏆 تبریک! چالش {challenge_name} رو با موفقیت تموم کردی! {points} امتیاز گرفتی!",
-    "no_challenges_available": "😕 هنوز چالشی برات نداریم. به‌زودی کلی چالش باحال اضافه می‌کنیم!"
-}
-
-{
-    "invalid_number": {
-        "en": "🚫 Please enter a valid number (e.g., 100.50).",
-        "fa": "🚫 لطفاً یک عدد معتبر وارد کنید (مثلاً 100.50).",
-        "it": "🚫 Inserisci un numero valido (es. 100,50)."
-    },
-    "your_total_cost": {
-        "en": "Your Total Monthly Cost",
-        "fa": "کل هزینه ماهانه شما",
-        "it": "Il tuo costo mensile totale"
-    },
-    "total_cost_in": {
-        "en": "Total Monthly Cost in",
-        "fa": "کل هزینه ماهانه در",
-        "it": "Costo mensile totale a"
-    },
-    "details": {
-        "en": "Details",
-        "fa": "جزئیات",
-        "it": "Dettagli"
-    },
-    "rent": {
-        "en": "Rent",
-        "fa": "اجاره",
-        "it": "Affitto"
-    },
-    "food": {
-        "en": "Food",
-        "fa": "غذا",
-        "it": "Cibo"
-    },
-    "transportation": {
-        "en": "Transportation",
-        "fa": "حمل‌ونقل",
-        "it": "Trasporti"
-    },
-    "invalid_city": {
-        "en": "🚫 Invalid city! Please choose from the list.",
-        "fa": "🚫 شهر نامعتبر! لطفاً از لیست انتخاب کنید.",
-        "it": "🚫 Città non valida! Scegli dall'elenco."
-    },
-    "api_key_missing": {
-        "en": "🚫 Exchange rate API key is missing. Contact the admin.",
-        "fa": "🚫 کلید API نرخ ارز وجود ندارد. با ادمین تماس بگیرید.",
-        "it": "🚫 Chiave API per il tasso di cambio mancante. Contatta l'admin."
-    },
-    "exchange_rate_failed": {
-        "en": "😕 Unable to fetch exchange rate right now. Try again later!",
-        "fa": "😕 الان نمی‌تونیم نرخ ارز رو بگیریم. بعداً دوباره امتحان کن!",
-        "it": "😕 Impossibile ottenere il tasso di cambio ora. Riprova più tardi!"
-    }
-}
-{
-    "no_document_received": {
-        "en": "🚫 No document received! Please send a valid file.",
-        "fa": "🚫 هیچ فایلی دریافت نشد! لطفاً یک فایل معتبر بفرستید.",
-        "it": "🚫 Nessun documento ricevuto! Invia un file valido."
-    },
-    "invalid_file_format": {
-        "en": "🚫 Invalid file format! Allowed formats: {allowed}.",
-        "fa": "🚫 فرمت فایل نامعتبره! فرمت‌های مجاز: {allowed}.",
-        "it": "🚫 Formato file non valido! Formati consentiti: {allowed}."
-    },
-    "file_too_large": {
-        "en": "🚫 File is too large! Maximum size: {max_size} MB.",
-        "fa": "🚫 فایل خیلی بزرگه! حداکثر حجم: {max_size} مگابایت.",
-        "it": "🚫 File troppo grande! Dimensione massima: {max_size} MB."
-    },
-    "upload_failed": {
-        "en": "😕 Failed to upload your document. Try again later!",
-        "fa": "😕 آپلود فایلت失败 کرد. بعداً دوباره امتحان کن!",
-        "it": "😕 Impossibile caricare il tuo documento. Riprova più tardi!"
-    },
-    "admin_document_uploaded": {
-        "en": "🔔 User {user_id} uploaded a document: {file_name}\nDrive URL: {drive_url}",
-        "fa": "🔔 کاربر {user_id} یه مدرک آپلود کرد: {file_name}\nلینک درایو: {drive_url}",
-        "it": "🔔 L'utente {user_id} ha caricato un documento: {file_name}\nURL Drive: {drive_url}"
-    }
-}
-{
-    "profile_preview": {
-        "en": "Profile Preview",
-        "fa": "پیش‌نمایش پروفایل",
-        "it": "Anteprima del Profilo"
-    },
-    "first_name": {
-        "en": "First Name",
-        "fa": "نام",
-        "it": "Nome"
-    },
-    "last_name": {
-        "en": "Last Name",
-        "fa": "نام خانوادگی",
-        "it": "Cognome"
-    },
-    "age": {
-        "en": "Age",
-        "fa": "سن",
-        "it": "Età"
-    },
-    "email": {
-        "en": "Email",
-        "fa": "ایمیل",
-        "it": "Email"
-    },
-    "country": {
-        "en": "Country",
-        "fa": "کشور",
-        "it": "Paese"
-    },
-    "field_of_study": {
-        "en": "Field of Study",
-        "fa": "رشته تحصیلی",
-        "it": "Campo di Studio"
-    },
-    "preview_updated_info": {
-        "en": "🌟 Here's a preview of your updated info:",
-        "fa": "🌟 این پیش‌نمایش اطلاعات به‌روز شده شماست:",
-        "it": "🌟 Ecco un'anteprima delle tue informazioni aggiornate:"
-    },
-    "confirm_button": {
-        "en": "✅ Confirm",
-        "fa": "✅ تأیید",
-        "it": "✅ Conferma"
-    },
-    "cancel_button": {
-        "en": "❌ Cancel",
-        "fa": "❌ لغو",
-        "it": "❌ Annulla"
-    },
-    "invalid_confirmation": {
-        "en": "🚫 Please select Confirm or Cancel.",
-        "fa": "🚫 لطفاً تأیید یا لغو رو انتخاب کنید.",
-        "it": "🚫 Seleziona Conferma o Annulla."
-    },
-    "admin_profile_updated": {
-        "en": "🔔 User {first_name} {last_name} updated their profile.",
-        "fa": "🔔 کاربر {first_name} {last_name} پروفایلش رو به‌روز کرد.",
-        "it": "🔔 L'utente {first_name} {last_name} ha aggiornato il proprio profilo."
-    },
-    "edit_failed": {
-        "en": "😕 Failed to update your profile. Try again later!",
-        "fa": "😕 به‌روزرسانی پروفایلت失敗 کرد. بعداً دوباره امتحان کن!",
-        "it": "😕 Impossibile aggiornare il tuo profilo. Riprova più tardi!"
-    }
-}
-{
-    "migration_steps": {
-        "en": "Migration Steps",
-        "fa": "مراحل مهاجرت",
-        "it": "Fasi di Migrazione"
-    },
-    "current_step": {
-        "en": "Current Step",
-        "fa": "مرحله فعلی",
-        "it": "Fase Attuale"
-    },
-    "admin_migration_updated": {
-        "en": "🔔 User {user_id} updated migration status to {status}/10.",
-        "fa": "🔔 کاربر {user_id} وضعیت مهاجرتش رو به {status}/10 به‌روز کرد.",
-        "it": "🔔 L'utente {user_id} ha aggiornato lo stato di migrazione a {status}/10."
-    },
-    "migration_status_no_arg": {
-        "en": "🚫 Please provide a status number (0-10). Example: /update_migration_status 5",
-        "fa": "🚫 لطفاً یه شماره وضعیت (0-10) وارد کنید. مثال: /update_migration_status 5",
-        "it": "🚫 Inserisci un numero di stato (0-10). Esempio: /update_migration_status 5"
-    },
-    "migration_status_invalid_arg": {
-        "en": "🚫 Invalid status! Please enter a number between 0 and 10.",
-        "fa": "🚫 وضعیت نامعتبر! لطفاً یه شماره بین 0 تا 10 وارد کنید.",
-        "it": "🚫 Stato non valido! Inserisci un numero tra 0 e 10."
-    }
-}
-{
-    "invalid_language": {
-        "en": "🚫 Invalid language! Please choose a valid option.",
-        "fa": "🚫 زبان نامعتبر! لطفاً یه گزینه معتبر انتخاب کنید.",
-        "it": "🚫 Lingua non valida! Scegli un'opzione valida."
-    },
-    "language_set": {
-        "en": "🌍 Language set to {lang} successfully!",
-        "fa": "🌍 زبان با موفقیت به {lang} تنظیم شد!",
-        "it": "🌍 Lingua impostata su {lang} con successo!"
-    }
-}
-
-
-{
-    "invalid_feedback": {
-        "en": "🚫 Invalid feedback choice! Please select one of the options.",
-        "fa": "🚫 انتخاب بازخورد نامعتبر! لطفاً یکی از گزینه‌ها رو انتخاب کنید.",
-        "it": "🚫 Scelta di feedback non valida! Seleziona una delle opzioni."
-    },
-    "admin_poor_feedback": {
-        "en": "🔔 User {user_id} submitted poor feedback. Please review!",
-        "fa": "🔔 کاربر {user_id} بازخورد ضعیف داد. لطفاً بررسی کنید!",
-        "it": "🔔 L'utente {user_id} ha inviato un feedback scarso. Controlla!"
-    }
-}
-{
-    "already_registered": {
-        "en": "🚫 You're already registered! Check your profile with /profile.",
-        "fa": "🚫 شما قبلاً ثبت‌نام کردید! پروفایلتون رو با /profile چک کنید.",
-        "it": "🚫 Sei già registrato! Controlla il tuo profilo con /profile."
-    },
-    "admin_new_registration": {
-        "en": "🔔 New registration:\nName: {first_name} {last_name}\nEmail: {email}\nCountry: {country}\nField: {field}\nAge: {age}\nTime: {timestamp}",
-        "fa": "🔔 ثبت‌نام جدید:\nنام: {first_name} {last_name}\nایمیل: {email}\nکشور: {country}\nرشته: {field}\nسن: {age}\nزمان: {timestamp}",
-        "it": "🔔 Nuova registrazione:\nNome: {first_name} {last_name}\nEmail: {email}\nPaese: {country}\nCampo: {field}\nEtà: {age}\nData: {timestamp}"
-    },
-    "registration_summary": {
-        "en": "Registration Summary",
-        "fa": "خلاصه ثبت‌نام",
-        "it": "Riepilogo Registrazione"
-    },
-    "confirm_registration_prompt": {
-        "en": "Please confirm your details or cancel.",
-        "fa": "لطفاً اطلاعاتتون رو تأیید یا لغو کنید.",
-        "it": "Conferma i tuoi dettagli o annulla."
-    }
-}
-
-{
-    "scholarship_topic": {
-        "en": "🎓 Scholarship",
-        "fa": "🎓 بورسیه",
-        "it": "🎓 Borsa di Studio"
-    },
-    "housing_topic": {
-        "en": "🏠 Housing",
-        "fa": "🏠 مسکن",
-        "it": "🏠 Alloggio"
-    },
-    "deadlines_topic": {
-        "en": "📅 Deadlines",
-        "fa": "📅 مهلت‌ها",
-        "it": "📅 Scadenze"
-    },
-    "migration_topic": {
-        "en": "🌎 Migration",
-        "fa": "🌎 مهاجرت",
-        "it": "🌎 Migrazione"
-    },
-    "summary_title": {
-        "en": "Question Summary",
-        "fa": "خلاصه سؤال",
-        "it": "Riepilogo Domanda"
-    },
-    "title": {
-        "en": "Title",
-        "fa": "عنوان",
-        "it": "Titolo"
-    },
-    "description": {
-        "en": "Description",
-        "fa": "توضیحات",
-        "it": "Descrizione"
-    },
-    "topic": {
-        "en": "Topic",
-        "fa": "موضوع",
-        "it": "Argomento"
-    },
-    "confirm_question_prompt": {
-        "en": "Please confirm your question or cancel.",
-        "fa": "لطفاً سؤالتون رو تأیید یا لغو کنید.",
-        "it": "Conferma la tua domanda o annullala."
-    },
-    "ai_thinking": {
-        "en": "🧠 Thinking... Please wait a moment!",
-        "fa": "🧠 در حال فکر کردن... یه لحظه صبر کن!",
-        "it": "🧠 Sto pensando... Aspetta un attimo!"
-    },
-    "admin_will_reply": {
-        "en": "🤝 Our team will review your question and reply soon!",
-        "fa": "🤝 تیم ما سؤالتون رو بررسی می‌کنه و به‌زودی جواب می‌ده!",
-        "it": "🤝 Il nostro team esaminerà la tua domanda e risponderà presto!"
-    }
-}
-
-{
-    "start_edit_profile": {
-        "en": "✏️ Starting profile edit... Use /edit to continue!",
-        "fa": "✏️ شروع ویرایش پروفایل... برای ادامه از /edit استفاده کن!",
-        "it": "✏️ Inizio modifica profilo... Usa /edit per continuare!"
-    },
-    "start_upload_document": {
-        "en": "📤 Starting document upload... Use /upload to continue!",
-        "fa": "📤 شروع آپلود مدرک... برای ادامه از /upload استفاده کن!",
-        "it": "📤 Inizio caricamento documento... Usa /upload per continuare!"
-    },
-    "registration_time": {
-        "en": "Registration Time",
-        "fa": "زمان ثبت‌نام",
-        "it": "Data di Registrazione"
-    },
-    "level": {
-        "en": "Level",
-        "fa": "سطح",
-        "it": "Livello"
-    },
-    "progress": {
-        "en": "Progress",
-        "fa": "پیشرفت",
-        "it": "Progresso"
-    },
-    "questions_asked": {
-        "en": "Questions Asked",
-        "fa": "سؤالات پرسیده‌شده",
-        "it": "Domande Poste"
-    },
-    "answers_received": {
-        "en": "Answers Received",
-        "fa": "پاسخ‌های دریافت‌شده",
-        "it": "Risposte Ricevute"
-    }
-}
-
-{
-    "more_news": {
-        "en": "📰 More News",
-        "fa": "📰 اخبار بیشتر",
-        "it": "📰 Altre Notizie"
-    },
-    "news_fetch_error": {
-        "en": "😕 Couldn't fetch news right now. Try again later!",
-        "fa": "😕 الان نمی‌تونیم اخبار رو دریافت کنیم. بعداً دوباره امتحان کن!",
-        "it": "😕 Impossibile recuperare le notizie ora. Riprova più tardi!"
-    }
-}
-
-
-{
-    "register_menu": {
-        "en": "📋 Register",
-        "fa": "📋 ثبت‌نام",
-        "it": "📋 Registrazione"
-    },
-    "profile_menu": {
-        "en": "👤 Profile",
-        "fa": "👤 پروفایل",
-        "it": "👤 Profilo"
-    },
-    "question_menu": {
-        "en": "❓ Ask a Question",
-        "fa": "❓ پرسیدن سؤال",
-        "it": "❓ Fai una Domanda"
-    },
-    "help_menu": {
-        "en": "📖 Help",
-        "fa": "📖 راهنما",
-        "it": "📖 Aiuto"
-    },
-    "contact_menu": {
-        "en": "📩 Contact Us",
-        "fa": "📩 تماس با ما",
-        "it": "📩 Contattaci"
-    },
-    "about_menu": {
-        "en": "ℹ️ About Us",
-        "fa": "ℹ️ درباره ما",
-        "it": "ℹ️ Chi Siamo"
-    },
-    "menu_selected": {
-        "en": "✅ Selected: {command}",
-        "fa": "✅ انتخاب شد: {command}",
-        "it": "✅ Selezionato: {command}"
-    },
-    "search_again": {
-        "en": "🔍 Search Again",
-        "fa": "🔍 جستجوی دوباره",
-        "it": "🔍 Cerca di Nuovo"
-    },
-    "wind_speed": {
-        "en": "Wind Speed",
-        "fa": "سرعت باد",
-        "it": "Velocità del Vento"
-    },
-    "refresh_weather": {
-        "en": "🔄 Refresh Weather",
-        "fa": "🔄 به‌روزرسانی آب‌وهوا",
-        "it": "🔄 Aggiorna Meteo"
-    }
-}
-
-{
-    "wind_speed": {
-        "en": "Wind Speed",
-        "fa": "سرعت باد",
-        "it": "Velocità del Vento"
-    },
-    "refresh_weather": {
-        "en": "🔄 Refresh Weather",
-        "fa": "🔄 به‌روزرسانی آب‌وهوا",
-        "it": "🔄 Aggiorna Meteo"
-    },
-    "weather_error": {
-        "en": "😕 Couldn't fetch weather data. Try again later!",
-        "fa": "😕 نمی‌تونیم داده‌های آب‌وهوا رو بگیریم. بعداً دوباره امتحان کن!",
-        "it": "😕 Impossibile recuperare i dati meteo. Riprova più tardi!"
-    }
-}
-
-{
-    "search_again": {
-        "en": "🔍 Search Again",
-        "fa": "🔍 جستجوی دوباره",
-        "it": "🔍 Cerca di Nuovo"
-    },
-    "search_too_short": {
-        "en": "🚫 Search query too short! Please enter at least 3 characters.",
-        "fa": "🚫 عبارت جستجو خیلی کوتاهه! لطفاً حداقل 3 کاراکتر وارد کنید.",
-        "it": "🚫 Query di ricerca troppo breve! Inserisci almeno 3 caratteri."
-    },
-    "cached_result": {
-        "en": "📚 Found in cache!",
-        "fa": "📚 توی کش پیدا شد!",
-        "it": "📚 Trovato nella cache!"
-    },
-    "search_failed": {
-        "en": "😕 Search failed. Please try again later!",
-        "fa": "😕 جستجو ناموفق بود. بعداً دوباره امتحان کنید!",
-        "it": "😕 Ricerca fallita. Riprova più tardi!"
-    }
-}
-
-{
-    "register_menu": {
-        "en": "📋 Register",
-        "fa": "📋 ثبت‌نام",
-        "it": "📋 Registrazione"
-    },
-    "profile_menu": {
-        "en": "👤 Profile",
-        "fa": "👤 پروفایل",
-        "it": "👤 Profilo"
-    },
-    "question_menu": {
-        "en": "❓ Ask a Question",
-        "fa": "❓ پرسیدن سؤال",
-        "it": "❓ Fai una Domanda"
-    },
-    "help_menu": {
-        "en": "📖 Help",
-        "fa": "📖 راهنما",
-        "it": "📖 Aiuto"
-    },
-    "contact_menu": {
-        "en": "📩 Contact Us",
-        "fa": "📩 تماس با ما",
-        "it": "📩 Contattaci"
-    },
-    "about_menu": {
-        "en": "ℹ️ About Us",
-        "fa": "ℹ️ درباره ما",
-        "it": "ℹ️ Chi Siamo"
-    },
-    "menu_selected": {
-        "en": "✅ Selected: {command}",
-        "fa": "✅ انتخاب شد: {command}",
-        "it": "✅ Selezionato: {command}"
-    }
-}
-{
-    "respond_button": {
-        "en": "📬 Respond",
-        "fa": "📬 پاسخ دادن",
-        "it": "📬 Rispondi"
-    },
-    "archive_button": {
-        "en": "🗑 Archive",
-        "fa": "🗑 آرشیو کردن",
-        "it": "🗑 Archivia"
-    },
-    "consultation_responded": {
-        "en": "✅ Consultation responded by admin.",
-        "fa": "✅ مشاوره توسط ادمین پاسخ داده شد.",
-        "it": "✅ Consulenza risposta dall'admin."
-    },
-    "consultation_archived": {
-        "en": "🗑 Consultation archived.",
-        "fa": "🗑 مشاوره آرشیو شد.",
-        "it": "🗑 Consulenza archiviata."
-    },
-    "invalid_name": {
-        "en": "🚫 Invalid name! Please enter a valid name.",
-        "fa": "🚫 نام نامعتبر! لطفاً یک نام معتبر وارد کنید.",
-        "it": "🚫 Nome non valido! Inserisci un nome valido."
-    },
-    "invalid_field_of_study": {
-        "en": "🚫 Invalid field of study! Please enter a valid field.",
-        "fa": "🚫 رشته تحصیلی نامعتبر! لطفاً یک رشته معتبر وارد کنید.",
-        "it": "🚫 Campo di studio non valido! Inserisci un campo valido."
-    },
-    "invalid_level": {
-        "en": "🚫 Invalid level! Please choose: Bachelor, Master, PhD, or Other.",
-        "fa": "🚫 مقطع نامعتبر! لطفاً یکی از این‌ها رو انتخاب کنید: کارشناسی، ارشد، دکتری، یا سایر.",
-        "it": "🚫 Livello non valido! Scegli: Laurea, Master, Dottorato, o Altro."
-    },
-    "invalid_gpa": {
-        "en": "🚫 Invalid GPA! Please enter a number between 0 and 20.",
-        "fa": "🚫 معدل نامعتبر! لطفاً یک عدد بین 0 تا 20 وارد کنید.",
-        "it": "🚫 GPA non valido! Inserisci un numero tra 0 e 20."
-    },
-    "invalid_country": {
-        "en": "🚫 Invalid country! Please enter a valid country name.",
-        "fa": "🚫 کشور نامعتبر! لطفاً یک نام کشور معتبر وارد کنید.",
-        "it": "🚫 Paese non valido! Inserisci un nome di paese valido."
-    },
-    "invalid_language_level": {
-        "en": "🚫 Invalid language level! Please choose: A1, A2, B1, B2, C1, or C2.",
-        "fa": "🚫 سطح زبان نامعتبر! لطفاً یکی از این‌ها رو انتخاب کنید: A1، A2، B1، B2، C1 یا C2.",
-        "it": "🚫 Livello linguistico non valido! Scegli: A1, A2, B1, B2, C1 o C2."
-    },
-    "invalid_budget": {
-        "en": "🚫 Invalid budget! Please enter a valid number (e.g., 1000 or 1000 USD).",
-        "fa": "🚫 بودجه نامعتبر! لطفاً یک عدد معتبر وارد کنید (مثلاً 1000 یا 1000 USD).",
-        "it": "🚫 Budget non valido! Inserisci un numero valido (es. 1000 o 1000 USD)."
-    },
-    "search_email_subject": {
-        "en": "Your Document Search Results",
-        "fa": "نتایج جستجوی اسناد شما",
-        "it": "Risultati della ricerca nei documenti"
-    }
+  "welcome": "🌟 به ربات راهنمای دانشجویان بین‌المللی خوش آمدید! 🚀 ما اینجاییم تا قدم‌به‌قدم در مسیر تحصیل و زندگی در ایتالیا کنارتون باشیم!",
+  "language_selection": "🌍 لطفاً زبان مورد نظر خودتون رو انتخاب کنید:",
+  "profile_placeholder": "📋 اینجا پروفایل شما نمایش داده می‌شه. هنوز ثبت‌نام نکردید؟ با /register شروع کنید!",
+  "main_menu": "🏠 منوی اصلی",
+  "register_menu": "📋 ثبت‌نام",
+  "profile_menu": "👤 پروفایل",
+  "question_menu": "❓ پرسیدن سؤال",
+  "search_menu": "🔍 جستجوی اطلاعات",
+  "news_menu": "📢 اخبار دانشگاهی",
+  "weather_menu": "🌤 آب‌وهوای پروجا",
+  "cost_of_living_menu": "💸 هزینه‌های زندگی در ایتالیا",
+  "upload_document_menu": "📤 آپلود مدارک",
+  "gamification_menu": "👑 گیمیفیکیشن و امتیازات",
+  "feedback_menu": "💬 بازخورد و نظرات",
+  "scholarships_menu": "🎓 بورسیه‌های تحصیلی",
+  "migration_menu": "🛂 مراحل مهاجرت",
+  "housing_menu": "🏡 پیدا کردن خانه در پروجا",
+  "documents_menu": "🧾 مدارک مورد نیاز",
+  "consulting_menu": "🧠 مشاوره مهاجرتی",
+  "isee_menu": "🧮 محاسبه ISEE",
+  "deadlines_menu": "📅 تقویم مهلت‌ها",
+  "language_courses_menu": "🗣 دوره‌های زبان",
+  "migration_status_menu": "📊 وضعیت مهاجرت",
+  "help_menu": "📖 راهنما",
+  "contact_menu": "📩 تماس با ما",
+  "about_menu": "ℹ️ درباره ما",
+  "menu_selected": "✅ گزینه انتخاب‌شده: {command}",
+  "invalid_selection": "🚫 انتخاب نامعتبر! لطفاً از منوی اصلی یه گزینه معتبر انتخاب کنید.",
+  "first_name_prompt": "✍️ لطفاً نام خودتون رو وارد کنید:",
+  "last_name_prompt": "✍️ حالا نام خانوادگی‌تون رو بنویسید:",
+  "age_prompt": "🎂 سن‌تون رو به ما بگید (عدد بین 0 تا 120):",
+  "email_prompt": "📧 آدرس ایمیل‌تون رو وارد کنید (مثلاً example@domain.com):",
+  "country_prompt": "🌎 از کدوم کشور هستید؟ (نام کامل کشور رو بنویسید):",
+  "field_of_study_prompt": "📚 رشته تحصیلی‌تون چیه؟",
+  "registration_summary": "📋 خلاصه اطلاعات ثبت‌نام",
+  "confirm_registration_prompt": "✅ لطفاً اطلاعات بالا رو تأیید یا لغو کنید.",
+  "confirm_button": "✅ تأیید",
+  "cancel_button": "❌ لغو",
+  "already_registered": "🚫 شما قبلاً ثبت‌نام کردید! پروفایل‌تون رو با /profile چک کنید.",
+  "error_occurred": "😕 یه خطایی پیش اومد! لطفاً دوباره امتحان کنید یا با پشتیبانی تماس بگیرید: support@unipg.it",
+  "invalid_age": "🚫 سن واردشده معتبر نیست! لطفاً یه عدد بین 0 تا 120 وارد کنید.",
+  "invalid_email": "🚫 ایمیل واردشده معتبر نیست! لطفاً یه ایمیل معتبر (مثل example@domain.com) وارد کنید.",
+  "registration_cancelled": "🙁 ثبت‌نام لغو شد. اگه خواستید دوباره امتحان کنید، با /register شروع کنید!",
+  "registration_complete": "🎉 ثبت‌نام شما با موفقیت انجام شد! حالا می‌تونید از همه امکانات ربات استفاده کنید!",
+  "admin_new_registration": "🔔 ثبت‌نام جدید:\nنام: {first_name} {last_name}\nایمیل: {email}\nکشور: {country}\nرشته: {field}\nسن: {age}\nزمان: {timestamp}",
+  "edit_profile": "✏️ ویرایش پروفایل",
+  "start_edit_profile": "✏️ شروع ویرایش پروفایل... از /edit برای ادامه استفاده کنید!",
+  "edit_first_name_prompt": "✍️ نام جدید رو وارد کنید (فعلی: {first_name}):",
+  "edit_last_name_prompt": "✍️ نام خانوادگی جدید رو بنویسید (فعلی: {last_name}):",
+  "edit_age_prompt": "🎂 سن جدید رو بگید (فعلی: {age}):",
+  "edit_email_prompt": "📧 ایمیل جدید رو وارد کنید (فعلی: {email}):",
+  "edit_country_prompt": "🌎 کشور جدید رو بگید (فعلی: {country}):",
+  "edit_field_of_study_prompt": "📚 رشته تحصیلی جدید رو بنویسید (فعلی: {field_of_study}):",
+  "profile_updated": "🎉 پروفایل‌تون با موفقیت به‌روز شد! همه‌چیز حالا به‌روزه!",
+  "edit_cancelled": "🙁 ویرایش پروفایل لغو شد. اگه خواستید دوباره امتحان کنید، با /edit شروع کنید!",
+  "edit_failed": "😕 به‌روزرسانی پروفایل ناموفق بود. لطفاً بعداً دوباره امتحان کنید!",
+  "admin_profile_updated": "🔔 کاربر {first_name} {last_name} پروفایلش رو به‌روز کرد.",
+  "profile_preview": "📋 پیش‌نمایش پروفایل",
+  "preview_updated_info": "🌟 این پیش‌نمایش اطلاعات به‌روز شده شماست:",
+  "invalid_confirmation": "🚫 لطفاً فقط گزینه تأیید یا لغو رو انتخاب کنید.",
+  "first_name": "نام",
+  "last_name": "نام خانوادگی",
+  "age": "سن",
+  "email": "ایمیل",
+  "country": "کشور",
+  "field_of_study": "رشته تحصیلی",
+  "registration_time": "زمان ثبت‌نام",
+  "profile_not_found": "🚫 پروفایل پیدا نشد! لطفاً اول با /register ثبت‌نام کنید.",
+  "profile_info": "📋 اطلاعات پروفایل:\nنام: {first_name} {last_name}\nسن: {age}\nایمیل: {email}\nکشور: {country}\nرشته: {field_of_study}\nزمان ثبت‌نام: {registration_time}",
+  "delete_profile": "🗑 حذف پروفایل",
+  "delete_profile_prompt": "⚠️ مطمئنید می‌خواهید پروفایل‌تون رو حذف کنید؟ این کار قابل بازگشت نیست!",
+  "delete_profile_confirm": "🗑 پروفایل شما با موفقیت حذف شد. برای شروع دوباره، با /register ثبت‌نام کنید!",
+  "delete_profile_cancel": "🙁 حذف پروفایل لغو شد. خیالتون راحت باشه، پروفایل‌تون هنوز سر جاشه!",
+  "family_members_prompt": "👨‍👩‍👧 تعداد اعضای خانواده‌تون رو بگید (عدد بین 1 تا 20):",
+  "annual_income_prompt": "💰 درآمد سالانه خانواده‌تون رو به یورو وارد کنید (مثلاً 15000):",
+  "is_owner_prompt": "🏠 آیا مالک ملک هستید؟ (بله/خیر):",
+  "property_area_prompt": "📏 متراژ ملک‌تون رو به متر مربع وارد کنید (مثلاً 100):",
+  "isee_calculation_cancelled": "🙁 محاسبه ISEE لغو شد. اگه خواستید دوباره امتحان کنید، با /isee شروع کنید!",
+  "yes": "✅ بله",
+  "no": "❌ خیر",
+  "scholarship_status_full": "🎉 تبریک می‌گیم! شما واجد شرایط بورسیه کامل هستید!",
+  "scholarship_status_medium": "👏 عالیه! شما واجد شرایط بورسیه متوسط هستید.",
+  "scholarship_status_partial": "👍 خوبه! شما واجد شرایط بورسیه جزئی هستید.",
+  "scholarship_status_none": "🙁 متأسفیم، به نظر می‌رسه واجد شرایط بورسیه نیستید. برای اطلاعات بیشتر با ADiSU تماس بگیرید: info@adisu.umbria.it",
+  "points": "🌟 امتیازات شما: {points} | سطح: {level}",
+  "leaderboard": "🏆 جدول امتیازات",
+  "empty_leaderboard": "😕 هنوز هیچ‌کس امتیازی نداره! شما اولین باشید!",
+  "leaderboard_reset": "🔄 جدول امتیازات با موفقیت ریست شد!",
+  "points_command_desc": "🌟 امتیازات و سطح خودتون رو چک کنید.",
+  "leaderboard_command_desc": "🏆 بهترین‌های جدول امتیازات رو ببینید.",
+  "reset_command_desc": "🔄 جدول امتیازات رو ریست کنید (فقط برای ادمین‌ها).",
+  "unauthorized": "🚫 اوپس! شما اجازه انجام این کار رو ندارید!",
+  "consultation_name_prompt": "✍️ نام کامل‌تون رو بنویسید:",
+  "consultation_field_of_study_prompt": "📚 رشته تحصیلی‌تون چیه؟",
+  "consultation_level_prompt": "🎓 مقطع تحصیلی‌تون رو بگید (کارشناسی، ارشد، دکتری، یا سایر):",
+  "consultation_gpa_prompt": "📊 معدل‌تون رو وارد کنید (بین 0 تا 20):",
+  "consultation_destination_country_prompt": "🌍 کشور مقصدتون کجاست؟",
+  "consultation_language_level_prompt": "🗣 سطح زبان‌تون رو بگید (مثلاً A1، A2، B1، B2، C1، C2):",
+  "consultation_budget_prompt": "💸 بودجه‌تون برای مهاجرت چقدره؟ (مثلاً 1000 یورو یا 1000 USD):",
+  "consultation_work_experience_prompt": "💼 سابقه کاری‌تون رو برامون توضیح بدید:",
+  "consultation_special_needs_prompt": "❓ نیازهای خاص یا شرایط ویژه‌ای دارید؟ لطفاً بگید:",
+  "consultation_upload_resume_prompt": "📄 لطفاً رزومه‌تون رو آپلود کنید:",
+  "consultation_complete": "🎉 درخواست مشاوره شما ثبت شد! تیم ما به‌زودی باهاتون تماس می‌گیره!",
+  "consultation_cancelled": "🙁 درخواست مشاوره لغو شد. اگه خواستید دوباره امتحان کنید، با /consult شروع کنید!",
+  "no_consultation_requests": "📭 هنوز هیچ درخواست مشاوره‌ای ثبت نکردید.",
+  "consultation_responded": "✅ درخواست مشاوره توسط ادمین پاسخ داده شد.",
+  "consultation_archived": "🗑 درخواست مشاوره آرشیو شد.",
+  "respond_button": "📬 پاسخ دادن",
+  "archive_button": "🗑 آرشیو کردن",
+  "invalid_name": "🚫 نام واردشده معتبر نیست! لطفاً یه نام معتبر (بدون کاراکترهای خاص) وارد کنید.",
+  "invalid_field_of_study": "🚫 رشته تحصیلی نامعتبره! لطفاً یه رشته معتبر وارد کنید.",
+  "invalid_level": "🚫 مقطع تحصیلی نامعتبره! لطفاً یکی از گزینه‌ها رو انتخاب کنید: کارشناسی، ارشد، دکتری، یا سایر.",
+  "invalid_gpa": "🚫 معدل نامعتبره! لطفاً یه عدد بین 0 تا 20 وارد کنید.",
+  "invalid_country": "🚫 نام کشور معتبر نیست! لطفاً یه نام کشور معتبر وارد کنید.",
+  "invalid_language_level": "🚫 سطح زبان نامعتبره! لطفاً یکی از گزینه‌ها رو انتخاب کنید: A1، A2، B1، B2، C1، C2.",
+  "invalid_budget": "🚫 بودجه نامعتبره! لطفاً یه عدد معتبر وارد کنید (مثلاً 1000 یا 1000 USD).",
+  "document_submission_prompt": "📤 لطفاً مدرک خودتون رو آپلود کنید (فرمت‌های مجاز: {allowed}):",
+  "document_submission_complete": "✅ مدرک شما با موفقیت آپلود شد: {file_name}!",
+  "no_document_received": "🚫 هیچ فایلی دریافت نشد! لطفاً یه فایل معتبر آپلود کنید.",
+  "invalid_file_format": "🚫 فرمت فایل نامعتبره! فرمت‌های مجاز: {allowed}.",
+  "file_too_large": "🚫 فایل خیلی بزرگه! حداکثر حجم مجاز: {max_size} مگابایت.",
+  "upload_failed": "😕 آپلود مدرک ناموفق بود. لطفاً بعداً دوباره امتحان کنید!",
+  "admin_document_uploaded": "🔔 کاربر {user_id} یه مدرک آپلود کرد: {file_name}\nلینک درایو: {drive_url}",
+  "weather_in_perugia": "🌤 آب‌وهوای پروجا",
+  "weather": "🌦 وضعیت آب‌وهوا",
+  "temperature": "🌡 دما",
+  "humidity": "💧 رطوبت",
+  "wind_speed": "💨 سرعت باد",
+  "weather_error": "😕 نمی‌تونیم داده‌های آب‌وهوا رو دریافت کنیم. لطفاً بعداً دوباره امتحان کنید!",
+  "refresh_weather": "🔄 به‌روزرسانی آب‌وهوا",
+  "api_key_missing": "🚫 کلید API هواشناسی یا نرخ ارز وجود نداره. لطفاً با ادمین تماس بگیرید: support@unipg.it",
+  "cost_of_living_in_italy": "💸 هزینه‌های زندگی در ایتالیا",
+  "rent_prompt": "🏠 هزینه اجاره ماهانه‌تون رو به یورو وارد کنید (مثلاً 300):",
+  "food_prompt": "🍽 هزینه ماهانه غذا رو به یورو وارد کنید (مثلاً 200):",
+  "transportation_prompt": "🚍 هزینه ماهانه حمل‌ونقل رو به یورو وارد کنید (مثلاً 30):",
+  "compare_city_prompt": "🌆 یه شهر برای مقایسه هزینه‌ها انتخاب کنید (مثلاً پروجا، رم، میلان):",
+  "cost_calculation_cancelled": "🙁 محاسبه هزینه زندگی لغو شد. اگه خواستید دوباره امتحان کنید، با /cost شروع کنید!",
+  "invalid_number": "🚫 لطفاً یه عدد معتبر وارد کنید (مثلاً 100.50).",
+  "your_total_cost": "💸 کل هزینه ماهانه شما",
+  "total_cost_in": "💸 کل هزینه ماهانه در {city}",
+  "details": "📝 جزئیات",
+  "rent": "🏠 اجاره",
+  "food": "🍽 غذا",
+  "transportation": "🚍 حمل‌ونقل",
+  "invalid_city": "🚫 شهر نامعتبر! لطفاً از لیست شهرها انتخاب کنید (مثل پروجا، رم، میلان).",
+  "exchange_rate_failed": "😕 نمی‌تونیم نرخ ارز رو دریافت کنیم. لطفاً بعداً دوباره امتحان کنید!",
+  "search_prompt": "🔍 دنبال چی هستید؟ عبارت جستجو رو وارد کنید (حداقل 3 کاراکتر):",
+  "search_too_short": "🚫 عبارت جستجو خیلی کوتاهه! لطفاً حداقل 3 کاراکتر وارد کنید.",
+  "cached_result": "📚 نتیجه از کش پیدا شد!",
+  "searching": "🔍 در حال جستجو... یه لحظه صبر کنید!",
+  "search_failed": "😕 جستجو ناموفق بود. لطفاً بعداً دوباره امتحان کنید!",
+  "search_again": "🔍 جستجوی دوباره",
+  "search_email_subject": "📧 نتایج جستجوی اسناد شما",
+  "ask_prompt": "❓ سؤالتون چیه؟ بپرسید تا براتون جواب بدیم!",
+  "tts_prompt": "📢 متنی که می‌خواهید به گفتار تبدیل بشه رو بنویسید:",
+  "stt_confirm_prompt": "🎙 شنیدم: `{text}`\nدرسته؟",
+  "stt_cancelled": "🙁 جستجوی صوتی لغو شد. اگه خواستید دوباره امتحان کنید!",
+  "tts_button": "📢 پخش صوتی",
+  "calendar": "📅 تقویم مهلت‌ها",
+  "arrival_guide_menu": "🗺 منوی راهنمای ورود",
+  "item_not_found": "🚫 اوپس! این آیتم پیدا نشد. لطفاً یه گزینه دیگه انتخاب کنید!",
+  "event_not_found": "🚫 اوپس! این رویداد پیدا نشد. تقویم رو دوباره چک کنید!",
+  "question_title_prompt": "✍️ عنوان سؤالتون رو بنویسید:",
+  "question_description_prompt": "📝 حالا سؤالتون رو با جزئیات توضیح بدید:",
+  "question_topic_prompt": "🏷 موضوع سؤالتون چیه؟ (مثلاً بورسیه، ویزا، مسکن):",
+  "question_complete": "✅ سؤالتون با موفقیت ثبت شد! تیم ما به‌زودی جوابش رو بهتون می‌ده!",
+  "question_cancelled": "🙁 ارسال سؤال لغو شد. اگه خواستید دوباره امتحان کنید، با /question شروع کنید!",
+  "scholarship_topic": "🎓 بورسیه",
+  "housing_topic": "🏠 مسکن",
+  "deadlines_topic": "📅 مهلت‌ها",
+  "migration_topic": "🌎 مهاجرت",
+  "summary_title": "📋 خلاصه سؤال",
+  "title": "عنوان",
+  "description": "توضیحات",
+  "topic": "موضوع",
+  "confirm_question_prompt": "✅ لطفاً سؤالتون رو تأیید یا لغو کنید.",
+  "ai_thinking": "🧠 در حال فکر کردن... یه لحظه صبر کنید!",
+  "admin_will_reply": "🤝 تیم ما سؤالتون رو بررسی می‌کنه و به‌زودی جواب می‌ده!",
+  "feedback_prompt": "🌟 تجربه‌تون با ربات چطور بود؟ یه امتیاز بدید:",
+  "excellent": "😍 عالی",
+  "average": "🙂 معمولی",
+  "poor": "😕 ضعیف",
+  "feedback_thanks": "🙏 مرسی از بازخوردتون! کمک می‌کنه ما بهتر بشیم!",
+  "invalid_feedback": "🚫 انتخاب بازخورد نامعتبره! لطفاً یکی از گزینه‌های عالی، معمولی یا ضعیف رو انتخاب کنید.",
+  "admin_poor_feedback": "🔔 کاربر {user_id} بازخورد ضعیف داد. لطفاً بررسی کنید!",
+  "migration_steps": "📊 مراحل مهاجرت",
+  "current_step": "📍 مرحله فعلی",
+  "migration_status": "📊 وضعیت مهاجرت شما: مرحله {status}/10",
+  "migration_status_updated": "✅ وضعیت مهاجرت شما به مرحله {status}/10 به‌روز شد! یه قدم به هدفتون نزدیک‌تر شدید!",
+  "admin_migration_updated": "🔔 کاربر {user_id} وضعیت مهاجرتش رو به {status}/10 به‌روز کرد.",
+  "migration_status_no_arg": "🚫 لطفاً یه شماره وضعیت (0 تا 10) وارد کنید. مثال: /update_migration_status 5",
+  "migration_status_invalid_arg": "🚫 وضعیت نامعتبر! لطفاً یه شماره بین 0 تا 10 وارد کنید.",
+  "challenge_menu": "🎮 چالش‌های گیمیفیکیشن",
+  "challenge_completed": "🏆 تبریک! چالش {challenge_name} رو با موفقیت تموم کردید و {points} امتیاز گرفتید!",
+  "no_challenges_available": "😕 هنوز چالشی براتون نداریم. به‌زودی کلی چالش باحال اضافه می‌کنیم!",
+  "more_news": "📰 اخبار بیشتر",
+  "news_fetch_error": "😕 نمی‌تونیم اخبار رو دریافت کنیم. لطفاً بعداً دوباره امتحان کنید!",
+  "level": "سطح",
+  "progress": "پیشرفت",
+  "questions_asked": "سؤالات پرسیده‌شده",
+  "answers_received": "پاسخ‌های دریافت‌شده",
+  "help_text": "ℹ️ به کمک نیاز دارید؟ من اینجام تا همه‌چیز رو براتون توضیح بدم! از منوی اصلی گزینه‌ها رو چک کنید یا سؤالتون رو بپرسید!",
+  "contact_us_text": "📞 با ما تماس بگیرید!\nایمیل: support@unipg.it\nتلگرام: @UniPGSupport\nشماره تماس: +39 075 585 2011 (دوشنبه تا جمعه، 9 صبح تا 5 عصر)",
+  "about_us_text": "🌍 ما یه تیم پرشور هستیم که به دانشجویان بین‌المللی کمک می‌کنیم تا تجربه‌ای بی‌نظیر در ایتالیا داشته باشن! از ثبت‌نام دانشگاه تا پیدا کردن خونه، ما کنارتونیم! 🚀"
 }
