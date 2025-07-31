@@ -1,7 +1,7 @@
 import re
 import logging
 from datetime import datetime
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import (
     ContextTypes,
     ConversationHandler,
@@ -12,21 +12,14 @@ from telegram.ext import (
 )
 from telegram.error import TelegramError
 from studentbot.utils.text_formatter import get_translated_text, sanitize_markdown
-from studentbot.utils.db_utils import create_user, get_user, AsyncSessionLocal
+from studentbot.utils.db_utils import create_user, get_user, AsyncSessionLocal, log_event
 from studentbot.utils.gsheets import gsheets_client
 from studentbot.handlers.gamification_handler import award_points_for_action
 from studentbot import config
 
-# Setup logging
 logger = logging.getLogger(__name__)
-logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    level=logging.INFO
-)
 
-# States
 FIRST_NAME, LAST_NAME, AGE, EMAIL, COUNTRY, FIELD_OF_STUDY, CONFIRM = range(7)
-
 
 async def prompt(update: Update, context: ContextTypes.DEFAULT_TYPE, prompt_text: str, next_state: int) -> int:
     """Send a prompt message and return the next state."""
@@ -36,7 +29,8 @@ async def prompt(update: Update, context: ContextTypes.DEFAULT_TYPE, prompt_text
     try:
         await update.message.reply_text(
             sanitize_markdown(get_translated_text(prompt_text, lang)),
-            parse_mode="MarkdownV2"
+            parse_mode="MarkdownV2",
+            reply_markup=ReplyKeyboardRemove()
         )
         logger.info(f"✅ Prompt {prompt_text} sent to user {user_id}")
         return next_state
@@ -48,7 +42,6 @@ async def prompt(update: Update, context: ContextTypes.DEFAULT_TYPE, prompt_text
         )
         return ConversationHandler.END
 
-
 async def start_registration(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Start the registration process."""
     user_id = update.effective_user.id
@@ -59,13 +52,16 @@ async def start_registration(update: Update, context: ContextTypes.DEFAULT_TYPE)
             if await get_user(session, user_id):
                 await update.message.reply_text(
                     sanitize_markdown(get_translated_text("already_registered", lang)),
-                    parse_mode="MarkdownV2"
+                    parse_mode="MarkdownV2",
+                    reply_markup=ReplyKeyboardRemove()
                 )
                 return ConversationHandler.END
         
         context.user_data.clear()
+        context.user_data["lang"] = lang
         logger.info(f"✅ User {user_id} started registration")
         await award_points_for_action(user_id, "interaction")
+        await log_event(user_id, "registration_started", "Started registration process")
         return await prompt(update, context, "first_name_prompt", FIRST_NAME)
     except TelegramError as e:
         logger.error(f"❌ Telegram error starting registration for user {user_id}: {str(e)}")
@@ -75,7 +71,6 @@ async def start_registration(update: Update, context: ContextTypes.DEFAULT_TYPE)
         )
         return ConversationHandler.END
 
-
 async def first_name(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Handle first name input."""
     user_id = update.effective_user.id
@@ -83,14 +78,12 @@ async def first_name(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     logger.info(f"✅ User {user_id} submitted first name: {context.user_data['first_name']}")
     return await prompt(update, context, "last_name_prompt", LAST_NAME)
 
-
 async def last_name(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Handle last name input."""
     user_id = update.effective_user.id
     context.user_data["last_name"] = update.message.text.strip()
     logger.info(f"✅ User {user_id} submitted last name: {context.user_data['last_name']}")
     return await prompt(update, context, "age_prompt", AGE)
-
 
 async def age(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Handle age input with validation."""
@@ -113,7 +106,6 @@ async def age(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         logger.warning(f"⚠️ Invalid age input by user {user_id}: {age}")
         return AGE
 
-
 async def email(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Handle email input with validation."""
     user_id = update.effective_user.id
@@ -132,14 +124,12 @@ async def email(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     logger.info(f"✅ User {user_id} submitted email: {email}")
     return await prompt(update, context, "country_prompt", COUNTRY)
 
-
 async def country(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Handle country input."""
     user_id = update.effective_user.id
     context.user_data["country"] = update.message.text.strip()
     logger.info(f"✅ User {user_id} submitted country: {context.user_data['country']}")
     return await prompt(update, context, "field_of_study_prompt", FIELD_OF_STUDY)
-
 
 async def field_of_study(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Handle field of study input and show summary."""
@@ -179,7 +169,6 @@ async def field_of_study(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         )
         return ConversationHandler.END
 
-
 async def confirm(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Handle registration confirmation."""
     query = update.callback_query
@@ -191,9 +180,13 @@ async def confirm(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         if query.data != "confirm_registration":
             await query.edit_message_text(
                 sanitize_markdown(get_translated_text("registration_cancelled", lang)),
-                parse_mode="MarkdownV2"
+                parse_mode="MarkdownV2",
+                reply_markup=ReplyKeyboardRemove()
             )
+            await log_event(user_id, "registration_cancelled", "Cancelled registration process")
             logger.info(f"✅ User {user_id} cancelled registration")
+            context.user_data.clear()
+            context.user_data["lang"] = lang
             return ConversationHandler.END
 
         user_data = context.user_data
@@ -201,7 +194,8 @@ async def confirm(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
             if await get_user(session, user_id):
                 await query.edit_message_text(
                     sanitize_markdown(get_translated_text("already_registered", lang)),
-                    parse_mode="MarkdownV2"
+                    parse_mode="MarkdownV2",
+                    reply_markup=ReplyKeyboardRemove()
                 )
                 return ConversationHandler.END
 
@@ -224,11 +218,11 @@ async def confirm(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
             [
                 user_id,
                 user_data["first_name"],
-                user_data["last_name"],
-                user_data["age"],
-                user_data["email"],
-                user_data["country"],
-                user_data["field_of_study"],
+                user_data["last_name"] or "N/A",
+                user_data["age"] or 0,
+                user_data["email"] or "N/A",
+                user_data["field_of_study"] or "N/A",
+                user_data["country"] or "N/A",
                 timestamp,
             ]
         )
@@ -241,11 +235,11 @@ async def confirm(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
                 text=sanitize_markdown(
                     get_translated_text("admin_new_registration", lang).format(
                         first_name=user_data["first_name"],
-                        last_name=user_data["last_name"],
-                        email=user_data["email"],
-                        country=user_data["country"],
-                        field=user_data["field_of_study"],
-                        age=user_data["age"],
+                        last_name=user_data["last_name"] or "N/A",
+                        email=user_data["email"] or "N/A",
+                        country=user_data["country"] or "N/A",
+                        field=user_data["field_of_study"] or "N/A",
+                        age=user_data["age"] or 0,
                         timestamp=timestamp
                     )
                 ),
@@ -254,10 +248,14 @@ async def confirm(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
         await query.edit_message_text(
             sanitize_markdown(get_translated_text("registration_complete", lang)),
-            parse_mode="MarkdownV2"
+            parse_mode="MarkdownV2",
+            reply_markup=ReplyKeyboardRemove()
         )
-        logger.info(f"✅ User {user_id} completed registration")
         await award_points_for_action(user_id, "registration")
+        await log_event(user_id, "registration_completed", f"Registered user: {user_data['first_name']} {user_data['last_name']}")
+        logger.info(f"✅ User {user_id} completed registration")
+        context.user_data.clear()
+        context.user_data["lang"] = lang
         return ConversationHandler.END
     except TelegramError as e:
         logger.error(f"❌ Telegram error confirming registration for user {user_id}: {str(e)}")
@@ -274,7 +272,6 @@ async def confirm(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         )
         return ConversationHandler.END
 
-
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Handle registration cancellation."""
     user_id = update.effective_user.id
@@ -283,9 +280,13 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     try:
         await update.message.reply_text(
             sanitize_markdown(get_translated_text("registration_cancelled", lang)),
-            parse_mode="MarkdownV2"
+            parse_mode="MarkdownV2",
+            reply_markup=ReplyKeyboardRemove()
         )
+        await log_event(user_id, "registration_cancelled", "Cancelled registration via command")
         logger.info(f"✅ User {user_id} cancelled registration")
+        context.user_data.clear()
+        context.user_data["lang"] = lang
         return ConversationHandler.END
     except TelegramError as e:
         logger.error(f"❌ Telegram error cancelling registration for user {user_id}: {str(e)}")
@@ -294,7 +295,6 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
             parse_mode="MarkdownV2"
         )
         return ConversationHandler.END
-
 
 def get_registration_handler():
     """Return the registration handler."""
