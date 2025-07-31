@@ -1,88 +1,115 @@
 {
-    "arrival_guide": {
-        "airport_entry": {
-            "title": {
-                "en": "Airport Entry Procedures",
-                "fa": "رویه‌های ورود به فرودگاه",
-                "it": "Procedure di ingresso in aeroporto"
-            },
-            "content": {
-                "en": "Upon arrival at Italian airports (e.g., Rome Fiumicino or Milan Malpensa), ensure you have: valid passport, student visa (Type D), admission letter, and health insurance proof. At customs, declare any items over €10,000. For Perugia, the nearest airports are Rome Fiumicino (FCO) or Florence (FLR). From FCO, take a train (Trenitalia, €15-€30, 2-3 hours) or bus (FlixBus, €10-€20, 3 hours) to Perugia. Check schedules at: https://www.trenitalia.com or https://www.flixbus.com. Airport assistance: https://www.adr.it/en/passenger-assistance.",
-                "fa": "با ورود به فرودگاه‌های ایتالیا (مانند رم فیومیچینو یا میلان مالپنسا)، اطمینان حاصل کنید که مدارک زیر را دارید: پاسپورت معتبر، ویزای دانشجویی (نوع D)، نامه پذیرش، و مدرک بیمه درمانی. در گمرک، اقلام بالای 10000 یورو را اظهار کنید. برای پروجا، نزدیک‌ترین فرودگاه‌ها رم فیومیچینو (FCO) یا فلورانس (FLR) هستند. از FCO، قطار (ترنیتالیا، 15-30 یورو، 2-3 ساعت) یا اتوبوس (فلیکس‌باس، 10-20 یورو، 3 ساعت) به پروجا بگیرید. برنامه‌ها را در: https://www.trenitalia.com یا https://www.flixbus.com بررسی کنید. کمک فرودگاهی: https://www.adr.it/en/passenger-assistance.",
-                "it": "All'arrivo negli aeroporti italiani (es. Roma Fiumicino o Milano Malpensa), assicurati di avere: passaporto valido, visto studentesco (Tipo D), lettera di ammissione e prova di assicurazione sanitaria. In dogana, dichiara eventuali articoli superiori a €10.000. Per Perugia, gli aeroporti più vicini sono Roma Fiumicino (FCO) o Firenze (FLR). Da FCO, prendi un treno (Trenitalia, €15-€30, 2-3 ore) o un autobus (FlixBus, €10-€20, 3 ore) per Perugia. Controlla gli orari su: https://www.trenitalia.com o https://www.flixbus.com. Assistenza aeroportuale: https://www.adr.it/en/passenger-assistance."
-            }
-        },
-        "reaching_perugia": {
-            "title": {
-                "en": "Transportation to Perugia",
-                "fa": "حمل‌ونقل به پروجا",
-                "it": "Trasporti per Perugia"
-            },
-            "content": {
-                "en": "From Rome Fiumicino (FCO), options include: FlixBus (€10-€20, 3 hours, book at https://www.flixbus.com), Itabus (€8-€15, 3 hours, https://www.itabus.it), Trenitalia trains (€15-€30, 2-3 hours, https://www.trenitalia.com), or taxis (€150-€200, 2 hours, book via local apps like FreeNow: https://www.free-now.com). From Florence (FLR), take a bus (€10-€15) or train (€10-€20). Perugia’s main bus terminal: Piazza Partigiani. Train station: Perugia Fontivegge, Via Cortonese 7. Always check real-time schedules.",
-                "fa": "از رم فیومیچینو (FCO)، گزینه‌ها شامل: فلیکس‌باس (10-20 یورو، 3 ساعت، رزرو در https://www.flixbus.com)، ایتاباس (8-15 یورو، 3 ساعت، https://www.itabus.it)، قطارهای ترنیتالیا (15-30 یورو، 2-3 ساعت، https://www.trenitalia.com)، یا تاکسی (150-200 یورو، 2 ساعت، رزرو از طریق اپلیکیشن‌هایی مثل FreeNow: https://www.free-now.com). از فلورانس (FLR)، اتوبوس (10-15 یورو) یا قطار (10-20 یورو) بگیرید. ترمینال اصلی اتوبوس پروجا: پیازا پارتیجانی. ایستگاه قطار: پروجا فونتی‌وجه، Via Cortonese 7. همیشه برنامه‌ها را به‌روز بررسی کنید.",
-                "it": "Da Roma Fiumicino (FCO), le opzioni includono: FlixBus (€10-€20, 3 ore, prenota su https://www.flixbus.com), Itabus (€8-€15, 3 ore, https://www.itabus.it), treni Trenitalia (€15-€30, 2-3 ore, https://www.trenitalia.com), o taxi (€150-€200, 2 ore, prenota tramite app come FreeNow: https://www.free-now.com). Da Firenze (FLR), prendi un autobus (€10-€15) o un treno (€10-€20). Terminal principale degli autobus di Perugia: Piazza Partigiani. Stazione ferroviaria: Perugia Fontivegge, Via Cortonese 7. Controlla sempre gli orari in tempo reale."
-            }
-        },
-        "codice_fiscale": {
-            "title": {
-                "en": "Obtaining a Codice Fiscale",
-                "fa": "دریافت کد مالیاتی (Codice Fiscale)",
-                "it": "Ottenere il Codice Fiscale"
-            },
-            "content": {
-                "en": "A Codice Fiscale is required for banking, contracts, and university registration. Required documents: passport, visa, and proof of address. Book an appointment via the IO app (download: https://io.italia.it) or visit Agenzia delle Entrate, Via Canali 12, Perugia (Mon-Fri, 9 AM-1 PM, +39 075 501 8111). No cost for issuance. Processing time: immediate to 1 week. More info: https://www.agenziaentrate.gov.it.",
-                "fa": "کد مالیاتی برای بانکداری، قراردادها و ثبت‌نام دانشگاه لازم است. مدارک مورد نیاز: پاسپورت، ویزا و مدرک آدرس. وقت ملاقات را از طریق اپلیکیشن IO (دانلود: https://io.italia.it) رزرو کنید یا به آژانس مالیاتی در Via Canali 12، پروجا مراجعه کنید (دوشنبه تا جمعه، 9 صبح تا 1 بعدازظهر، +39 075 501 8111). بدون هزینه. زمان پردازش: فوری تا یک هفته. اطلاعات بیشتر: https://www.agenziaentrate.gov.it.",
-                "it": "Il Codice Fiscale è necessario per operazioni bancarie, contratti e registrazione universitaria. Documenti richiesti: passaporto, visto e prova di indirizzo. Prenota un appuntamento tramite l'app IO (scarica: https://io.italia.it) o visita l'Agenzia delle Entrate, Via Canali 12, Perugia (lun-ven, 9:00-13:00, +39 075 501 8111). Nessun costo. Tempo di elaborazione: immediato fino a 1 settimana. Ulteriori informazioni: https://www.agenziaentrate.gov.it."
-            }
-        },
-        "bank_account": {
-            "title": {
-                "en": "Opening a Bank Account",
-                "fa": "افتتاح حساب بانکی",
-                "it": "Aprire un conto bancario"
-            },
-            "content": {
-                "en": "Options: Revolut (online, €0-€13/month, https://www.revolut.com), N26 (€0-€16/month, https://n26.com), PostePay (€5-€10/year, https://www.poste.it). Required documents: passport, Codice Fiscale, proof of address. Visit Poste Italiane (Via Baglioni 10, Perugia, +39 075 573 7111) or use mobile apps. Revolut and N26 offer free basic accounts; PostePay charges €1-€2 per withdrawal. Legal tip: ensure your account supports SEPA transfers for university payments.",
-                "fa": "گزینه‌ها: روولوت (آنلاین، 0-13 یورو/ماه، https://www.revolut.com)، N26 (0-16 یورو/ماه، https://n26.com)، پست‌پی (5-10 یورو/سال، https://www.poste.it). مدارک مورد نیاز: پاسپورت، کد مالیاتی، مدرک آدرس. به پست ایتالیایی (Via Baglioni 10، پروجا، +39 075 573 7111) مراجعه کنید یا از اپلیکیشن‌های موبایل استفاده کنید. روولوت و N26 حساب رایگان ارائه می‌دهند؛ پست‌پی برای هر برداشت 1-2 یورو هزینه دارد. نکته حقوقی: اطمینان حاصل کنید که حساب شما از انتقال SEPA برای پرداخت‌های دانشگاه پشتیبانی می‌کند.",
-                "it": "Opzioni: Revolut (online, €0-€13/mese, https://www.revolut.com), N26 (€0-€16/mese, https://n26.com), PostePay (€5-€10/anno, https://www.poste.it). Documenti richiesti: passaporto, Codice Fiscale, prova di indirizzo. Visita Poste Italiane (Via Baglioni 10, Perugia, +39 075 573 7111) o usa le app mobili. Revolut e N26 offrono conti base gratuiti; PostePay addebita €1-€2 per prelievo. Consiglio legale: assicurati che il tuo conto supporti i bonifici SEPA per i pagamenti universitari."
-            }
-        },
-        "health_insurance": {
-            "title": {
-                "en": "Obtaining Health Insurance",
-                "fa": "دریافت بیمه درمانی",
-                "it": "Ottenere l'assicurazione sanitaria"
-            },
-            "content": {
-                "en": "Options: Servizio Sanitario Nazionale (SSN, €149.77/year, https://www.salute.gov.it), private insurance (e.g., Allianz, €50-€150/year, https://www.allianz.it), or ASL coverage (free for EU students). Documents: passport, Codice Fiscale, residence permit. Visit ASL Umbria 1, Via XIV Settembre 79, Perugia (+39 075 075 0751). Payment via bank transfer or at ASL offices. More info: https://www.aslumbria1.it.",
-                "fa": "گزینه‌ها: سرویس بهداشتی ملی (SSN، 149.77 یورو/سال، https://www.salute.gov.it)، بیمه خصوصی (مثل آلیانتز، 50-150 یورو/سال، https://www.allianz.it)، یا پوشش ASL (رایگان برای دانشجویان اتحادیه اروپا). مدارک: پاسپورت، کد مالیاتی، اجازه اقامت. به ASL Umbria 1، Via XIV Settembre 79، پروجا مراجعه کنید (+39 075 075 0751). پرداخت از طریق انتقال بانکی یا در دفاتر ASL. اطلاعات بیشتر: https://www.aslumbria1.it.",
-                "it": "Opzioni: Servizio Sanitario Nazionale (SSN, €149,77/anno, https://www.salute.gov.it), assicurazione privata (es. Allianz, €50-€150/anno, https://www.allianz.it), o copertura ASL (gratuita per studenti UE). Documenti: passaporto, Codice Fiscale, permesso di soggiorno. Visita ASL Umbria 1, Via XIV Settembre 79, Perugia (+39 075 075 0751). Pagamento tramite bonifico bancario o presso gli uffici ASL. Ulteriori informazioni: https://www.aslumbria1.it."
-            }
-        },
-        "university_registration": {
-            "title": {
-                "en": "University Registration Process",
-                "fa": "فرآیند ثبت‌نام دانشگاه",
-                "it": "Processo di registrazione universitaria"
-            },
-            "content": {
-                "en": "Register at the University of Perugia, Via XV Settembre 4, Perugia (+39 075 585 2011). Required: admission letter, passport, Codice Fiscale, payment confirmation (€156). Online portal: https://unipg.esse3.cineca.it. Faculty addresses: Engineering (Via G. Duranti 93), Medicine (Piazzale Gambuli), Sciences (Via A. Pascoli). Activate your student email via: https://www.unipg.it/en/students/email. Contact: segreteria@unipg.it.",
-                "fa": "در دانشگاه پروجا، Via XV Settembre 4، پروجا (+39 075 585 2011) ثبت‌نام کنید. مدارک مورد نیاز: نامه پذیرش، پاسپورت، کد مالیاتی، تأیید پرداخت (156 یورو). پورتال آنلاین: https://unipg.esse3.cineca.it. آدرس دانشکده‌ها: مهندسی (Via G. Duranti 93)، پزشکی (Piazzale Gambuli)، علوم (Via A. Pascoli). ایمیل دانشجویی را از طریق: https://www.unipg.it/en/students/email فعال کنید. تماس: segreteria@unipg.it.",
-                "it": "Registrati presso l'Università di Perugia, Via XV Settembre 4, Perugia (+39 075 585 2011). Richiesti: lettera di ammissione, passaporto, Codice Fiscale, conferma di pagamento (€156). Portale online: https://unipg.esse3.cineca.it. Indirizzi delle facoltà: Ingegneria (Via G. Duranti 93), Medicina (Piazzale Gambuli), Scienze (Via A. Pascoli). Attiva l'email studentesca tramite: https://www.unipg.it/en/students/email. Contatto: segreteria@unipg.it."
-            }
-        },
-        "finding_housing": {
-            "title": {
-                "en": "Finding Housing in Perugia",
-                "fa": "یافتن مسکن در پروجا",
-                "it": "Trovare un alloggio a Perugia"
-            },
-            "content": {
-                "en": "Platforms: Idealista (https://www.idealista.it, €400-€800/month), Uniplaces (https://www.uniplaces.com, €350-€700/month), HousingAnywhere (https://housinganywhere.com, €400-€900/month), StanzaZoo (https://www.stanzazoo.com, €300-€600/month). Required: Codice Fiscale, rental contract. Average rent: €250-€400/room, €600-€1000/apartment. Legal tip: ensure contracts are registered at Agenzia delle Entrate. Sample contract: https://www.idealista.it/en/contratto-affitto. Contact local agencies like Immobiliare Perugia (+39 075 500 0000).",
-                "fa": "پلتفرم‌ها: ایدیالیستا (https://www.idealista.it، 400-800 یورو/ماه)، یونی‌پلیس (https://www.uniplaces.com، 350-700 یورو/ماه)، هاوزینگ‌انی‌ور (https://housinganywhere.com، 400-900 یورو/ماه)، استانزاتزو (https://www.stanzazoo.com، 300-600 یورو/ماه). مدارک مورد نیاز: کد مالیاتی، قرارداد اجاره. میانگین اجاره: 250-400 یورو/اتاق، 600-1000 یورو/آپارتمان. نکته حقوقی: اطمینان حاصل کنید که قراردادها در آژانس مالیاتی ثبت شده‌اند. نمونه قرارداد: https://www.idealista.it/en/contratto-affitto. تماس با آژانس‌های محلی مثل Immobiliare Perugia (+39 075 500 0000).",
-                "it": "Piattaforme: Idealista (https://www.idealista.it, €400-€800/mese), Uniplaces (https://www.uniplaces.com, €350-€700/mese), HousingAnywhere (https://housinganywhere.com, €400-€900/mese), StanzaZoo (https://www.stanzazoo.com, €300-€600/mese). Richiesti: Codice Fiscale, contratto di affitto. Affitto medio: €250-€400/stanza, €600-€1000/appartamento. Consiglio legale: assicurati che i contratti siano registrati presso l'Agenzia delle Entrate. Esempio di contratto: https://www.idealista.it/en/contratto-affitto. Contatta agenzie locali come Immobiliare Perugia (+39 075 500 0000)."
-            }
-        }
+  "arrival_guide": {
+    "airport_entry": {
+      "title": {
+        "fa": "رویه‌های ورود به فرودگاه"
+      },
+      "content": {
+        "fa": "با ورود به فرودگاه‌های ایتالیا (مثل رم فیومیچینو FCO یا میلان مالپنسا MXP)، مطمئن بشید که این مدارک رو دارید: **پاسپورت معتبر** (حداقل 6 ماه اعتبار)، **ویزای دانشجویی نوع D**، **نامه پذیرش دانشگاه**، **مدرک بیمه درمانی**، و **مدرک محل اقامت**. در گمرک، اقلام بالای 10000 یورو (مثل پول نقد یا اشیای قیمتی) رو اظهار کنید. نزدیک‌ترین فرودگاه‌ها به پروجا: رم فیومیچینو (FCO، 3 ساعت با قطار/اتوبوس) یا فلورانس (FLR، 2 ساعت). **گزینه‌های حمل‌ونقل**: قطار ترنیتالیا (15-30 یورو، https://www.trenitalia.com)، اتوبوس فلیکس‌باس (10-20 یورو، https://www.flixbus.com)، یا ایتاباس (8-15 یورو، https://www.itabus.it). **تماس**: برای کمک در فرودگاه، با خدمات مسافری تماس بگیرید: https://www.adr.it/en/passenger-assistance یا +39 06 6595 3640. **نکته**: برنامه‌های حمل‌ونقل رو قبل از سفر چک کنید و بلیط رو آنلاین رزرو کنید تا ارزون‌تر باشه!"
+      }
+    },
+    "reaching_perugia": {
+      "title": {
+        "fa": "حمل‌ونقل به پروجا"
+      },
+      "content": {
+        "fa": "برای رسیدن به پروجا از فرودگاه‌های اصلی، گزینه‌های زیر رو دارید:  
+- **از رم فیومیچینو (FCO)**:  
+  - **فلیکس‌باس**: 10-20 یورو، 3 ساعت، رزرو در https://www.flixbus.com.  
+  - **ایتاباس**: 8-15 یورو، 3 ساعت، https://www.itabus.it.  
+  - **قطار ترنیتالیا**: 15-30 یورو، 2-3 ساعت، https://www.trenitalia.com (ایستگاه پروجا: Fontivegge).  
+  - **تاکسی**: 150-200 یورو، 2 ساعت، رزرو از اپلیکیشن FreeNow (https://www.free-now.com).  
+- **از فلورانس (FLR)**:  
+  - **اتوبوس**: 10-15 یورو، 2 ساعت، https://www.at-bus.it.  
+  - **قطار**: 10-20 یورو، 1.5-2 ساعت، https://www.trenitalia.com.  
+**ترمینال اصلی اتوبوس پروجا**: Piazza Partigiani.  
+**ایستگاه قطار**: Perugia Fontivegge، Via Cortonese 7.  
+**نکته**: حتماً برنامه‌های حمل‌ونقل رو به‌روز چک کنید و بلیط‌ها رو زودتر رزرو کنید. برای رزرو تاکسی، اپلیکیشن‌های محلی رو نصب کنید!"
+      }
+    },
+    "codice_fiscale": {
+      "title": {
+        "fa": "دریافت کد مالیاتی (Codice Fiscale)"
+      },
+      "content": {
+        "fa": "کد مالیاتی (Codice Fiscale) برای افتتاح حساب بانکی، قرارداد اجاره، و ثبت‌نام دانشگاه لازمه. **مدارک مورد نیاز**: پاسپورت، ویزای دانشجویی، و مدرک آدرس (مثل قرارداد اجاره یا قبض). **گام‌ها**:  
+1. وقت ملاقات رو از طریق اپلیکیشن IO رزرو کنید: https://io.italia.it (دانلود از اپ استور یا گوگل پلی).  
+2. به آژانس مالیاتی (Agenzia delle Entrate) در Via Canali 12، پروجا مراجعه کنید (دوشنبه تا جمعه، 9 صبح تا 1 ظهر، +39 075 501 8111).  
+**هزینه**: رایگان. **زمان پردازش**: فوری یا حداکثر 1 هفته. **اطلاعات بیشتر**: https://www.agenziaentrate.gov.it. **نکته**: کد مالیاتی رو همیشه همراه‌تون داشته باشید، چون برای خیلی از کارای رسمی لازمه!"
+      }
+    },
+    "bank_account": {
+      "title": {
+        "fa": "افتتاح حساب بانکی"
+      },
+      "content": {
+        "fa": "برای پرداخت‌های دانشگاهی و مدیریت مالی، یه حساب بانکی در ایتالیا باز کنید. **گزینه‌های پیشنهادی**:  
+- **روولوت (Revolut)**: حساب آنلاین، 0-13 یورو/ماه، https://www.revolut.com.  
+- **N26**: حساب آنلاین، 0-16 یورو/ماه، https://n26.com.  
+- **پست ایتالیایی (PostePay)**: 5-10 یورو/سال، https://www.poste.it.  
+**مدارک مورد نیاز**: پاسپورت، کد مالیاتی، مدرک آدرس. **گام‌ها**:  
+1. به دفتر پست ایتالیایی (Via Baglioni 10، پروجا، +39 075 573 7111) مراجعه کنید یا از اپلیکیشن‌های موبایل (Revolut یا N26) استفاده کنید.  
+2. حساب رو فعال کنید و مطمئن بشید از انتقال SEPA پشتیبانی می‌کنه.  
+**هزینه‌ها**: روولوت و N26 حساب رایگان دارن؛ PostePay برای هر برداشت 1-2 یورو هزینه داره. **نکته**: برای پرداخت‌های دانشگاه، حسابی انتخاب کنید که انتقال SEPA رو پشتیبانی کنه!"
+      }
+    },
+    "health_insurance": {
+      "title": {
+        "fa": "دریافت بیمه درمانی"
+      },
+      "content": {
+        "fa": "بیمه درمانی برای دانشجویان بین‌المللی اجباریه. **گزینه‌های موجود**:  
+- **سرویس بهداشتی ملی (SSN)**: 149.77 یورو/سال، https://www.salute.gov.it.  
+- **بیمه خصوصی**: مثل آلیانتز، 50-150 یورو/سال، https://www.allianz.it.  
+- **پوشش ASL**: رایگان برای دانشجویان اتحادیه اروپا.  
+**مدارک مورد نیاز**: پاسپورت، کد مالیاتی، اجازه اقامت (برای غیر اتحادیه اروپا). **گام‌ها**:  
+1. به دفتر ASL Umbria 1 (Via XIV Settembre 79، پروجا، +39 075 075 0751) مراجعه کنید.  
+2. فرم ثبت‌نام رو پر کنید و هزینه رو از طریق انتقال بانکی یا در محل پرداخت کنید.  
+**اطلاعات بیشتر**: https://www.aslumbria1.it. **نکته**: بیمه رو قبل از ثبت‌نام دانشگاه فعال کنید تا مشکلی پیش نیاد!"
+      }
+    },
+    "university_registration": {
+      "title": {
+        "fa": "فرآیند ثبت‌نام دانشگاه"
+      },
+      "content": {
+        "fa": "برای ثبت‌نام در دانشگاه پروجا، این مراحل رو دنبال کنید:  
+1. به دفتر دانشجویی (Via XV Settembre 4، پروجا، +39 075 585 2011) مراجعه کنید یا از پورتال آنلاین استفاده کنید: https://unipg.esse3.cineca.it.  
+2. **مدارک مورد نیاز**: نامه پذیرش، پاسپورت، کد مالیاتی، تأیید پرداخت هزینه ثبت‌نام (156 یورو).  
+3. ایمیل دانشجویی‌تون رو فعال کنید: https://www.unipg.it/en/students/email.  
+**آدرس دانشکده‌ها**:  
+- مهندسی: Via G. Duranti 93، +39 075 585 3600.  
+- پزشکی: Piazzale Gambuli، +39 075 585 8200.  
+- علوم: Via A. Pascoli، +39 075 585 5000.  
+**تماس**: segreteria@unipg.it. **نکته**: رسید پرداخت رو نگه دارید و مطمئن بشید ایمیل دانشجویی‌تون فعاله!"
+      }
+    },
+    "finding_housing": {
+      "title": {
+        "fa": "یافتن مسکن در پروجا"
+      },
+      "content": {
+        "fa": "برای پیدا کردن خونه در پروجا، از این پلتفرم‌ها استفاده کنید:  
+- **ایدیالیستا**: https://www.idealista.it، اجاره: 400-800 یورو/ماه.  
+- **یونی‌پلیس**: https://www.uniplaces.com، 350-700 یورو/ماه.  
+- **هاوزینگ‌انی‌ور**: https://housinganywhere.com، 400-900 یورو/ماه.  
+- **استانزاتزو**: https://www.stanzazoo.com، 300-600 یورو/ماه.  
+**مدارک مورد نیاز**: کد مالیاتی، قرارداد اجاره (ثبت‌شده در آژانس مالیاتی). **میانگین اجاره**:  
+- اتاق تک‌نفره: 250-400 یورو.  
+- آپارتمان کامل: 600-1000 یورو.  
+**تماس**: آژانس‌های محلی مثل Immobiliare Perugia (+39 075 500 0000). **نکته**: قرارداد رو حتماً در آژانس مالیاتی ثبت کنید تا قانونی باشه. نمونه قرارداد: https://www.idealista.it/en/contratto-affitto."
+      }
+    },
+    "residence_permit": {
+      "title": {
+        "fa": "دریافت اجازه اقامت"
+      },
+      "content": {
+        "fa": "دانشجویان غیر اتحادیه اروپا باید ظرف 8 روز از ورود به ایتالیا برای اجازه اقامت اقدام کنن. **مدارک مورد نیاز**: پاسپورت، ویزای دانشجویی، نامه پذیرش دانشگاه، مدرک بیمه درمانی، مدرک آدرس (مثل قرارداد اجاره)، و کد مالیاتی. **گام‌ها**:  
+1. به اداره پست (Kit Permesso di Soggiorno) مراجعه کنید و فرم رو پر کنید (هزینه: 30-70 یورو).  
+2. وقت ملاقات با اداره مهاجرت (Questura) در Via XIV Settembre 81، پروجا رزرو کنید: +39 075 506 3211.  
+**زمان پردازش**: 1-2 ماه. **اطلاعات بیشتر**: https://www.poliziadistato.it. **نکته**: کپی تمام مدارک رو همراه داشته باشید و وقت ملاقات رو زود رزرو کنید!"
+      }
     }
+  ]
 }
