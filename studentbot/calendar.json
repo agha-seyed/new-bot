@@ -1,60 +1,54 @@
 {
-    "deadlines": [
-        {
-            "date": "2025-09-01",
-            "category": "application",
-            "event": {
-                "en": "Application deadline for the University of Perugia",
-                "fa": "آخرین مهلت ثبت‌نام دانشگاه پروجا",
-                "it": "Scadenza per la domanda all'Università di Perugia"
-            },
-            "description": {
-                "en": "Submit your application for undergraduate and graduate programs at the University of Perugia. Required documents: high school diploma, transcript, passport, and language certificate. Apply via the university portal: https://www.unipg.it/en/international-students/admission. Contact: international@unipg.it",
-                "fa": "درخواست خود را برای برنامه‌های کارشناسی و کارشناسی ارشد دانشگاه پروجا ارسال کنید. مدارک مورد نیاز: دیپلم دبیرستان، ریزنمرات، پاسپورت، و مدرک زبان. از طریق پورتال دانشگاه اقدام کنید: https://www.unipg.it/en/international-students/admission. تماس: international@unipg.it",
-                "it": "Invia la tua domanda per i programmi di laurea triennale e magistrale presso l'Università di Perugia. Documenti richiesti: diploma di scuola superiore, trascrizione, passaporto e certificato linguistico. Candidati tramite il portale universitario: https://www.unipg.it/en/international-students/admission. Contatto: international@unipg.it"
-            }
-        },
-        {
-            "date": "2025-09-15",
-            "category": "scholarship",
-            "event": {
-                "en": "Scholarship application deadline",
-                "fa": "آخرین مهلت درخواست بورسیه",
-                "it": "Scadenza per la domanda di borsa di studio"
-            },
-            "description": {
-                "en": "Apply for regional and university scholarships (e.g., ADiSU Umbria). Required: ISEE certificate, academic records, and proof of enrollment. Estimated funding: €2,000-€5,000/year. Apply at: https://www.adisu.umbria.it. Contact: info@adisu.umbria.it",
-                "fa": "برای بورسیه‌های منطقه‌ای و دانشگاهی (مثل ADiSU Umbria) اقدام کنید. مدارک مورد نیاز: گواهی ISEE، سوابق تحصیلی، و مدرک ثبت‌نام. بودجه تخمینی: 2000 تا 5000 یورو در سال. درخواست در: https://www.adisu.umbria.it. تماس: info@adisu.umbria.it",
-                "it": "Candidati per borse di studio regionali e universitarie (es. ADiSU Umbria). Richiesti: certificato ISEE, documenti accademici e prova di iscrizione. Finanziamento stimato: €2.000-€5.000/anno. Candidati su: https://www.adisu.umbria.it. Contatto: info@adisu.umbria.it"
-            }
-        },
-        {
-            "date": "2025-10-01",
-            "category": "registration",
-            "event": {
-                "en": "University registration deadline",
-                "fa": "آخرین مهلت ثبت‌نام دانشگاه",
-                "it": "Scadenza per la registrazione all'università"
-            },
-            "description": {
-                "en": "Complete your registration at the University of Perugia. Visit the student office at Via XV Settembre 4, Perugia, or use the online portal: https://unipg.esse3.cineca.it. Required: student ID, payment confirmation (€156 registration fee).",
-                "fa": "ثبت‌نام خود را در دانشگاه پروجا تکمیل کنید. به دفتر دانشجویی در Via XV Settembre 4، پروجا مراجعه کنید یا از پورتال آنلاین استفاده کنید: https://unipg.esse3.cineca.it. مدارک مورد نیاز: کارت دانشجویی، تأیید پرداخت (هزینه ثبت‌نام 156 یورو).",
-                "it": "Completa la tua registrazione presso l'Università di Perugia. Visita l'ufficio studenti in Via XV Settembre 4, Perugia, o usa il portale online: https://unipg.esse3.cineca.it. Richiesti: carta d'identità studentesca, conferma del pagamento (€156 tassa di iscrizione)."
-            }
-        },
-        {
-            "date": "2025-12-15",
-            "category": "exams",
-            "event": {
-                "en": "First semester exam registration",
-                "fa": "ثبت‌نام امتحانات ترم اول",
-                "it": "Registrazione agli esami del primo semestre"
-            },
-            "description": {
-                "en": "Register for first-semester exams via the student portal: https://unipg.esse3.cineca.it. Deadline for course enrollment and exam booking. Contact your faculty for specific schedules.",
-                "fa": "برای امتحانات ترم اول از طریق پورتال دانشجویی ثبت‌نام کنید: https://unipg.esse3.cineca.it. آخرین مهلت ثبت‌نام دروس و رزرو امتحان. برای برنامه‌های خاص با دانشکده خود تماس بگیرید.",
-                "it": "Registrati agli esami del primo semestre tramite il portale studenti: https://unipg.esse3.cineca.it. Scadenza per l'iscrizione ai corsi e la prenotazione degli esami. Contatta la tua facoltà per gli orari specifici."
-            }
-        }
-    ]
+  "deadlines": [
+    {
+      "date": "2025-09-01",
+      "category": "application",
+      "event": {
+        "fa": "آخرین مهلت ثبت‌نام دانشگاه پروجا"
+      },
+      "description": {
+        "fa": "درخواست خودتون رو برای برنامه‌های کارشناسی، کارشناسی ارشد یا دکتری در دانشگاه پروجا ارسال کنید. **مدارک مورد نیاز**: دیپلم دبیرستان (ترجمه‌شده و تأییدشده)، ریزنمرات، پاسپورت معتبر، مدرک زبان (مثل IELTS یا CILS)، و نامه انگیزشی. از طریق پورتال دانشگاه اقدام کنید: https://www.unipg.it/en/international-students/admission. برای سؤالات، با دفتر بین‌الملل تماس بگیرید: international@unipg.it یا +39 075 585 2011 (دوشنبه تا جمعه، 9 صبح تا 5 عصر). **نکته**: قبل از ارسال، مدارک رو با دقت بررسی کنید تا کامل باشن!"
+      }
+    },
+    {
+      "date": "2025-09-15",
+      "category": "scholarship",
+      "event": {
+        "fa": "آخرین مهلت درخواست بورسیه"
+      },
+      "description": {
+        "fa": "برای بورسیه‌های منطقه‌ای (ADiSU Umbria) یا بورسیه‌های دانشگاهی اقدام کنید. **مدارک مورد نیاز**: گواهی ISEE (محاسبه‌شده از طریق /isee)، سوابق تحصیلی، مدرک ثبت‌نام دانشگاه، و فرم درخواست بورسیه. بودجه تخمینی: 2000 تا 5000 یورو در سال (بسته به ISEE). از طریق پورتال ADiSU اقدام کنید: https://www.adisu.umbria.it. برای راهنمایی بیشتر: info@adisu.umbria.it یا +39 075 573 6111. **نکته**: حتماً قبل از مهلت، مدارک رو آپلود کنید و وضعیت درخواست رو پیگیری کنید!"
+      }
+    },
+    {
+      "date": "2025-10-01",
+      "category": "registration",
+      "event": {
+        "fa": "آخرین مهلت ثبت‌نام دانشگاه"
+      },
+      "description": {
+        "fa": "ثبت‌نام خودتون رو در دانشگاه پروجا تکمیل کنید. **گام‌ها**: به دفتر دانشجویی (Via XV Settembre 4، پروجا) مراجعه کنید یا از پورتال آنلاین استفاده کنید: https://unipg.esse3.cineca.it. **مدارک مورد نیاز**: کارت دانشجویی، تأیید پرداخت هزینه ثبت‌نام (156 یورو)، پاسپورت، کد مالیاتی (Codice Fiscale). برای فعال‌سازی ایمیل دانشجویی: https://www.unipg.it/en/students/email. تماس: segreteria@unipg.it یا +39 075 585 2011. **نکته**: پرداخت رو از طریق انتقال SEPA انجام بدید و رسیدش رو نگه دارید!"
+      }
+    },
+    {
+      "date": "2025-12-15",
+      "category": "exams",
+      "event": {
+        "fa": "ثبت‌نام امتحانات ترم اول"
+      },
+      "description": {
+        "fa": "برای امتحانات ترم اول از طریق پورتال دانشجویی ثبت‌نام کنید: https://unipg.esse3.cineca.it. **گام‌ها**: دروس مورد نظر رو انتخاب کنید، امتحانات رو رزرو کنید، و برنامه امتحانی رو چک کنید. **نکته**: برای برنامه‌های خاص (مثل امتحانات دانشکده مهندسی یا پزشکی)، با دانشکده خودتون تماس بگیرید (مثلاً مهندسی: Via G. Duranti 93، +39 075 585 3600). **تماس**: segreteria@unipg.it. **هشدار**: ثبت‌نام بعد از این تاریخ ممکنه جریمه داشته باشه!"
+      }
+    },
+    {
+      "date": "2025-11-30",
+      "category": "visa",
+      "event": {
+        "fa": "آخرین مهلت درخواست ویزای دانشجویی"
+      },
+      "description": {
+        "fa": "برای ویزای دانشجویی (نوع D) در سفارت ایتالیا در کشور خودتون اقدام کنید. **مدارک مورد نیاز**: پاسپورت معتبر (با حداقل 6 ماه اعتبار)، نامه پذیرش دانشگاه، مدرک تمکن مالی (حداقل 5000 یورو)، بیمه درمانی، و مدرک محل اقامت در ایتالیا. **گام‌ها**: وقت سفارت رزرو کنید، مدارک رو آپلود کنید، و مصاحبه رو انجام بدید. اطلاعات بیشتر: https://vistoperitalia.esteri.it. **تماس**: با سفارت یا کنسولگری ایتالیا در کشورتون تماس بگیرید. **نکته**: حداقل 3 ماه قبل از سفر اقدام کنید!"
+      }
+    }
+  ]
 }
