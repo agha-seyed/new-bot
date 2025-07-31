@@ -2,8 +2,8 @@ import logging
 from telegram import Bot
 from telegram.error import TelegramError
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from config import config
-from studentbot.utils.db_utils import get_all_consultation_requests
+from studentbot import config
+from studentbot.utils.db_utils import get_all_consultation_requests, AsyncSessionLocal
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +15,7 @@ class Scheduler:
         self.bot = Bot(token=config.TELEGRAM_BOT_TOKEN)
     
     async def get_users_count(self) -> int:
-        """Get total number of users (placeholder until get_all_users is implemented)."""
+        """Get total number of users."""
         try:
             async with AsyncSessionLocal() as session:
                 result = await session.execute(text("SELECT COUNT(*) FROM users"))
@@ -39,7 +39,7 @@ class Scheduler:
     async def send_daily_report(self):
         """Send a daily report to the admin."""
         if not config.ADMIN_CHAT_ID:
-            logger.warning("⚠️ ADMIN_CHAT_ID is not set. Skipping daily report.")
+            logger.warning("⚠️ ADMIN_CHAT_ID is not set")
             return
         
         try:
@@ -48,20 +48,20 @@ class Scheduler:
             consultations = await get_all_consultation_requests()
             pending_consultations = len([c for c in consultations if c["status"] == "pending"])
             
-            report_text = f"""📊 *Daily Report*
-
-👤 *Total Users:* {users_count}
-🆕 *New Users Today:* {new_users_count}
-📩 *Total Consultation Requests:* {len(consultations)}
-⏳ *Pending Consultations:* {pending_consultations}
-🕒 *Time:* {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')}
-"""
+            report_text = (
+                f"📊 *Daily Report*\n\n"
+                f"👤 *Total Users*: {users_count}\n"
+                f"🆕 *New Users Today*: {new_users_count}\n"
+                f"📩 *Total Consultation Requests*: {len(consultations)}\n"
+                f"⏳ *Pending Consultations*: {pending_consultations}\n"
+                f"🕒 *Time*: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')}"
+            )
             await self.bot.send_message(
                 chat_id=config.ADMIN_CHAT_ID,
                 text=report_text.strip(),
-                parse_mode="MarkdownV2",
+                parse_mode="MarkdownV2"
             )
-            logger.info("✅ Daily report sent successfully.")
+            logger.info("✅ Daily report sent")
         except TelegramError as e:
             logger.error(f"❌ Telegram error sending daily report: {str(e)}")
         except Exception as e:
@@ -72,7 +72,7 @@ class Scheduler:
         try:
             self.scheduler.add_job(self.send_daily_report, "cron", hour=0, minute=0)
             self.scheduler.start()
-            logger.info("🕓 Scheduler started for daily reports.")
+            logger.info("🕓 Scheduler started")
         except Exception as e:
             logger.error(f"❌ Error starting scheduler: {str(e)}")
             raise
@@ -81,9 +81,8 @@ class Scheduler:
         """Shutdown the scheduler."""
         try:
             self.scheduler.shutdown()
-            logger.info("🛑 Scheduler stopped.")
+            logger.info("🛑 Scheduler stopped")
         except Exception as e:
             logger.error(f"❌ Error stopping scheduler: {str(e)}")
 
-# Initialize scheduler
 scheduler = Scheduler()
