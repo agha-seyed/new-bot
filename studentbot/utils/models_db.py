@@ -14,6 +14,8 @@ class User(Base):
     field_of_study = Column(String, nullable=True)
     country = Column(String, nullable=True)
     lang = Column(String, default="en")
+    points = Column(Integer, default=0)  # Added for gamification
+    level = Column(String, default="🎓 Newbie")  # Added for gamification
     created_at = Column(DateTime, default=datetime.utcnow)
 
 class ISEEResult(Base):
@@ -70,6 +72,7 @@ class Feedback(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(BigInteger, ForeignKey("users.id"), nullable=False)
     rating = Column(Integer, nullable=False)
+    comment = Column(String, nullable=True)  # Added for optional feedback comments
     created_at = Column(DateTime, default=datetime.utcnow)
 
 class Question(Base):
@@ -89,3 +92,23 @@ class MigrationStatus(Base):
     user_id = Column(BigInteger, ForeignKey("users.id"), nullable=False)
     status = Column(Integer, nullable=False, default=0)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class SearchHistory(Base):
+    __tablename__ = "search_history"
+    id = Column(Integer, primary_key=True)
+    user_id = Column(BigInteger, ForeignKey("users.id"), nullable=False)
+    query = Column(String, nullable=False)
+    answer = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+class Event(Base):
+    __tablename__ = "events"
+    id = Column(Integer, primary_key=True)
+    user_id = Column(BigInteger, ForeignKey("users.id"), nullable=False)
+    event_type = Column(String, nullable=False)
+    details = Column(String, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+def init_db(engine):
+    """Initialize the database by creating all tables."""
+    Base.metadata.create_all(engine)
