@@ -2,7 +2,7 @@ import logging
 from typing import Optional, List, Dict
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import select, update, text
+from sqlalchemy import select, update, text, func
 from studentbot import config
 from .models_db import (
     User, ConsultationRequest, CostCalculation, Document, Feedback,
@@ -12,13 +12,18 @@ from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
+# Check if DATABASE_URL is available
+if not config.DATABASE_URL:
+    logger.error("DATABASE_URL is not set in configuration")
+    raise ValueError("DATABASE_URL environment variable is missing")
+
 engine = create_async_engine(config.DATABASE_URL, echo=False)
 AsyncSessionLocal = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 async def create_users_table():
     """Create users table if not exists."""
     try:
-        init_db(engine)
+        await init_db(engine)
         logger.info("✅ Users table initialized")
     except Exception as e:
         logger.error(f"❌ Error creating users table: {str(e)}")
@@ -27,7 +32,7 @@ async def create_users_table():
 async def create_consultation_requests_table():
     """Create consultation requests table if not exists."""
     try:
-        init_db(engine)
+        await init_db(engine)
         logger.info("✅ Consultation requests table initialized")
     except Exception as e:
         logger.error(f"❌ Error creating consultation requests table: {str(e)}")
