@@ -2,20 +2,15 @@ import logging
 from datetime import datetime
 import httpx
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import ContextTypes, CommandHandler
+from telegram.ext import ContextTypes, CommandHandler, CallbackQueryHandler
 from telegram.error import TelegramError
 from studentbot.utils.text_formatter import get_translated_text, sanitize_markdown
+from studentbot.utils.db_utils import get_user, AsyncSessionLocal, log_event
 from studentbot.utils.gsheets import gsheets_client
 from studentbot.handlers.gamification_handler import award_points_for_action
 from studentbot import config
 
-# Setup logging
 logger = logging.getLogger(__name__)
-logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    level=logging.INFO
-)
-
 
 def get_weather_emoji(condition: str) -> str:
     """Return emoji based on weather condition."""
@@ -31,7 +26,6 @@ def get_weather_emoji(condition: str) -> str:
         "Haze": "🌫️"
     }
     return mapping.get(condition, "🌡️")
-
 
 async def weather(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Display current weather in Perugia."""
@@ -69,28 +63,31 @@ async def weather(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         """
         
         keyboard = [[InlineKeyboardButton(get_translated_text("refresh_weather", lang), callback_data="refresh_weather")]]
+        async with AsyncSessionLocal() as session:
+            user = await get_user(session, user_id)
+            if user:
+                interaction_data = [
+                    user_id,
+                    user.first_name,
+                    user.last_name or "N/A",
+                    user.age or 0,
+                    user.email or "N/A",
+                    user.field_of_study or "N/A",
+                    user.country or "N/A",
+                    "Weather Request",
+                    f"Fetched weather for Perugia: {condition}, {data['main']['temp']}°C",
+                    datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+                ]
+                await gsheets_client.add_interaction_to_sheet(config.QUESTIONS_SHEET_NAME, interaction_data)
+        
         await update.message.reply_text(
             weather_text.strip(),
             parse_mode="MarkdownV2",
             reply_markup=InlineKeyboardMarkup(keyboard)
         )
-        logger.info(f"✅ Weather displayed for user {user_id}")
         await award_points_for_action(user_id, "interaction")
-        await gsheets_client.add_interaction_to_sheet(
-            config.QUESTIONS_SHEET_NAME,
-            [
-                user_id,
-                "N/A",
-                "N/A",
-                0,
-                "N/A",
-                "N/A",
-                "N/A",
-                "Weather Request",
-                f"Fetched weather for Perugia: {condition}, {data['main']['temp']}°C",
-                datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
-            ]
-        )
+        await log_event(user_id, "weather_fetched", f"Fetched weather for Perugia: {condition}, {data['main']['temp']}°C")
+        logger.info(f"✅ Weather displayed for user {user_id}")
     except httpx.HTTPStatusError as e:
         logger.error(f"❌ Weather API HTTP error for user {user_id}: {str(e)}")
         await update.message.reply_text(
@@ -110,7 +107,6 @@ async def weather(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             parse_mode="MarkdownV2"
         )
 
-
 async def weather_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Handle weather refresh callback."""
     query = update.callback_query
@@ -120,8 +116,8 @@ async def weather_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     try:
         await query.answer()
         if query.data == "refresh_weather":
-            # Reuse the weather function logic
-            await weather(query, context)
+            await weather(Update(query.from_user, query.message), context)
+            await log_event(user_id, "weather_refreshed", "Refreshed weather for Perugia")
             logger.info(f"✅ User {user_id} refreshed weather")
     except TelegramError as e:
         logger.error(f"❌ Telegram error handling weather callback for user {user_id}: {str(e)}")
@@ -129,7 +125,6 @@ async def weather_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -
             sanitize_markdown(get_translated_text("error_occurred", lang)),
             parse_mode="MarkdownV2"
         )
-
 
 def get_weather_handler():
     """Return the weather handler."""
