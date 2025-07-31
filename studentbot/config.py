@@ -40,15 +40,11 @@ class Config:
         1: 1, 2: 1.57, 3: 2.04, 4: 2.46, 5: 2.85,
         6: 3.20, 7: 3.50, 8: 3.80, 9: 4.00, 10: 4.20
     }
-    """Coefficients for ISEE calculation based on family size."""
     PROPERTY_VALUE_FACTOR = 500
-    """Factor for property value in ISEE calculation (euros per square meter)."""
     PROPERTY_VALUE_MULTIPLIER = 0.2
-    """Multiplier for property value in ISEE calculation."""
     SCHOLARSHIP_THRESHOLDS = {
         "full": 12650, "medium": 16445, "partial": 23000
     }
-    """Thresholds for scholarship eligibility based on ISEE value (euros)."""
 
     # Logging Settings
     BASE_DIR = Path(__file__).resolve().parent
@@ -78,6 +74,7 @@ class Config:
         }
         missing_vars = [name for name, value in required_vars.items() if not value]
         if missing_vars:
+            logging.error(f"Missing required environment variables: {', '.join(missing_vars)}")
             raise ValueError(f"Missing required environment variables: {', '.join(missing_vars)}")
 
         try:
@@ -86,6 +83,7 @@ class Config:
             if Config.PORT <= 0 or Config.ADMIN_CHAT_ID <= 0:
                 raise ValueError("PORT and ADMIN_CHAT_ID must be positive integers")
         except (ValueError, TypeError) as e:
+            logging.error(f"Invalid format for numeric variables: {str(e)}")
             raise ValueError(f"Invalid format for numeric variables: {str(e)}")
 
     @staticmethod
