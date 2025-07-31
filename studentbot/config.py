@@ -5,7 +5,7 @@ from pathlib import Path
 
 class Config:
     """Configuration class for the StudentBot project."""
-
+    
     # Telegram Bot Settings
     TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
     WEBHOOK_SECRET = os.getenv("WEBHOOK_SECRET")
@@ -42,24 +42,22 @@ class Config:
     }
     """Coefficients for ISEE calculation based on family size."""
     PROPERTY_VALUE_FACTOR = 500
-    """Factor for calculating property value in ISEE (euros per square meter)."""
+    """Factor for property value in ISEE calculation (euros per square meter)."""
     PROPERTY_VALUE_MULTIPLIER = 0.2
     """Multiplier for property value in ISEE calculation."""
     SCHOLARSHIP_THRESHOLDS = {
-        "full": 12650,
-        "medium": 16445,
-        "partial": 23000,
+        "full": 12650, "medium": 16445, "partial": 23000
     }
     """Thresholds for scholarship eligibility based on ISEE value (euros)."""
 
     # Logging Settings
     BASE_DIR = Path(__file__).resolve().parent
-    LOG_DIR = os.getenv("LOG_DIR", "/tmp/logs")  # Use /tmp for Render
-    LOG_FILE = os.path.join(LOG_DIR, "studentbot.log")
+    LOG_DIR = Path(os.getenv("LOG_DIR", BASE_DIR / "logs"))
+    LOG_FILE = LOG_DIR / "studentbot.log"
 
     # Other Settings
     PYTHON_VERSION = os.getenv("PYTHON_VERSION", "3.11.9")
-    ENVIRONMENT = os.getenv("ENVIRONMENT", "production")  # development or production
+    ENVIRONMENT = os.getenv("ENVIRONMENT", "production")
 
     @staticmethod
     def validate():
@@ -82,21 +80,18 @@ class Config:
         if missing_vars:
             raise ValueError(f"Missing required environment variables: {', '.join(missing_vars)}")
 
-        # Validate numeric variables
         try:
             Config.PORT = int(Config.PORT)
-            if Config.PORT <= 0:
-                raise ValueError("PORT must be a positive integer")
             Config.ADMIN_CHAT_ID = int(Config.ADMIN_CHAT_ID)
-            if Config.ADMIN_CHAT_ID <= 0:
-                raise ValueError("ADMIN_CHAT_ID must be a positive integer")
+            if Config.PORT <= 0 or Config.ADMIN_CHAT_ID <= 0:
+                raise ValueError("PORT and ADMIN_CHAT_ID must be positive integers")
         except (ValueError, TypeError) as e:
             raise ValueError(f"Invalid format for numeric variables: {str(e)}")
 
     @staticmethod
     def setup_logging():
         """Setup logging configuration."""
-        os.makedirs(Config.LOG_DIR, exist_ok=True)
+        Config.LOG_DIR.mkdir(parents=True, exist_ok=True)
         logger = logging.getLogger("studentbot")
         logger.setLevel(logging.DEBUG if Config.ENVIRONMENT == "development" else logging.INFO)
 
@@ -104,20 +99,22 @@ class Config:
         file_handler = RotatingFileHandler(
             Config.LOG_FILE, maxBytes=5_000_000, backupCount=5
         )
-        file_formatter = logging.Formatter("[%(asctime)s] %(levelname)s - %(name)s - %(message)s")
-        file_handler.setFormatter(file_formatter)
+        file_handler.setFormatter(logging.Formatter(
+            "[%(asctime)s] %(levelname)s - %(name)s - %(message)s"
+        ))
         logger.addHandler(file_handler)
 
         # Console handler for development
         if Config.ENVIRONMENT == "development":
             console_handler = logging.StreamHandler()
-            console_formatter = logging.Formatter("%(name)s - %(levelname)s - %(message)s")
-            console_handler.setFormatter(console_formatter)
+            console_handler.setFormatter(logging.Formatter(
+                "%(name)s - %(levelname)s - %(message)s"
+            ))
             logger.addHandler(console_handler)
 
         return logger
 
-# Initialize configuration and validate
+# Initialize configuration
 config = Config()
 config.validate()
 logger = config.setup_logging()
