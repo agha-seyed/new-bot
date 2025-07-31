@@ -13,12 +13,12 @@ from telegram.ext import (
     filters,
 )
 from telegram.error import TelegramError
-from config import config
+from studentbot import config
 from studentbot.utils.text_formatter import get_translated_text, sanitize_markdown
-from studentbot.utils.db_utils import create_consultation_request, get_consultation_requests, log_event, update_consultation_request_status
+from studentbot.utils.db_utils import create_consultation_request, get_consultation_requests, log_event, update_consultation_request_status, get_user
 from studentbot.utils.gdrive import gdrive_client
 from studentbot.utils.gsheets import gsheets_client
-from studentbot.gamification_handler import award_points_for_action
+from studentbot.handlers.gamification_handler import award_points_for_action
 
 logger = logging.getLogger(__name__)
 
@@ -94,7 +94,7 @@ async def name(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Handle name input."""
     lang = context.user_data.get("lang", "en")
     name = update.message.text.strip()
-    if not name:
+    if not name or len(name) < 2:
         await update.message.reply_text(get_translated_text("invalid_name", lang))
         return NAME
     context.user_data["consultation_name"] = name
@@ -105,7 +105,7 @@ async def field_of_study(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     """Handle field of study input."""
     lang = context.user_data.get("lang", "en")
     field = update.message.text.strip()
-    if not field:
+    if not field or len(field) < 3:
         await update.message.reply_text(get_translated_text("invalid_field_of_study", lang))
         return FIELD_OF_STUDY
     context.user_data["consultation_field_of_study"] = field
@@ -136,7 +136,7 @@ async def destination_country(update: Update, context: ContextTypes.DEFAULT_TYPE
     """Handle destination country input."""
     lang = context.user_data.get("lang", "en")
     country = update.message.text.strip()
-    if not country:
+    if not country or len(country) < 2:
         await update.message.reply_text(get_translated_text("invalid_country", lang))
         return DESTINATION_COUNTRY
     context.user_data["consultation_destination_country"] = country
@@ -165,13 +165,15 @@ async def budget(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 async def work_experience(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Handle work experience input."""
     lang = context.user_data.get("lang", "en")
-    context.user_data["consultation_work_experience"] = update.message.text.strip()
+    work_exp = update.message.text.strip()
+    context.user_data["consultation_work_experience"] = work_exp if work_exp else "N/A"
     return await prompt(update, context, "consultation_special_needs_prompt", SPECIAL_NEEDS)
 
 async def special_needs(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Handle special needs input."""
     lang = context.user_data.get("lang", "en")
-    context.user_data["consultation_special_needs"] = update.message.text.strip()
+    special_needs = update.message.text.strip()
+    context.user_data["consultation_special_needs"] = special_needs if special_needs else "N/A"
     return await prompt(update, context, "consultation_upload_resume_prompt", UPLOAD_RESUME)
 
 async def upload_resume(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -212,7 +214,7 @@ async def upload_resume(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
         # Remove temporary file
         try:
             os.unlink(file_path)
-            logger.info(f"File {file_path} removed from local storage")
+            logger.info(f"Temporary file {file_path} removed")
         except Exception as e:
             logger.warning(f"⚠️ Failed to remove temporary file {file_path}: {str(e)}")
         
@@ -234,7 +236,7 @@ async def upload_resume(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
         )
         
         # Save to Google Sheets
-        user = await get_user(user_id)  # Assumes get_user is defined in db_utils
+        user = await get_user(user_id)
         if user:
             consultation_data = [
                 user_id,
@@ -245,7 +247,7 @@ async def upload_resume(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
                 data["consultation_field_of_study"],
                 data["consultation_destination_country"],
                 data["consultation_name"],
-                f"Resume uploaded: {file_id}",
+                f"https://drive.google.com/file/d/{file_id}",
                 datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
             ]
             await gsheets_client.add_consultation_to_sheet(config.QUESTIONS_SHEET_NAME, consultation_data)
@@ -257,41 +259,39 @@ async def upload_resume(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
         
         # Notify admin
         if config.ADMIN_CHAT_ID:
-            try:
-                admin_message = f"""🆕 *New Consultation Request*
+            admin_message = f"""🆕 *New Consultation Request*
 *Name:* {sanitize_markdown(data["consultation_name"])}
-*Field of Study:* {sanitize_markdown(data["consultation_field_of_study"])}
-*Destination Country:* {sanitize_markdown(data["consultation_destination_country"])}
-*File ID:* {file_id}
+*Field:* {sanitize_markdown(data["consultation_field_of_study"])}
+*Country:* {sanitize_markdown(data["consultation_destination_country"])}
+*File:* [Resume](https://drive.google.com/file/d/{file_id})
 *Time:* {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')}"""
-                if len(admin_message) > 4096:
-                    admin_message = admin_message[:4000] + "..."
-                keyboard = [
-                    [
-                        InlineKeyboardButton(
-                            get_translated_text("respond_button", "en"),
-                            callback_data=f"respond_consult_{user_id}"
-                        ),
-                        InlineKeyboardButton(
-                            get_translated_text("archive_button", "en"),
-                            callback_data=f"archive_consult_{user_id}"
-                        ),
-                    ]
+            if len(admin_message) > 4000:
+                admin_message = admin_message[:4000] + "..."
+            keyboard = [
+                [
+                    InlineKeyboardButton(
+                        get_translated_text("respond_button", "en"),
+                        callback_data=f"respond_consult_{user_id}"
+                    ),
+                    InlineKeyboardButton(
+                        get_translated_text("archive_button", "en"),
+                        callback_data=f"archive_consult_{user_id}"
+                    ),
                 ]
-                reply_markup = InlineKeyboardMarkup(keyboard)
-                await context.bot.send_message(
-                    chat_id=config.ADMIN_CHAT_ID,
-                    text=admin_message,
-                    parse_mode="MarkdownV2",
-                    reply_markup=reply_markup,
-                )
-            except TelegramError as e:
-                logger.error(f"❌ Telegram error notifying admin for user {user_id}: {str(e)}")
+            ]
+            reply_markup = InlineKeyboardMarkup(keyboard)
+            await context.bot.send_message(
+                chat_id=config.ADMIN_CHAT_ID,
+                text=admin_message,
+                parse_mode="MarkdownV2",
+                reply_markup=reply_markup,
+                disable_web_page_preview=True,
+            )
         
         await update.message.reply_text(get_translated_text("consultation_complete", lang))
         context.user_data.clear()
-        context.user_data["lang"] = lang  # Preserve language
-        logger.info(f"✅ Consultation request completed for user {user_id}")
+        context.user_data["lang"] = lang
+        logger.info(f"✅ Consultation completed for user {user_id}")
         return ConversationHandler.END
     
     except TelegramError as e:
@@ -316,10 +316,12 @@ async def handle_admin_action(update: Update, context: ContextTypes.DEFAULT_TYPE
         if action == "respond":
             await update_consultation_request_status(user_id, "responded")
             await query.message.reply_text(get_translated_text("consultation_responded", lang))
+            await award_points_for_action(user_id, "admin_action")
         elif action == "archive":
             await update_consultation_request_status(user_id, "archived")
             await query.message.reply_text(get_translated_text("consultation_archived", lang))
-        logger.info(f"✅ Admin action '{action}' performed for consultation of user {user_id}")
+            await award_points_for_action(user_id, "admin_action")
+        logger.info(f"✅ Admin action '{action}' performed for user {user_id}")
     except Exception as e:
         logger.error(f"❌ Error performing admin action '{action}' for user {user_id}: {str(e)}")
         await query.message.reply_text(get_translated_text("error_occurred", lang))
@@ -331,7 +333,7 @@ async def cancel_consultation(update: Update, context: ContextTypes.DEFAULT_TYPE
     try:
         await update.message.reply_text(get_translated_text("consultation_cancelled", lang))
         context.user_data.clear()
-        context.user_data["lang"] = lang  # Preserve language
+        context.user_data["lang"] = lang
         logger.info(f"✅ Consultation cancelled by user {user_id}")
         return ConversationHandler.END
     except TelegramError as e:
@@ -353,14 +355,15 @@ async def consult_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         for req in requests:
             message = f"""*Request ID:* {req['id']}
 *Status:* {sanitize_markdown(req['status'])}
-*Field of Study:* {sanitize_markdown(req['field_of_study'])}
-*Destination Country:* {sanitize_markdown(req['destination_country'])}
-*File ID:* {req.get('file_id', 'N/A')}
-*Created At:* {req['created_at'].strftime('%Y-%m-%d %H:%M:%S')}"""
-            if len(message) > 4096:
+*Field:* {sanitize_markdown(req['field_of_study'])}
+*Country:* {sanitize_markdown(req['destination_country'])}
+*File:* [Resume](https://drive.google.com/file/d/{req.get('file_id', 'N/A')})
+*Created:* {req['created_at'].strftime('%Y-%m-%d %H:%M:%S')}"""
+            if len(message) > 4000:
                 message = message[:4000] + "..."
-            await update.message.reply_text(message, parse_mode="MarkdownV2")
+            await update.message.reply_text(message, parse_mode="MarkdownV2", disable_web_page_preview=True)
         logger.info(f"✅ Consultation status shown for user {user_id}")
+        await award_points_for_action(user_id, "interaction")
     except TelegramError as e:
         logger.error(f"❌ Telegram error retrieving consultation status for user {user_id}: {str(e)}")
         await update.message.reply_text(get_translated_text("error_occurred", lang))
