@@ -2,6 +2,10 @@ import os
 import logging
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 class Config:
     """Configuration class for the StudentBot project."""
@@ -10,7 +14,7 @@ class Config:
     TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
     WEBHOOK_SECRET = os.getenv("WEBHOOK_SECRET")
     BASE_URL = os.getenv("BASE_URL")
-    PORT = int(os.getenv("PORT", 8080))
+    PORT = os.getenv("PORT", "8080")  # Default port as string
     ADMIN_CHAT_ID = os.getenv("ADMIN_CHAT_ID")
 
     # Database and Cache
@@ -74,14 +78,26 @@ class Config:
         }
         missing_vars = [name for name, value in required_vars.items() if not value]
         if missing_vars:
-            logging.error(f"Missing required environment variables: {', '.join(missing_vars)}")
-            raise ValueError(f"Missing required environment variables: {', '.join(missing_vars)}")
+            error_msg = f"Missing required environment variables: {', '.join(missing_vars)}"
+            logging.error(error_msg)
+            raise ValueError(error_msg)
 
+        # Validate DATABASE_URL format
+        if Config.DATABASE_URL and not Config.DATABASE_URL.startswith("postgresql+asyncpg://"):
+            error_msg = f"Invalid DATABASE_URL format: {Config.DATABASE_URL}. Must start with 'postgresql+asyncpg://'"
+            logging.error(error_msg)
+            raise ValueError(error_msg)
+
+        # Validate numeric variables
         try:
             Config.PORT = int(Config.PORT)
-            Config.ADMIN_CHAT_ID = int(Config.ADMIN_CHAT_ID)
-            if Config.PORT <= 0 or Config.ADMIN_CHAT_ID <= 0:
-                raise ValueError("PORT and ADMIN_CHAT_ID must be positive integers")
+            Config.ADMIN_CHAT_ID = int(Config.ADMIN_CHAT_ID or 0)
+            if Config.PORT <= 0:
+                logging.warning("PORT is invalid or missing, defaulting to 8080")
+                Config.PORT = 8080
+            if Config.ADMIN_CHAT_ID <= 0:
+                logging.warning("ADMIN_CHAT_ID is invalid or missing, defaulting to 0")
+                Config.ADMIN_CHAT_ID = 0
         except (ValueError, TypeError) as e:
             logging.error(f"Invalid format for numeric variables: {str(e)}")
             raise ValueError(f"Invalid format for numeric variables: {str(e)}")
@@ -114,6 +130,10 @@ class Config:
 
 # Initialize configuration
 config = Config()
-config.validate()
+try:
+    config.validate()
+except ValueError as e:
+    logging.error(f"Configuration validation failed: {str(e)}")
+    raise
 logger = config.setup_logging()
 logger.info("Configuration loaded successfully")
