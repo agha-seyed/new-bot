@@ -6,7 +6,7 @@ from telegram.constants import ChatAction
 from telegram.ext import ContextTypes, CommandHandler, MessageHandler, filters, CallbackQueryHandler
 from telegram.error import TelegramError
 from sqlalchemy import select
-from studentbot.utils.text_formatter import get_translated_text, sanitize_markdown
+from studentbot.utils.common import get_translated_text, sanitize_markdown
 from studentbot.utils.redis_utils import redis_client
 from studentbot.utils.ai_utils import smart_search
 from studentbot.utils.db_utils import get_user, AsyncSessionLocal, log_event
