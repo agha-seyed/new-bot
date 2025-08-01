@@ -171,5 +171,6 @@ async def shutdown_event():
         logger.error(f"❌ Error stopping bot: {str(e)}")
 
 if __name__ == "__main__":
-    logger.info(f"🚀 Starting server on port {int(os.getenv('PORT', 8000))}...")
-    uvicorn.run(app, host="0.0.
+    port = int(os.getenv("PORT", 8000))
+    logger.info(f"🚀 Starting server on port {port}...")
+    uvicorn.run(app, host="0.0.0.0", port=port)
