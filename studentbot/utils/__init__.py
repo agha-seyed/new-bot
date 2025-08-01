@@ -6,5 +6,10 @@ from .text_formatter import send_email
 from .text_extractor import search_in_documents
 from .scheduler import scheduler
 from .gsheets import gsheets_client
-from .db_utils import AsyncSessionLocal, create_users_table, create_consultation_requests_table
+from .db_utils import (
+    AsyncSessionLocal,
+    create_users_table,
+    create_consultation_requests_table,
+    get_all_consultation_requests
+)
 from .redis_utils import redis_client
