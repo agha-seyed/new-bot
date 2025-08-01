@@ -5,13 +5,13 @@ import logging
 from typing import Optional, Dict
 from datetime import datetime
 from studentbot import config
-from studentbot.utils.text_formatter import get_translated_text, sanitize_markdown
+from studentbot.utils.common import get_translated_text, sanitize_markdown
 from studentbot.utils.text_extractor import search_in_documents
 from studentbot.utils.redis_utils import redis_client
 from studentbot.utils.alert_admin import notify_admin_unanswered
 from studentbot.utils.gsheets import gsheets_client
 from studentbot.handlers.gamification_handler import award_points_for_action
-from studentbot.models import AIModels
+from studentbot.utils.models import AIModels
 
 logger = logging.getLogger(__name__)
 
