@@ -28,7 +28,7 @@ from studentbot.handlers.arrival_guide_handler import get_arrival_guide_handler
 from studentbot.handlers.admin_handler import get_admin_handler
 from studentbot.handlers.question_handler import get_question_handler
 from studentbot.handlers.feedback_handler import get_feedback_handler
-from studentbot.handlers.migration_handler import get_m ELSE migration_handler
+from studentbot.handlers.migration_handler import get_migration_handler
 from studentbot.handlers.calendar_handler import get_calendar_handler
 from studentbot.utils.db_utils import create_users_table, create_consultation_requests_table, test_db_connection
 from studentbot.utils.scheduler import scheduler
@@ -172,4 +172,4 @@ async def shutdown_event():
 
 if __name__ == "__main__":
     logger.info(f"🚀 Starting server on port {int(os.getenv('PORT', 8000))}...")
-    uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", 8000)))
+    uvicorn.run(app, host="0.0.
