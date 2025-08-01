@@ -3,7 +3,7 @@ from datetime import datetime
 from telegram import Bot
 from telegram.error import TelegramError
 from studentbot import config
-from studentbot.utils.text_formatter import get_translated_text, sanitize_markdown
+from studentbot.utils.common import get_translated_text, sanitize_markdown
 from studentbot.utils.gsheets import gsheets_client
 from studentbot.utils.db_utils import AsyncSessionLocal, get_user
 
