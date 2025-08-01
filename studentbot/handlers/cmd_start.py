@@ -3,7 +3,7 @@ from typing import List, Tuple
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 from telegram.error import TelegramError
-from studentbot.utils.text_formatter import get_translated_text, sanitize_markdown
+from studentbot.utils.common import get_translated_text, sanitize_markdown
 from pathlib import Path
 from datetime import datetime
 
