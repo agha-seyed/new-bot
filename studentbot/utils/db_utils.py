@@ -12,13 +12,24 @@ from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
-# Check if DATABASE_URL is available
-if not config.DATABASE_URL:
-    logger.error("DATABASE_URL is not set in configuration")
-    raise ValueError("DATABASE_URL environment variable is missing")
+# Initialize database engine
+try:
+    engine = create_async_engine(config.DATABASE_URL, echo=False)
+    AsyncSessionLocal = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+except Exception as e:
+    logger.error(f"❌ Failed to initialize database engine: {str(e)}")
+    raise ValueError(f"Failed to initialize database engine: {str(e)}")
 
-engine = create_async_engine(config.DATABASE_URL, echo=False)
-AsyncSessionLocal = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+async def test_db_connection():
+    """Test the database connection."""
+    try:
+        async with AsyncSessionLocal() as session:
+            await session.execute(text("SELECT 1"))
+            logger.info("✅ Database connection successful")
+            return True
+    except Exception as e:
+        logger.error(f"❌ Database connection failed: {str(e)}")
+        return False
 
 async def create_users_table():
     """Create users table if not exists."""
@@ -36,16 +47,6 @@ async def create_consultation_requests_table():
         logger.info("✅ Consultation requests table initialized")
     except Exception as e:
         logger.error(f"❌ Error creating consultation requests table: {str(e)}")
-        raise
-
-async def test_db_connection():
-    """Test the database connection."""
-    try:
-        async with AsyncSessionLocal() as session:
-            await session.execute(text("SELECT 1"))
-            logger.info("✅ Database connection successful")
-    except Exception as e:
-        logger.error(f"❌ Database connection failed: {str(e)}")
         raise
 
 async def create_user(
