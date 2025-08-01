@@ -7,7 +7,7 @@ import docx
 from bs4 import BeautifulSoup
 import asyncio
 from studentbot import config
-from studentbot.utils.text_formatter import get_translated_text, sanitize_markdown
+from studentbot.utils.common import get_translated_text, sanitize_markdown  # Changed from text_formatter
 from studentbot.utils.gsheets import gsheets_client
 from studentbot.handlers.gamification_handler import award_points_for_action
 
