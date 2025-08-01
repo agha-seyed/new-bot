@@ -13,3 +13,4 @@ from .db_utils import (
     get_all_consultation_requests
 )
 from .redis_utils import redis_client
+from .models import AIModels
