@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime
-from telegram import Update, InlineKeyboardButton dental, InlineKeyboardMarkup
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes, CommandHandler, CallbackQueryHandler
 from telegram.error import TelegramError
 from studentbot.utils.text_formatter import get_translated_text, sanitize_markdown
