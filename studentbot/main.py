@@ -35,6 +35,7 @@ from studentbot.utils.scheduler import start_scheduler
 from studentbot.utils.redis_utils import redis_client
 from studentbot import config
 
+# Ensure environment variables are loaded
 load_dotenv()
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -51,7 +52,19 @@ async def root():
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy", "port": config.PORT}
+    try:
+        # Check database connection
+        db_connected = await test_db_connection()
+        redis_connected = await redis_client.ping()
+        return {
+            "status": "healthy",
+            "port": config.PORT,
+            "database_connected": db_connected,
+            "redis_connected": redis_connected
+        }
+    except Exception as e:
+        logger.error(f"❌ Health check failed: {str(e)}")
+        return {"status": "unhealthy", "error": str(e)}
 
 @app.post("/webhook")
 async def webhook(request: Request):
@@ -72,11 +85,21 @@ async def webhook(request: Request):
 async def setup():
     """Setup the bot, database, webhook, and Redis."""
     try:
+        # Verify environment variables
+        config.validate()
+        
+        # Check database connection
+        if not await test_db_connection():
+            raise ValueError("Failed to connect to database")
+            
+        # Initialize Redis
         await redis_client.initialize()
-        await test_db_connection()
+        
+        # Create database tables
         await create_users_table()
         await create_consultation_requests_table()
 
+        # Set webhook
         await application.bot.set_webhook(
             url=f"{config.BASE_URL}/webhook",
             secret_token=config.WEBHOOK_SECRET,
@@ -84,6 +107,7 @@ async def setup():
         )
         logger.info(f"✅ Webhook set to {config.BASE_URL}/webhook")
 
+        # Add handlers
         application.add_handler(CommandHandler("start", start))
         application.add_handler(CommandHandler("profile", profile))
         application.add_handler(CommandHandler("menu", menu))
@@ -112,6 +136,7 @@ async def setup():
             language_handler
         ))
 
+        # Start scheduler
         start_scheduler()
         logger.info("✅ Bot setup completed")
     except Exception as e:
