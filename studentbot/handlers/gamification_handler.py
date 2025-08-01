@@ -5,7 +5,7 @@ from telegram.ext import ContextTypes, CommandHandler
 from telegram.error import TelegramError
 from studentbot import config
 from studentbot.utils.db_utils import get_user_points, get_user_level, get_leaderboard, add_points
-from studentbot.utils.text_formatter import get_translated_text, sanitize_markdown
+from studentbot.utils.common import get_translated_text, sanitize_markdown
 from studentbot.utils.gsheets import gsheets_client
 from datetime import datetime
 
