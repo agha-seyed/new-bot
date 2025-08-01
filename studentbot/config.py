@@ -15,7 +15,7 @@ class Config:
         self.TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
         self.WEBHOOK_SECRET = os.getenv("WEBHOOK_SECRET")
         self.BASE_URL = os.getenv("BASE_URL")
-        self.PORT = int(os.getenv("PORT", "8080"))
+        self.PORT = int(os.getenv("PORT", "8000"))  # Changed from 8080 to 8000
         self.ADMIN_CHAT_ID = int(os.getenv("ADMIN_CHAT_ID", "0"))
 
         # DB & Redis
