@@ -8,7 +8,7 @@ from .registration_flow import get_registration_handler
 from .edit_profile_flow import get_edit_profile_handler
 from .isee_handler import get_isee_handler
 from .gamification_handler import points, leaderboard
-from .news_handler import get_news_handler  # Changed from 'news' to 'get_news_handler'
+from .news_handler import get_news_handler
 from .consult_handler import get_consultation_handler
 from .document_handler import get_document_handler
 from .cost_handler import get_cost_handler
