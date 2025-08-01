@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from sqlalchemy import text
 from studentbot import config
 from studentbot.utils.db_utils import AsyncSessionLocal, get_all_consultation_requests
-from studentbot.utils.text_formatter import get_translated_text, sanitize_markdown
+from studentbot.utils.common import get_translated_text, sanitize_markdown
 from studentbot.utils.gsheets import gsheets_client
 from studentbot.handlers.gamification_handler import award_points_for_action
 import random
