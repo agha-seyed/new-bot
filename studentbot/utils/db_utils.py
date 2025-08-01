@@ -229,6 +229,27 @@ async def get_consultation_requests(session: AsyncSession, user_id: int) -> List
         logger.error(f"❌ Error retrieving consultation requests for user {user_id}: {str(e)}")
         return []
 
+async def get_all_consultation_requests() -> List[Dict]:
+    """Retrieve all consultation requests from the database."""
+    async with AsyncSessionLocal() as session:
+        try:
+            result = await session.execute(select(ConsultationRequest))
+            return [
+                {
+                    "id": row.id,
+                    "user_id": row.user_id,
+                    "field_of_study": row.field_of_study,
+                    "destination_country": row.destination_country,
+                    "status": row.status,
+                    "file_id": row.file_id,
+                    "created_at": row.created_at
+                }
+                for row in result.scalars().all()
+            ]
+        except Exception as e:
+            logger.error(f"❌ Error retrieving all consultation requests: {str(e)}")
+            return []
+
 async def update_consultation_request_status(session: AsyncSession, user_id: int, status: str) -> None:
     """Update the status of a consultation request."""
     try:
