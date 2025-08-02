@@ -12,7 +12,7 @@ from telegram.ext import (
 )
 from telegram.error import TelegramError
 from sqlalchemy import update
-from studentbot.utils.text_formatter import get_translated_text, sanitize_markdown
+from studentbot.utils.common import get_translated_text, sanitize_markdown  # Changed from text_formatter
 from studentbot.utils.db_utils import AsyncSessionLocal, get_user, log_event
 from studentbot.utils.gsheets import gsheets_client
 from studentbot.utils.models_db import User
