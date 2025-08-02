@@ -2,7 +2,7 @@ import logging
 from typing import List, Dict
 import asyncio
 import feedparser
-from studentbot.utils.common import get_translated_text, sanitize_markdown  # Changed from text_formatter
+from studentbot.utils.common import get_translated_text, sanitize_markdown  # Already using common
 
 logger = logging.getLogger(__name__)
 
