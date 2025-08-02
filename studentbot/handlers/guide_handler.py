@@ -5,7 +5,7 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKe
 from telegram.ext import ContextTypes, CommandHandler, CallbackQueryHandler
 from telegram.error import TelegramError
 from studentbot import config
-from studentbot.utils.text_formatter import get_translated_text, sanitize_markdown
+from studentbot.utils.common import get_translated_text, sanitize_markdown  # Changed from text_formatter
 from studentbot.utils.db_utils import log_event, get_user
 from studentbot.utils.gsheets import gsheets_client
 from studentbot.handlers.gamification_handler import award_points_for_action
@@ -136,7 +136,7 @@ async def guide_item_callback(update: Update, context: ContextTypes.DEFAULT_TYPE
                 content,
                 datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
             ]
-            await gsheets_client.add_consultation_to_sheet(config.QUESTIONS_SHEET_NAME, interaction_data)
+            await gsheets_client.add_interaction_to_sheet(config.QUESTIONS_SHEET_NAME, interaction_data)
         
         await query.edit_message_text(
             message,
@@ -194,7 +194,7 @@ async def event_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
                     matched.get("description", "No description"),
                     datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
                 ]
-                await gsheets_client.add_consultation_to_sheet(config.QUESTIONS_SHEET_NAME, interaction_data)
+                await gsheets_client.add_interaction_to_sheet(config.QUESTIONS_SHEET_NAME, interaction_data)
             
             await award_points_for_action(user_id, "interaction")
             await log_event(user_id, "calendar_event_viewed", f"Event: {matched['event']}")
