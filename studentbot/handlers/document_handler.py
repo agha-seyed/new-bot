@@ -5,7 +5,7 @@ from datetime import datetime
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import ContextTypes, CommandHandler, MessageHandler, CallbackQueryHandler, filters
 from telegram.error import TelegramError
-from studentbot.utils.text_formatter import get_translated_text, sanitize_markdown
+from studentbot.utils.common import get_translated_text, sanitize_markdown  # Changed from text_formatter
 from studentbot.utils.gdrive import gdrive_client
 from studentbot.utils.db_utils import AsyncSessionLocal, get_user, log_event
 from studentbot.utils.models_db import Document
@@ -96,7 +96,8 @@ async def document_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
             file_path = tmp_file.name
             file = await context.bot.get_file(document.file_id)
             await file.download_to_drive(file_path)
-            drive_url = await gdrive_client.upload_file(file_path, document.file_name)
+            drive_url = await gdrive_client.upload_file(file_path, user_id, document.file_name)  # Updated to match gdrive.py signature
+            os.remove(file_path)
         
         context.user_data["document"] = {
             "file_name": document.file_name,
@@ -133,9 +134,6 @@ async def document_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
             parse_mode="MarkdownV2"
         )
         return ConversationHandler.END
-    finally:
-        if 'file_path' in locals() and os.path.exists(file_path):
-            os.remove(file_path)
 
 async def confirm_upload(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Handle document upload confirmation."""
