@@ -14,7 +14,7 @@ from telegram.ext import (
 )
 from telegram.error import TelegramError
 from studentbot import config
-from studentbot.utils.text_formatter import get_translated_text, sanitize_markdown
+from studentbot.utils.common import get_translated_text, sanitize_markdown  # Changed from text_formatter
 from studentbot.utils.db_utils import AsyncSessionLocal, create_consultation_request, get_consultation_requests, log_event, update_consultation_request_status, get_user
 from studentbot.utils.gdrive import gdrive_client
 from studentbot.utils.gsheets import gsheets_client
@@ -245,7 +245,7 @@ async def upload_resume(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
             file_path = tmp_file.name
             file = await context.bot.get_file(document.file_id)
             await file.download_to_drive(file_path)
-            file_id = await gdrive_client.upload_file(file_path, document.file_name)
+            file_id = await gdrive_client.upload_file(file_path, user_id, document.file_name)  # Updated to match gdrive.py signature
             os.remove(file_path)
 
         context.user_data["consultation_file_id"] = file_id
