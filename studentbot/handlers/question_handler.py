@@ -4,7 +4,7 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKe
 from telegram.ext import ContextTypes, ConversationHandler, CommandHandler, MessageHandler, filters, CallbackQueryHandler
 from telegram.error import TelegramError
 from sqlalchemy import select
-from studentbot.utils.text_formatter import get_translated_text, sanitize_markdown
+from studentbot.utils.common import get_translated_text, sanitize_markdown  # Changed from text_formatter
 from studentbot.utils.db_utils import AsyncSessionLocal, get_user, log_event
 from studentbot.utils.gsheets import gsheets_client
 from studentbot.utils.ai_utils import smart_search
@@ -226,8 +226,8 @@ async def confirm_question(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 
         # Award points and update level
         async with AsyncSessionLocal() as session:
-            await add_score(session, user_id, 5)
-            await update_user_level(session, user_id)
+            await add_score(session, user_id, 5)  # Assuming defined in gamification_handler.py
+            await update_user_level(session, user_id)  # Assuming defined in gamification_handler.py
 
         await award_points_for_action(user_id, "question_submission")
         await log_event(user_id, "question_submitted", f"Title: {user_data['question_title']}, Topic: {user_data['question_topic']}")
