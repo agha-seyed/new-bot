@@ -1,5 +1,6 @@
 import logging
 import json
+import asyncio  # Added import
 from typing import List, Any
 import gspread
 from gspread.exceptions import WorksheetNotFound, APIError
