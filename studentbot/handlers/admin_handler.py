@@ -5,7 +5,7 @@ from telegram.ext import ContextTypes, CommandHandler, MessageHandler, CallbackQ
 from telegram.error import TelegramError
 from studentbot import config
 from studentbot.utils.db_utils import get_all_consultation_requests, update_consultation_request_status, get_all_users, log_event
-from studentbot.utils.text_formatter import get_translated_text, sanitize_markdown
+from studentbot.utils.common import get_translated_text, sanitize_markdown  # Changed from text_formatter
 from studentbot.handlers.gamification_handler import award_points_for_action
 
 logger = logging.getLogger(__name__)
@@ -174,7 +174,8 @@ async def handle_reply_message(update: Update, context: ContextTypes.DEFAULT_TYP
     try:
         request_id = context.user_data["awaiting_reply"]["request_id"]
         reply_text = update.message.text.strip()
-        request = await get_consultation_requests(request_id)
+        request = await get_all_consultation_requests()
+        request = next((r for r in request if r["id"] == request_id), None)
         if not request:
             await update.message.reply_text(
                 sanitize_markdown(get_translated_text("request_not_found", lang)),
@@ -183,7 +184,7 @@ async def handle_reply_message(update: Update, context: ContextTypes.DEFAULT_TYP
             context.user_data.pop("awaiting_reply", None)
             return
         
-        user_id_to_reply = request[0]["user_id"]
+        user_id_to_reply = request["user_id"]
         await context.bot.send_message(
             chat_id=user_id_to_reply,
             text=sanitize_markdown(f"📬 {get_translated_text('admin_reply', lang)}:\n{reply_text}"),
