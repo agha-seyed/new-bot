@@ -6,13 +6,14 @@ from telegram.ext import (
     ConversationHandler,
     CommandHandler,
     MessageHandler,
+    CallbackQueryHandler,
     filters,
 )
 from telegram.error import TelegramError
 from sqlalchemy import select
 from datetime import datetime
 from studentbot import config
-from studentbot.utils.text_formatter import get_translated_text, sanitize_markdown
+from studentbot.utils.common import get_translated_text, sanitize_markdown  # Changed from text_formatter
 from studentbot.utils.db_utils import AsyncSessionLocal, get_user, log_event
 from studentbot.utils.gsheets import gsheets_client
 from studentbot.handlers.gamification_handler import award_points_for_action
@@ -53,7 +54,8 @@ async def store_isee_result(
                 await session.commit()
                 logger.info(f"✅ Stored ISEE result for user {user_id}")
     except Exception as e:
-        logger.error(f"❌ Error storing ISEE_HANDLER
+        logger.error(f"❌ Error storing ISEE result for user {user_id}: {str(e)}")
+        raise
 
 async def validate_family_members(members_text: str) -> Optional[int]:
     """Validate family members input."""
@@ -240,7 +242,7 @@ async def calculate_and_send_result(update: Update, context: ContextTypes.DEFAUL
                 f"Status: {status}, Members: {members}, Income: {income}, Property: {property_value}",
                 datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
             ]
-            await gsheets_client.add_consultation_to_sheet(config.QUESTIONS_SHEET_NAME, isee_data)
+            await gsheets_client.add_interaction_to_sheet(config.QUESTIONS_SHEET_NAME, isee_data)
         
         # Award points for ISEE calculation
         await award_points_for_action(user_id, "isee_calculation")
