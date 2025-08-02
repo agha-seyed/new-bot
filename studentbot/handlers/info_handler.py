@@ -3,7 +3,7 @@ from datetime import datetime
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import ContextTypes, CommandHandler, CallbackQueryHandler, Application
 from telegram.error import TelegramError
-from studentbot.utils.text_formatter import get_translated_text, sanitize_markdown
+from studentbot.utils.common import get_translated_text, sanitize_markdown  # Changed from text_formatter
 from studentbot.utils.db_utils import get_user, log_event
 from studentbot.utils.gsheets import gsheets_client
 from studentbot.handlers.gamification_handler import award_points_for_action
@@ -225,13 +225,13 @@ def get_info_handler():
         CallbackQueryHandler(info_callback, pattern="^(contact|about|back_to_menu)$"),
     ]
 
-async def set_info_commands(application: Application) -> None:
+async def set_info_commands(application: Application, lang: str = "en") -> None:
     """Add info-related commands to the Telegram menu."""
     try:
         commands = [
-            ("help", get_translated_text("help_command_desc", "en")),
-            ("contact", get_translated_text("contact_command_desc", "en")),
-            ("about", get_translated_text("about_command_desc", "en")),
+            ("help", get_translated_text("help_command_desc", lang)),
+            ("contact", get_translated_text("contact_command_desc", lang)),
+            ("about", get_translated_text("about_command_desc", lang)),
         ]
         await application.bot.set_my_commands(commands)
         logger.info("✅ Info commands set successfully")
