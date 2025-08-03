@@ -157,4 +157,5 @@ class GoogleSheetsClient:
             logger.error(f"❌ Failed to delete user {user_id} in sheet '{sheet_name}': {str(e)}")
             raise
 
+# Instantiate the client
 gsheets_client = GoogleSheetsClient()
