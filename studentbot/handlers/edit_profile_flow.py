@@ -12,7 +12,7 @@ from telegram.ext import (
 )
 from telegram.error import TelegramError
 from sqlalchemy import update
-from studentbot.utils.common import get_translated_text, sanitize_markdown  # Changed from text_formatter
+from studentbot.utils.common import get_translated_text, sanitize_markdown
 from studentbot.utils.db_utils import AsyncSessionLocal, get_user, log_event
 from studentbot.utils.gsheets import gsheets_client
 from studentbot.utils.models_db import User
@@ -22,7 +22,7 @@ from studentbot import config
 logger = logging.getLogger(__name__)
 
 # States
-SELECT_FIELD, EDIT_NAME, EDIT_AGE, EDIT_EMAIL, EDIT_FIELD_OF_STUDY, EDIT_COUNTRY = range(5)
+SELECT_FIELD, EDIT_NAME, EDIT_AGE, EDIT_EMAIL, EDIT_FIELD_OF_STUDY, EDIT_COUNTRY = range(6)  # Changed from range(5) to range(6)
 
 async def validate_age(age_text: str) -> Optional[int]:
     """Validate age input."""
@@ -47,6 +47,12 @@ async def start_edit_profile(update: Update, context: ContextTypes.DEFAULT_TYPE)
     
     try:
         user = await get_user(user_id)
+        if not user:
+            await update.message.reply_text(
+                sanitize_markdown(get_translated_text("not_registered", lang)),
+                parse_mode="MarkdownV2"
+            )
+            return ConversationHandler.END
         profile_summary = (
             f"👤 *{sanitize_markdown(get_translated_text('profile_summary', lang))}*\n\n"
             f"📛 *{sanitize_markdown(get_translated_text('name', lang))}*: {sanitize_markdown(user.first_name)} {sanitize_markdown(user.last_name or 'N/A')}\n"
