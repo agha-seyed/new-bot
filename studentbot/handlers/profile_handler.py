@@ -3,7 +3,7 @@ from datetime import datetime
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes, CommandHandler, CallbackQueryHandler
 from telegram.error import TelegramError
-from studentbot.utils.common import get_translated_text, sanitize_markdown  # Changed from text_formatter
+from studentbot.utils.common import get_translated_text, sanitize_markdown
 from studentbot.utils.db_utils import (
     get_user,
     delete_user,
@@ -13,14 +13,13 @@ from studentbot.utils.db_utils import (
     AsyncSessionLocal,
     log_event
 )
-from studentbot.utils.gsheets import gsheets_client, delete_user_from_sheet
+from studentbot.utils.gsheets import gsheets_client  # ✅ اصلاح شده
 from studentbot.handlers.gamification_handler import award_points_for_action
 from studentbot import config
 
 logger = logging.getLogger(__name__)
 
 def get_level_badge(level: int) -> str:
-    """Return a badge based on user level."""
     if level <= 5:
         return "🧱 Beginner"
     elif level <= 10:
@@ -33,7 +32,6 @@ def get_level_badge(level: int) -> str:
         return "🏅 Champion"
 
 def get_progress_bar(level: int) -> str:
-    """Generate a progress bar based on user level."""
     full = "🔵"
     empty = "⚪"
     total = 5
@@ -41,7 +39,6 @@ def get_progress_bar(level: int) -> str:
     return full * filled + empty * (total - filled)
 
 async def profile(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Display the user's profile with interactive options."""
     user_id = update.effective_user.id
     lang = context.user_data.get("lang", "en")
     
@@ -127,7 +124,6 @@ async def profile(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         )
 
 async def profile_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Handle profile-related callbacks."""
     query = update.callback_query
     user_id = query.from_user.id
     lang = context.user_data.get("lang", "en")
@@ -137,8 +133,8 @@ async def profile_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         if query.data == "delete_profile":
             async with AsyncSessionLocal() as session:
                 await delete_user(session, user_id)
-                await delete_user_from_sheet("users", user_id)
-            
+                await gsheets_client.delete_user_from_sheet("users", user_id)  # ✅ اصلاح شده
+
             await query.edit_message_text(
                 sanitize_markdown(get_translated_text("profile_deleted", lang)),
                 parse_mode="MarkdownV2"
@@ -189,7 +185,6 @@ async def profile_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         )
 
 def get_profile_handler():
-    """Return the profile handler."""
     return [
         CommandHandler("profile", profile),
         CallbackQueryHandler(profile_callback, pattern="^(edit_profile|delete_profile|upload_document)$"),
