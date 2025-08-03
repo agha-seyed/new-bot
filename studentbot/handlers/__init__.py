@@ -3,7 +3,7 @@ from .cmd_start import start
 from .menu_handler import get_menu_handler
 from .search_handler import get_search_handler
 from .weather_handler import get_weather_handler
-from .profile_handler import profile, delete_profile_handler
+from .profile_handler import get_profile_handler
 from .registration_flow import get_registration_handler
 from .edit_profile_flow import get_edit_profile_handler
 from .isee_handler import get_isee_handler
