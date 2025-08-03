@@ -14,7 +14,7 @@ from telegram.ext import (
 )
 from telegram.error import TelegramError
 from studentbot import config
-from studentbot.utils.common import get_translated_text, sanitize_markdown  # Changed from text_formatter
+from studentbot.utils.common import get_translated_text, sanitize_markdown
 from studentbot.utils.db_utils import AsyncSessionLocal, create_consultation_request, get_consultation_requests, log_event, update_consultation_request_status, get_user
 from studentbot.utils.gdrive import gdrive_client
 from studentbot.utils.gsheets import gsheets_client
@@ -245,7 +245,7 @@ async def upload_resume(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
             file_path = tmp_file.name
             file = await context.bot.get_file(document.file_id)
             await file.download_to_drive(file_path)
-            file_id = await gdrive_client.upload_file(file_path, user_id, document.file_name)  # Updated to match gdrive.py signature
+            file_id = await gdrive_client.upload_file(file_path, user_id, document.file_name)
             os.remove(file_path)
 
         context.user_data["consultation_file_id"] = file_id
@@ -354,21 +354,22 @@ async def confirm_submission(update: Update, context: ContextTypes.DEFAULT_TYPE)
         )
 
         # Store in Google Sheets
-        user = await get_user(user_id)
-        if user:
-            consultation_sheet_data = [
-                user_id,
-                user.first_name,
-                user.last_name or "N/A",
-                user.age or 0,
-                user.email or "N/A",
-                consultation_data["consultation_field_of_study"],
-                consultation_data["consultation_destination_country"],
-                "Consultation Request",
-                f"Name: {consultation_data['consultation_name']}, Status: pending",
-                datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
-            ]
-            await gsheets_client.add_consultation_to_sheet(config.QUESTIONS_SHEET_NAME, consultation_sheet_data)
+        async with AsyncSessionLocal() as session:
+            user = await get_user(session, user_id)
+            if user:
+                consultation_sheet_data = [
+                    user_id,
+                    user.first_name,
+                    user.last_name or "N/A",
+                    user.age or 0,
+                    user.email or "N/A",
+                    consultation_data["consultation_field_of_study"],
+                    consultation_data["consultation_destination_country"],
+                    "Consultation Request",
+                    f"Name: {consultation_data['consultation_name']}, Status: pending",
+                    datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+                ]
+                await gsheets_client.add_consultation_to_sheet(config.QUESTIONS_SHEET_NAME, consultation_sheet_data)
 
         await award_points_for_action(user_id, "consultation")
         await log_event(user_id, "consultation_submitted", f"Consultation request created")
@@ -444,7 +445,7 @@ async def cancel_consultation(update: Update, context: ContextTypes.DEFAULT_TYPE
         )
         return ConversationHandler.END
 
-def get_consult_handler():
+def get_consultation_handler():
     """Return the consultation handler."""
     return ConversationHandler(
         entry_points=[CommandHandler("consult", start_consultation)],
