@@ -20,3 +20,28 @@ from .question_handler import get_question_handler
 from .feedback_handler import get_feedback_handler
 from .migration_handler import get_migration_handler
 from .calendar_handler import get_calendar_handler
+
+def get_all_handlers():
+    """Return all handlers for the bot."""
+    return (
+        [start, points, leaderboard] +
+        get_menu_handler() +
+        get_search_handler() +
+        get_weather_handler() +
+        get_profile_handler() +
+        get_registration_handler() +
+        get_edit_profile_handler() +
+        get_isee_handler() +
+        get_news_handler() +
+        get_consultation_handler() +
+        get_document_handler() +
+        get_cost_handler() +
+        get_ai_handler() +
+        get_info_handler() +
+        get_arrival_guide_handler() +
+        get_admin_handler() +
+        get_question_handler() +
+        get_feedback_handler() +
+        get_migration_handler() +
+        get_calendar_handler()
+    )
