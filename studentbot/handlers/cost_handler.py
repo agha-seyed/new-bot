@@ -1,6 +1,8 @@
 import logging
 from typing import Optional
 from datetime import datetime
+import json
+from pathlib import Path
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import (
     ContextTypes,
@@ -12,8 +14,7 @@ from telegram.ext import (
 )
 from telegram.error import TelegramError
 import httpx
-from pathlib import Path
-from studentbot.utils.text_formatter import get_translated_text, sanitize_markdown
+from studentbot.utils.common import get_translated_text, sanitize_markdown
 from studentbot.utils.db_utils import AsyncSessionLocal, get_user, log_event
 from studentbot.utils.gsheets import gsheets_client
 from studentbot.handlers.gamification_handler import award_points_for_action
@@ -24,6 +25,10 @@ logger = logging.getLogger(__name__)
 
 # States
 RENT, FOOD, TRANSPORTATION, COMPARE_CITY = range(4)
+
+# Simple in-memory cache for exchange rates
+exchange_rate_cache = {}
+EXCHANGE_RATE_CACHE_TTL = 3600  # 1 hour in seconds
 
 # Load cost of living data
 try:
@@ -157,6 +162,12 @@ async def transportation(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         [InlineKeyboardButton(city_name, callback_data=f"city_{city_key}")]
         for city_name, city_key in cities
     ]
+    keyboard.append([
+        InlineKeyboardButton(
+            get_translated_text("back_to_main", lang),
+            callback_data="back_to_main"
+        )
+    ])
     reply_markup = InlineKeyboardMarkup(keyboard)
     await update.message.reply_text(
         sanitize_markdown(get_translated_text("compare_city_prompt", lang)),
@@ -172,9 +183,19 @@ async def compare_city(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
     await query.answer()
     user_id = query.from_user.id
     lang = context.user_data.get("lang", "en")
-    city_key = query.data.split("_", 1)[1]
     
     try:
+        if query.data == "back_to_main":
+            await query.message.reply_text(
+                sanitize_markdown(get_translated_text("back_to_main", lang)),
+                parse_mode="MarkdownV2"
+            )
+            logger.info(f"✅ User {user_id} returned to main menu")
+            context.user_data.clear()
+            context.user_data["lang"] = lang
+            return ConversationHandler.END
+
+        city_key = query.data.split("_", 1)[1]
         if city_key not in cost_of_living_data:
             await query.message.reply_text(
                 sanitize_markdown(get_translated_text("invalid_city", lang)),
@@ -215,27 +236,43 @@ async def compare_city(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
 - 🍽️ *{sanitize_markdown(get_translated_text("food", lang))}*: {sanitize_markdown(cost_of_living_data[city_key]["food"]["description"][lang])}
 - 🚍 *{sanitize_markdown(get_translated_text("transportation", lang))}*: {sanitize_markdown(cost_of_living_data[city_key]["transportation"]["description"][lang])}
 """
-        # Store in Google Sheets
-        user = await get_user(user_id)
-        if user:
-            interaction_data = [
-                user_id,
-                user.first_name,
-                user.last_name or "N/A",
-                user.age or 0,
-                user.email or "N/A",
-                user.field_of_study or "N/A",
-                user.country or "N/A",
-                "Cost Calculation",
-                f"Compared with {city_to_compare}: User={user_total:.2f}, City={city_total:.2f}",
-                datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+        # Reply markup for retry or back
+        keyboard = [
+            [
+                InlineKeyboardButton(
+                    get_translated_text("recalculate", lang),
+                    callback_data="start_cost_calculation"
+                ),
+                InlineKeyboardButton(
+                    get_translated_text("back_to_main", lang),
+                    callback_data="back_to_main"
+                ),
             ]
-            await gsheets_client.add_interaction_to_sheet(config.QUESTIONS_SHEET_NAME, interaction_data)
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        
+        # Store in Google Sheets
+        async with AsyncSessionLocal() as session:
+            user = await get_user(session, user_id)
+            if user:
+                interaction_data = [
+                    user_id,
+                    user.first_name,
+                    user.last_name or "N/A",
+                    user.age or 0,
+                    user.email or "N/A",
+                    user.field_of_study or "N/A",
+                    user.country or "N/A",
+                    "Cost Calculation",
+                    f"Compared with {city_to_compare}: User={user_total:.2f}, City={city_total:.2f}",
+                    datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+                ]
+                await gsheets_client.add_interaction_to_sheet(config.QUESTIONS_SHEET_NAME, interaction_data)
         
         await query.message.reply_text(
             comparison_text,
             parse_mode="MarkdownV2",
-            reply_markup=ReplyKeyboardRemove()
+            reply_markup=reply_markup
         )
         await award_points_for_action(user_id, "cost_calculation")
         await log_event(user_id, "cost_calculated", f"Compared with {city_to_compare}: User={user_total:.2f}, City={city_total:.2f}")
@@ -260,6 +297,81 @@ async def compare_city(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
         )
         return ConversationHandler.END
 
+async def exchange_rate(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Fetch and display exchange rate (EUR to IRR)."""
+    user_id = update.effective_user.id
+    lang = context.user_data.get("lang", "en")
+    api_key = os.getenv("EXCHANGE_RATE_API_KEY")
+    
+    if not api_key:
+        await update.message.reply_text(
+            sanitize_markdown(get_translated_text("api_key_missing", lang)),
+            parse_mode="MarkdownV2"
+        )
+        logger.error(f"❌ EXCHANGE_RATE_API_KEY not found for user {user_id}")
+        return
+
+    try:
+        # Check cache
+        cache_key = "exchange_rate:EUR_IRR"
+        cached = exchange_rate_cache.get(cache_key)
+        if cached and (datetime.utcnow().timestamp() - cached["timestamp"]) < EXCHANGE_RATE_CACHE_TTL:
+            exchange_rate = cached["rate"]
+            logger.info(f"✅ Exchange rate retrieved from cache for user {user_id}: 1 EUR = {exchange_rate} IRR")
+        else:
+            async with httpx.AsyncClient() as client:
+                url = f"https://v6.exchangerate-api.com/v6/{api_key}/latest/EUR"
+                response = await client.get(url, timeout=10)
+                response.raise_for_status()
+                data = response.json()
+                exchange_rate = data["conversion_rates"].get("IRR")
+                if not exchange_rate:
+                    raise ValueError("IRR rate not found")
+                exchange_rate_cache[cache_key] = {
+                    "rate": exchange_rate,
+                    "timestamp": datetime.utcnow().timestamp()
+                }
+                logger.info(f"✅ Fetched exchange rate for user {user_id}: 1 EUR = {exchange_rate} IRR")
+        
+        text = f"""
+🌍 *{sanitize_markdown(get_translated_text("cost_of_living_in_italy", lang))}*
+💸 *1 EUR* = `{exchange_rate:.2f} IRR`
+"""
+        async with AsyncSessionLocal() as session:
+            user = await get_user(session, user_id)
+            if user:
+                interaction_data = [
+                    user_id,
+                    user.first_name,
+                    user.last_name or "N/A",
+                    user.age or 0,
+                    user.email or "N/A",
+                    user.field_of_study or "N/A",
+                    user.country or "N/A",
+                    "Exchange Rate",
+                    f"1 EUR = {exchange_rate:.2f} IRR",
+                    datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+                ]
+                await gsheets_client.add_interaction_to_sheet(config.QUESTIONS_SHEET_NAME, interaction_data)
+        
+        await update.message.reply_text(text, parse_mode="MarkdownV2")
+        await award_points_for_action(user_id, "interaction")
+        await log_event(user_id, "exchange_rate_fetched", f"1 EUR = {exchange_rate:.2f} IRR")
+        logger.info(f"✅ User {user_id} fetched exchange rate: 1 EUR = {exchange_rate} IRR")
+    
+    except httpx.HTTPStatusError as e:
+        logger.error(f"❌ HTTP error fetching exchange rate for user {user_id}: {str(e)}")
+        await update.message.reply_text(
+            sanitize_markdown(get_translated_text("exchange_rate_failed", lang)),
+            parse_mode="MarkdownV2"
+        )
+    except Exception as e:
+        logger.error(f"❌ Unexpected error fetching exchange rate for user {user_id}: {str(e)}")
+        await update.message.reply_text(
+            sanitize_markdown(get_translated_text("exchange_rate_failed", lang)),
+            parse_mode="MarkdownV2"
+        )
+
 async def cancel_cost_calculation(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Cancel the cost calculation process."""
     user_id = update.effective_user.id
@@ -283,80 +395,19 @@ async def cancel_cost_calculation(update: Update, context: ContextTypes.DEFAULT_
         )
         return ConversationHandler.END
 
-async def exchange_rate(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Fetch and display exchange rate (EUR to IRR)."""
-    user_id = update.effective_user.id
-    lang = context.user_data.get("lang", "en")
-    api_key = os.getenv("EXCHANGE_RATE_API_KEY")
-    
-    if not api_key:
-        await update.message.reply_text(
-            sanitize_markdown(get_translated_text("api_key_missing", lang)),
-            parse_mode="MarkdownV2"
-        )
-        logger.error(f"❌ EXCHANGE_RATE_API_KEY not found for user {user_id}")
-        return
-
-    try:
-        async with httpx.AsyncClient() as client:
-            url = f"https://v6.exchangerate-api.com/v6/{api_key}/latest/EUR"
-            response = await client.get(url, timeout=10)
-            response.raise_for_status()
-            data = response.json()
-        
-        exchange_rate = data["conversion_rates"].get("IRR", None)
-        if not exchange_rate:
-            raise ValueError("IRR rate not found")
-        
-        text = f"""
-🌍 *{sanitize_markdown(get_translated_text("cost_of_living_in_italy", lang))}*
-💸 *1 EUR* = `{exchange_rate:.2f} IRR`
-"""
-        # Store in Google Sheets
-        user = await get_user(user_id)
-        if user:
-            interaction_data = [
-                user_id,
-                user.first_name,
-                user.last_name or "N/A",
-                user.age or 0,
-                user.email or "N/A",
-                user.field_of_study or "N/A",
-                user.country or "N/A",
-                "Exchange Rate",
-                f"1 EUR = {exchange_rate:.2f} IRR",
-                datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
-            ]
-            await gsheets_client.add_interaction_to_sheet(config.QUESTIONS_SHEET_NAME, interaction_data)
-        
-        await update.message.reply_text(text, parse_mode="MarkdownV2")
-        await award_points_for_action(user_id, "interaction")
-        await log_event(user_id, "exchange_rate_fetched", f"1 EUR = {exchange_rate:.2f} IRR")
-        logger.info(f"✅ User {user_id} fetched exchange rate: 1 EUR = {exchange_rate} IRR")
-    
-    except httpx.HTTPStatusError as e:
-        logger.error(f"❌ HTTP error fetching exchange rate for user {user_id}: {str(e)}")
-        await update.message.reply_text(
-            sanitize_markdown(get_translated_text("exchange_rate_failed", lang)),
-            parse_mode="MarkdownV2"
-        )
-    except Exception as e:
-        logger.error(f"❌ Unexpected error fetching exchange rate for user {user_id}: {str(e)}")
-        await update.message.reply_text(
-            sanitize_markdown(get_translated_text("exchange_rate_failed", lang)),
-            parse_mode="MarkdownV2"
-        )
-
 def get_cost_handler():
     """Return the cost calculation and exchange rate handlers."""
     return [
         ConversationHandler(
-            entry_points=[CommandHandler("cost", start_cost_calculation)],
+            entry_points=[
+                CommandHandler("cost", start_cost_calculation),
+                CallbackQueryHandler(start_cost_calculation, pattern="^start_cost_calculation$")
+            ],
             states={
                 RENT: [MessageHandler(filters.TEXT & ~filters.COMMAND, rent)],
                 FOOD: [MessageHandler(filters.TEXT & ~filters.COMMAND, food)],
                 TRANSPORTATION: [MessageHandler(filters.TEXT & ~filters.COMMAND, transportation)],
-                COMPARE_CITY: [CallbackQueryHandler(compare_city, pattern="^city_")],
+                COMPARE_CITY: [CallbackQueryHandler(compare_city, pattern="^city_|^back_to_main$")],
             },
             fallbacks=[CommandHandler("cancel", cancel_cost_calculation)],
         ),
