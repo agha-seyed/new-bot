@@ -369,7 +369,7 @@ async def confirm_submission(update: Update, context: ContextTypes.DEFAULT_TYPE)
                     f"Name: {consultation_data['consultation_name']}, Status: pending",
                     datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
                 ]
-                await gsheets_client.add_consultation_to_sheet(config.QUESTIONS_SHEET_NAME, consultation_sheet_data)
+                await gsheets_client.add_row_to_sheet(config.QUESTIONS_SHEET_NAME, consultation_sheet_data, "consultation")
 
         await award_points_for_action(user_id, "consultation")
         await log_event(user_id, "consultation_submitted", f"Consultation request created")

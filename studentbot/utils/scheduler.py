@@ -3,9 +3,10 @@ from telegram import Bot
 from telegram.error import TelegramError
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from datetime import datetime, timedelta
-from sqlalchemy import text
+from sqlalchemy import text, select, or_
 from studentbot import config
 from studentbot.utils.db_utils import AsyncSessionLocal, get_all_consultation_requests
+from studentbot.utils.models_db import User
 from studentbot.utils.common import get_translated_text, sanitize_markdown
 from studentbot.utils.gsheets import gsheets_client
 from studentbot.handlers.gamification_handler import award_points_for_action
@@ -69,12 +70,8 @@ class Scheduler:
             async with AsyncSessionLocal() as session:
                 seven_days_ago = datetime.utcnow() - timedelta(days=7)
                 result = await session.execute(
-                    text("""
-                        SELECT id, first_name, last_name, lang
-                        FROM users
-                        WHERE last_active IS NULL OR last_active < :seven_days_ago
-                    """),
-                    {"seven_days_ago": seven_days_ago}
+                    select(User.id, User.first_name, User.last_name, User.lang)
+                    .where(or_(User.last_active == None, User.last_active < seven_days_ago))
                 )
                 return result.fetchall()
         except Exception as e:
@@ -87,12 +84,7 @@ class Scheduler:
             async with AsyncSessionLocal() as session:
                 seven_days_ago = datetime.utcnow() - timedelta(days=7)
                 result = await session.execute(
-                    text("""
-                        SELECT id
-                        FROM users
-                        WHERE last_active >= :seven_days_ago
-                    """),
-                    {"seven_days_ago": seven_days_ago}
+                    select(User.id).where(User.last_active >= seven_days_ago)
                 )
                 return result.fetchall()
         except Exception as e:

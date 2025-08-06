@@ -4,7 +4,7 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKe
 from telegram.ext import ContextTypes, CommandHandler, MessageHandler, CallbackQueryHandler, filters
 from telegram.error import TelegramError
 from studentbot import config
-from studentbot.utils.db_utils import get_all_consultation_requests, update_consultation_request_status, get_all_users, log_event
+from studentbot.utils.db_utils import get_consultation_request_by_id, update_consultation_request_status, get_all_users, log_event, get_all_consultation_requests
 from studentbot.utils.common import get_translated_text, sanitize_markdown  # Changed from text_formatter
 from studentbot.handlers.gamification_handler import award_points_for_action
 
@@ -132,13 +132,14 @@ async def reply_to_consultation(update: Update, context: ContextTypes.DEFAULT_TY
     
     try:
         request_id = int(query.data.split("_")[-1])
-        context.user_data["awaiting_reply"] = {"request_id": request_id}
+        context.user_data["request_id"] = request_id
         await query.message.reply_text(
             sanitize_markdown(get_translated_text("enter_reply_message", lang)),
             parse_mode="MarkdownV2",
             reply_markup=ReplyKeyboardRemove()
         )
         logger.info(f"✅ Admin {user_id} started replying to consultation {request_id}")
+        return AWAITING_REPLY
     except ValueError:
         logger.error(f"❌ Invalid request ID format for admin {user_id}")
         await query.message.reply_text(
@@ -164,25 +165,19 @@ async def handle_reply_message(update: Update, context: ContextTypes.DEFAULT_TYP
         )
         return
     
-    if not context.user_data.get("awaiting_reply"):
-        await update.message.reply_text(
-            sanitize_markdown(get_translated_text("no_reply_context", lang)),
-            parse_mode="MarkdownV2"
-        )
-        return
-    
     try:
-        request_id = context.user_data["awaiting_reply"]["request_id"]
+        request_id = context.user_data.pop("request_id", None)
+        if not request_id:
+            return ConversationHandler.END
+
         reply_text = update.message.text.strip()
-        request = await get_all_consultation_requests()
-        request = next((r for r in request if r["id"] == request_id), None)
+        request = await get_consultation_request_by_id(request_id)
         if not request:
             await update.message.reply_text(
                 sanitize_markdown(get_translated_text("request_not_found", lang)),
                 parse_mode="MarkdownV2"
             )
-            context.user_data.pop("awaiting_reply", None)
-            return
+            return ConversationHandler.END
         
         user_id_to_reply = request["user_id"]
         await context.bot.send_message(
@@ -197,8 +192,8 @@ async def handle_reply_message(update: Update, context: ContextTypes.DEFAULT_TYP
         )
         await log_event(user_id, "consultation_responded", f"Request ID: {request_id}, Reply: {reply_text}")
         await award_points_for_action(user_id, "admin_action")
-        context.user_data.pop("awaiting_reply", None)
         logger.info(f"✅ Admin {user_id} replied to consultation {request_id}")
+        return ConversationHandler.END
     except TelegramError as e:
         logger.error(f"❌ Telegram error replying to consultation for admin {user_id}: {str(e)}")
         await update.message.reply_text(
@@ -230,8 +225,7 @@ async def view_consultation_file(update: Update, context: ContextTypes.DEFAULT_T
     
     try:
         request_id = int(query.data.split("_")[-1])
-        requests = await get_all_consultation_requests()
-        request = next((r for r in requests if r["id"] == request_id), None)
+        request = await get_consultation_request_by_id(request_id)
         if not request or not request["file_id"]:
             await query.message.reply_text(
                 sanitize_markdown(get_translated_text("no_file_found", lang)),
@@ -274,12 +268,13 @@ async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         return
     
     try:
+        context.user_data["broadcast_state"] = AWAITING_BROADCAST_MESSAGE
         await update.message.reply_text(
             sanitize_markdown(get_translated_text("enter_broadcast_message", lang)),
             parse_mode="MarkdownV2"
         )
-        context.user_data["awaiting_broadcast"] = True
         logger.info(f"✅ Admin {user_id} started broadcast process")
+        return AWAITING_BROADCAST_MESSAGE
     except TelegramError as e:
         logger.error(f"❌ Telegram error initiating broadcast for admin {user_id}: {str(e)}")
         await update.message.reply_text(
@@ -287,8 +282,8 @@ async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             parse_mode="MarkdownV2"
         )
 
-async def handle_broadcast_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Handle broadcast message and field filter."""
+async def handle_broadcast_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Handle broadcast message."""
     lang = context.user_data.get("lang", "en")
     user_id = update.effective_user.id
     
@@ -297,48 +292,35 @@ async def handle_broadcast_message(update: Update, context: ContextTypes.DEFAULT
             sanitize_markdown(get_translated_text("unauthorized", lang)),
             parse_mode="MarkdownV2"
         )
-        return
+        return ConversationHandler.END
     
     try:
-        if context.user_data.get("awaiting_broadcast"):
-            context.user_data["broadcast_text"] = update.message.text.strip()
-            await update.message.reply_text(
-                sanitize_markdown(get_translated_text("enter_field_filter", lang)),
-                parse_mode="MarkdownV2"
-            )
-            context.user_data["awaiting_field_filter"] = True
-            context.user_data.pop("awaiting_broadcast")
-            logger.info(f"✅ Admin {user_id} entered broadcast message")
+        broadcast_text = update.message.text.strip()
+        users = await get_all_users()
         
-        elif context.user_data.get("awaiting_field_filter"):
-            field = update.message.text.strip()
-            users = await get_all_users()
-            filtered = users if field.lower() == get_translated_text("all", lang).lower() else [
-                u for u in users if u["field_of_study"] and u["field_of_study"].lower() == field.lower()
-            ]
-            
-            count = 0
-            for u in filtered:
-                try:
-                    await update.get_bot().send_message(
-                        chat_id=u["id"],
-                        text=sanitize_markdown(context.user_data["broadcast_text"]),
-                        parse_mode="MarkdownV2"
-                    )
-                    count += 1
-                except TelegramError:
-                    logger.warning(f"⚠️ Failed to send broadcast to user {u['id']}")
-                    continue
-            
-            await update.message.reply_text(
-                sanitize_markdown(get_translated_text("broadcast_sent", lang).format(count=count)),
-                parse_mode="MarkdownV2"
-            )
-            await log_event(user_id, "broadcast_sent", f"Sent to {count} users, Field: {field}")
-            await award_points_for_action(user_id, "admin_action")
-            context.user_data.clear()
-            context.user_data["lang"] = lang
-            logger.info(f"✅ Admin {user_id} sent broadcast to {count} users")
+        count = 0
+        for u in users:
+            try:
+                await update.get_bot().send_message(
+                    chat_id=u["id"],
+                    text=sanitize_markdown(broadcast_text),
+                    parse_mode="MarkdownV2"
+                )
+                count += 1
+            except TelegramError:
+                logger.warning(f"⚠️ Failed to send broadcast to user {u['id']}")
+                continue
+
+        await update.message.reply_text(
+            sanitize_markdown(get_translated_text("broadcast_sent", lang).format(count=count)),
+            parse_mode="MarkdownV2"
+        )
+        await log_event(user_id, "broadcast_sent", f"Sent to {count} users")
+        await award_points_for_action(user_id, "admin_action")
+        context.user_data.clear()
+        context.user_data["lang"] = lang
+        logger.info(f"✅ Admin {user_id} sent broadcast to {count} users")
+        return ConversationHandler.END
     
     except TelegramError as e:
         logger.error(f"❌ Telegram error handling broadcast for admin {user_id}: {str(e)}")
@@ -353,17 +335,42 @@ async def handle_broadcast_message(update: Update, context: ContextTypes.DEFAULT
             parse_mode="MarkdownV2"
         )
 
+(
+    AWAITING_REPLY,
+    AWAITING_BROADCAST_MESSAGE,
+    AWAITING_FIELD_FILTER,
+) = range(3)
+
 def get_admin_handler():
     """Return the admin handlers."""
     return [
         CommandHandler("admin_consultations", admin_consultations),
-        CommandHandler("broadcast", broadcast),
-        MessageHandler(filters.TEXT & ~filters.COMMAND & filters.User(user_id=int(config.ADMIN_CHAT_ID)), handle_broadcast_message),
-        MessageHandler(filters.Regex("^📥 پاسخ") & filters.User(user_id=int(config.ADMIN_CHAT_ID)), reply_to_consultation),
-        MessageHandler(filters.Regex("^🗂 بایگانی") & filters.User(user_id=int(config.ADMIN_CHAT_ID)), archive_consultation),
-        MessageHandler(filters.Regex("^📁 فایل") & filters.User(user_id=int(config.ADMIN_CHAT_ID)), view_consultation_file),
         CallbackQueryHandler(archive_consultation, pattern="^archive_consult_"),
-        CallbackQueryHandler(reply_to_consultation, pattern="^respond_consult_"),
         CallbackQueryHandler(view_consultation_file, pattern="^view_file_"),
-        MessageHandler(filters.TEXT & ~filters.COMMAND & filters.User(user_id=int(config.ADMIN_CHAT_ID)), handle_reply_message),
+        ConversationHandler(
+            entry_points=[
+                CommandHandler("broadcast", broadcast),
+                CallbackQueryHandler(reply_to_consultation, pattern="^respond_consult_"),
+            ],
+            states={
+                AWAITING_REPLY: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_reply_message)],
+                AWAITING_BROADCAST_MESSAGE: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_broadcast_message)],
+                AWAITING_FIELD_FILTER: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_broadcast_message)],
+            },
+            fallbacks=[CommandHandler("cancel", cancel_conversation)],
+        ),
     ]
+
+async def cancel_conversation(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Cancel the current admin conversation."""
+    lang = context.user_data.get("lang", "en")
+    user_id = update.effective_user.id
+
+    await update.message.reply_text(
+        sanitize_markdown(get_translated_text("conversation_cancelled", lang)),
+        parse_mode="MarkdownV2"
+    )
+    context.user_data.clear()
+    context.user_data["lang"] = lang
+    logger.info(f"✅ Admin conversation cancelled by user {user_id}")
+    return ConversationHandler.END

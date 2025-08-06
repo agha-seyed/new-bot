@@ -70,40 +70,22 @@ class GoogleSheetsClient:
         if not user_data[0] or not isinstance(user_data[0], (int, str)):
             raise ValueError("First column (user_id) must be a non-empty integer or string")
     
-    async def add_user_to_sheet(self, sheet_name: str, user_data: List[Any]) -> None:
-        """Add a new row with user data to the specified sheet."""
+    async def add_row_to_sheet(self, sheet_name: str, row_data: List[Any], row_type: str = "user") -> None:
+        """Add a new row to the specified sheet."""
         try:
             worksheet = self.get_worksheet(sheet_name)
             header = await asyncio.get_event_loop().run_in_executor(None, worksheet.row_values, 1)
-            self.validate_user_data(user_data, len(header))
+            self.validate_user_data(row_data, len(header))
             
             await asyncio.get_event_loop().run_in_executor(
-                None, worksheet.append_row, user_data, "RAW"
+                None, worksheet.append_row, row_data, "RAW"
             )
-            logger.info(f"✅ Added user to sheet '{sheet_name}': {user_data[0]}")
+            logger.info(f"✅ Added {row_type} to sheet '{sheet_name}': {row_data[0]}")
         except APIError as e:
-            logger.error(f"❌ API error adding user to sheet '{sheet_name}': {str(e)}")
+            logger.error(f"❌ API error adding {row_type} to sheet '{sheet_name}': {str(e)}")
             raise
         except Exception as e:
-            logger.error(f"❌ Failed to add user to sheet '{sheet_name}': {str(e)}")
-            raise
-    
-    async def add_consultation_to_sheet(self, sheet_name: str, consultation_data: List[Any]) -> None:
-        """Add a new consultation request to the specified sheet."""
-        try:
-            worksheet = self.get_worksheet(sheet_name)
-            header = await asyncio.get_event_loop().run_in_executor(None, worksheet.row_values, 1)
-            self.validate_user_data(consultation_data, len(header))
-            
-            await asyncio.get_event_loop().run_in_executor(
-                None, worksheet.append_row, consultation_data, "RAW"
-            )
-            logger.info(f"✅ Added consultation to sheet '{sheet_name}': {consultation_data[0]}")
-        except APIError as e:
-            logger.error(f"❌ API error adding consultation to sheet '{sheet_name}': {str(e)}")
-            raise
-        except Exception as e:
-            logger.error(f"❌ Failed to add consultation to sheet '{sheet_name}': {str(e)}")
+            logger.error(f"❌ Failed to add {row_type} to sheet '{sheet_name}': {str(e)}")
             raise
     
     async def update_user_in_sheet(self, sheet_name: str, user_id: int, user_data: List[Any]) -> None:

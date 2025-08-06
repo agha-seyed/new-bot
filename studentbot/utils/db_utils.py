@@ -250,6 +250,29 @@ async def get_all_consultation_requests() -> List[Dict]:
             logger.error(f"❌ Error retrieving all consultation requests: {str(e)}")
             return []
 
+async def get_consultation_request_by_id(request_id: int) -> Optional[Dict]:
+    """Retrieve a single consultation request by its ID."""
+    async with AsyncSessionLocal() as session:
+        try:
+            result = await session.execute(
+                select(ConsultationRequest).filter_by(id=request_id)
+            )
+            row = result.scalars().first()
+            if not row:
+                return None
+            return {
+                "id": row.id,
+                "user_id": row.user_id,
+                "field_of_study": row.field_of_study,
+                "destination_country": row.destination_country,
+                "status": row.status,
+                "file_id": row.file_id,
+                "created_at": row.created_at,
+            }
+        except Exception as e:
+            logger.error(f"❌ Error retrieving consultation request {request_id}: {str(e)}")
+            return None
+
 async def update_consultation_request_status(session: AsyncSession, user_id: int, status: str) -> None:
     """Update the status of a consultation request."""
     try:
@@ -321,4 +344,29 @@ async def log_event(session: AsyncSession, user_id: int, event_type: str, detail
             logger.info(f"✅ Logged event for user {user_id}: {event_type}")
     except Exception as e:
         logger.error(f"❌ Error logging event for user {user_id}: {str(e)}")
+        raise
+
+async def store_cost_calculation(
+    session: AsyncSession,
+    user_id: int, rent: float, food: float, transportation: float,
+    compared_city: str, user_total: float, city_total: float
+) -> None:
+    """Store cost calculation in the database using ORM."""
+    try:
+        async with session.begin():
+            cost_calc = CostCalculation(
+                user_id=user_id,
+                rent=rent,
+                food=food,
+                transportation=transportation,
+                compared_city=compared_city,
+                user_total=user_total,
+                city_total=city_total,
+                created_at=datetime.utcnow()
+            )
+            session.add(cost_calc)
+            await session.commit()
+            logger.info(f"✅ Stored cost calculation for user {user_id}")
+    except Exception as e:
+        logger.error(f"❌ Error storing cost calculation for user {user_id}: {str(e)}")
         raise

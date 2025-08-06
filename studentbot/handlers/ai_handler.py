@@ -12,7 +12,7 @@ from studentbot.utils.ai_utils import smart_search
 from studentbot.utils.db_utils import get_user, log_event
 from studentbot.utils.gsheets import gsheets_client
 from studentbot.handlers.gamification_handler import award_points_for_action
-from studentbot.models import AIModels
+from studentbot.utils.ai_models import AIModels
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
@@ -57,7 +57,7 @@ async def answer(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 answer[:1000],
                 datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
             ]
-            await gsheets_client.add_consultation_to_sheet(config.QUESTIONS_SHEET_NAME, interaction_data)
+            await gsheets_client.add_row_to_sheet(config.QUESTIONS_SHEET_NAME, interaction_data, "question")
         
         await award_points_for_action(user_id, "interaction")
         await log_event(user_id, "question_answered", f"Question: {question}, Answer: {answer[:1000]}")
@@ -201,7 +201,7 @@ async def stt_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
                     answer[:1000],
                     datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
                 ]
-                await gsheets_client.add_consultation_to_sheet(config.QUESTIONS_SHEET_NAME, interaction_data)
+                await gsheets_client.add_row_to_sheet(config.QUESTIONS_SHEET_NAME, interaction_data, "question")
             
             await award_points_for_action(user_id, "interaction")
             await log_event(user_id, "stt_confirmed", f"Text: {text}, Answer: {answer[:1000]}")

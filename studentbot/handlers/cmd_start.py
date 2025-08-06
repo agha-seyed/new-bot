@@ -4,6 +4,9 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 from telegram.error import TelegramError
 from studentbot.utils.common import get_translated_text, sanitize_markdown
+from studentbot.utils.db_utils import AsyncSessionLocal
+from studentbot.utils.models_db import User
+from sqlalchemy import update
 from pathlib import Path
 from datetime import datetime
 
@@ -35,6 +38,14 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     logger.info(f"🌟 User {user_id} triggered /start command.")
 
     try:
+        # Update user's last_active timestamp
+        async with AsyncSessionLocal() as session:
+            async with session.begin():
+                await session.execute(
+                    update(User)
+                    .where(User.id == user_id)
+                    .values(last_active=datetime.utcnow())
+                )
         # Load available languages
         languages = await get_available_languages()
         

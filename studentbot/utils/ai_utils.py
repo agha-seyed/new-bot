@@ -11,7 +11,7 @@ from studentbot.utils.redis_utils import redis_client
 from studentbot.utils.alert_admin import notify_admin_unanswered
 from studentbot.utils.gsheets import gsheets_client
 from studentbot.handlers.gamification_handler import award_points_for_action
-from studentbot.utils.models import AIModels
+from studentbot.utils.ai_models import AIModels
 
 logger = logging.getLogger(__name__)
 

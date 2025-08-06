@@ -9,9 +9,9 @@ from studentbot.utils.db_utils import AsyncSessionLocal, get_user, log_event
 from studentbot.utils.gsheets import gsheets_client
 from studentbot.utils.ai_utils import smart_search
 from studentbot.utils.redis_utils import cache_answer
-from studentbot.utils.file_search import search_in_documents
-from studentbot.utils.json_search import search_json_knowledge
-from studentbot.utils.admin_notify import notify_admin_unanswered
+from studentbot.utils.text_extractor import search_in_documents
+from studentbot.utils.ai_utils import search_in_json
+from studentbot.utils.alert_admin import notify_admin_unanswered
 from studentbot.utils.models_db import Question
 from studentbot.handlers.gamification_handler import award_points_for_action
 from studentbot import config
@@ -169,7 +169,7 @@ async def confirm_question(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         question_text = f"{user_data['question_title']} - {user_data['question_description']}"
 
         # Search in documents and JSON knowledge base
-        text_answer = search_in_documents(question_text) or search_json_knowledge(question_text)
+        text_answer = await search_in_documents(question_text) or await search_in_json(question_text)
 
         # Fallback to AI if no answer found
         if not text_answer:

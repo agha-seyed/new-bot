@@ -15,10 +15,9 @@ from telegram.ext import (
 from telegram.error import TelegramError
 import httpx
 from studentbot.utils.common import get_translated_text, sanitize_markdown
-from studentbot.utils.db_utils import AsyncSessionLocal, get_user, log_event
+from studentbot.utils.db_utils import AsyncSessionLocal, get_user, log_event, store_cost_calculation
 from studentbot.utils.gsheets import gsheets_client
 from studentbot.handlers.gamification_handler import award_points_for_action
-from studentbot.utils.models_db import CostCalculation
 from studentbot import config
 
 logger = logging.getLogger(__name__)
@@ -38,30 +37,6 @@ try:
 except Exception as e:
     logger.error(f"❌ Failed to load cost_of_living.json: {str(e)}")
     cost_of_living_data = {}
-
-async def store_cost_calculation(
-    user_id: int, rent: float, food: float, transportation: float, 
-    compared_city: str, user_total: float, city_total: float
-) -> None:
-    """Store cost calculation in the database using ORM."""
-    try:
-        async with AsyncSessionLocal() as session:
-            async with session.begin():
-                cost_calc = CostCalculation(
-                    user_id=user_id,
-                    rent=rent,
-                    food=food,
-                    transportation=transportation,
-                    compared_city=compared_city,
-                    user_total=user_total,
-                    city_total=city_total
-                )
-                session.add(cost_calc)
-                await session.commit()
-                logger.info(f"✅ Stored cost calculation for user {user_id}")
-    except Exception as e:
-        logger.error(f"❌ Error storing cost calculation for user {user_id}: {str(e)}")
-        raise
 
 async def validate_number(text: str) -> Optional[float]:
     """Validate numeric input."""
@@ -217,15 +192,17 @@ async def compare_city(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
         )
         
         # Store in database
-        await store_cost_calculation(
-            user_id=user_id,
-            rent=context.user_data["rent"],
-            food=context.user_data["food"],
-            transportation=context.user_data["transportation"],
-            compared_city=city_to_compare,
-            user_total=user_total,
-            city_total=city_total
-        )
+        async with AsyncSessionLocal() as session:
+            await store_cost_calculation(
+                session=session,
+                user_id=user_id,
+                rent=context.user_data["rent"],
+                food=context.user_data["food"],
+                transportation=context.user_data["transportation"],
+                compared_city=city_to_compare,
+                user_total=user_total,
+                city_total=city_total
+            )
         
         # Prepare response
         comparison_text = f"""

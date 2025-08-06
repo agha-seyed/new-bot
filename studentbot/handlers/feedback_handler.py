@@ -3,7 +3,7 @@ from datetime import datetime
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import ContextTypes, CommandHandler, CallbackQueryHandler
 from telegram.error import TelegramError
-from studentbot.utils.text_formatter import get_translated_text, sanitize_markdown
+from studentbot.utils.common import get_translated_text, sanitize_markdown
 from studentbot.utils.db_utils import AsyncSessionLocal, get_user, log_event
 from studentbot.utils.gsheets import gsheets_client
 from studentbot.utils.models_db import Feedback
@@ -87,7 +87,7 @@ async def feedback_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) 
                 f"Rating: {rating} stars",
                 datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
             ]
-            await gsheets_client.add_interaction_to_sheet(config.QUESTIONS_SHEET_NAME, interaction_data)
+            await gsheets_client.add_row_to_sheet(config.QUESTIONS_SHEET_NAME, interaction_data, "feedback")
         
         # Notify admin
         admin_chat_id = config.ADMIN_CHAT_ID

@@ -18,7 +18,6 @@ from studentbot.handlers.isee_handler import get_isee_handler
 from studentbot.handlers.gamification_handler import points, leaderboard
 from studentbot.handlers.news_handler import get_news_handler
 from studentbot.handlers.consult_handler import get_consultation_handler
-from studentbot.handlers.document_handler import get_document_handler
 from studentbot.handlers.weather_handler import get_weather_handler
 from studentbot.handlers.cost_handler import get_cost_handler
 from studentbot.handlers.search_handler import get_search_handler
@@ -117,7 +116,7 @@ async def setup():
         application.add_handler(CommandHandler("points", points))
         application.add_handler(CommandHandler("leaderboard", leaderboard))
         handler_groups = [
-            get_news_handler(), get_consultation_handler(), get_document_handler(),
+            get_news_handler(), get_consultation_handler(),
             get_weather_handler(), get_cost_handler(), get_search_handler(),
             get_ai_handler(), get_info_handler(), get_arrival_guide_handler(),
             get_admin_handler(), get_feedback_handler(), get_migration_handler(),
