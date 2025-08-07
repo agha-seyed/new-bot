@@ -14,7 +14,7 @@ from telegram.ext import (
 )
 from telegram.error import TelegramError
 from studentbot import config
-from studentbot.utils.common import get_translated_text, sanitize_markdown
+from studentbot.utils.common import get_translated_text, sanitize_markdown, prompt
 from studentbot.utils.db_utils import AsyncSessionLocal, create_consultation_request, get_consultation_requests, log_event, update_consultation_request_status, get_user
 from studentbot.utils.gdrive import gdrive_client
 from studentbot.utils.gsheets import gsheets_client
@@ -74,24 +74,6 @@ async def validate_file(document: 'telegram.Document') -> bool:
     if document.file_size > max_size:
         return False
     return document.file_name.lower().endswith(allowed_extensions)
-
-async def prompt(update: Update, context: ContextTypes.DEFAULT_TYPE, prompt_key: str, next_state: int) -> int:
-    """Send a translated prompt to the user and return the next state."""
-    lang = context.user_data.get("lang", "en")
-    try:
-        await update.message.reply_text(
-            sanitize_markdown(get_translated_text(prompt_key, lang)),
-            parse_mode="MarkdownV2",
-            reply_markup=ReplyKeyboardRemove()
-        )
-        return next_state
-    except TelegramError as e:
-        logger.error(f"❌ Telegram error sending prompt to user {update.effective_user.id}: {str(e)}")
-        await update.message.reply_text(
-            sanitize_markdown(get_translated_text("error_occurred", lang)),
-            parse_mode="MarkdownV2"
-        )
-        return ConversationHandler.END
 
 async def start_consultation(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Start the consultation process."""

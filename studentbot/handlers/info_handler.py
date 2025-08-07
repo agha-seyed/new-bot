@@ -172,8 +172,10 @@ async def info_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
             )
             action = "About Callback"
         elif query.data == "back_to_menu":
-            from studentbot.handlers.menu_handler import main_menu
-            await main_menu(update, context)
+            await query.message.reply_text(
+                sanitize_markdown(get_translated_text("use_menu_command", lang)),
+                parse_mode="MarkdownV2"
+            )
             action = "Back to Menu"
         else:
             await query.edit_message_text(
@@ -224,16 +226,3 @@ def get_info_handler():
         CommandHandler("about", about_us),
         CallbackQueryHandler(info_callback, pattern="^(contact|about|back_to_menu)$"),
     ]
-
-async def set_info_commands(application: Application, lang: str = "en") -> None:
-    """Add info-related commands to the Telegram menu."""
-    try:
-        commands = [
-            ("help", get_translated_text("help_command_desc", lang)),
-            ("contact", get_translated_text("contact_command_desc", lang)),
-            ("about", get_translated_text("about_command_desc", lang)),
-        ]
-        await application.bot.set_my_commands(commands)
-        logger.info("✅ Info commands set successfully")
-    except TelegramError as e:
-        logger.error(f"❌ Error setting info commands: {str(e)}")

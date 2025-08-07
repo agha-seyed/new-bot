@@ -5,7 +5,7 @@ from telegram.ext import ContextTypes, CommandHandler
 from telegram.error import TelegramError
 from sqlalchemy import select, update
 from studentbot.utils.common import get_translated_text, sanitize_markdown  # Changed from text_formatter
-from studentbot.utils.db_utils import AsyncSessionLocal, get_user, log_event
+from studentbot.utils.db_utils import AsyncSessionLocal, get_user, log_event, get_user_migration_status, update_user_migration_status
 from studentbot.utils.gsheets import gsheets_client
 from studentbot.utils.models_db import MigrationStatus
 from studentbot.handlers.gamification_handler import award_points_for_action
@@ -51,24 +51,6 @@ MIGRATION_STEPS = {
         "Completa l'orientamento"
     ]
 }
-
-async def get_user_migration_status(session, user_id: int) -> int:
-    """Get the user's migration status from the database."""
-    result = await session.execute(select(MigrationStatus).where(MigrationStatus.user_id == user_id))
-    migration = result.scalars().first()
-    return migration.status if migration else 0
-
-async def update_user_migration_status(session, user_id: int, status: int) -> None:
-    """Update the user's migration status in the database."""
-    result = await session.execute(select(MigrationStatus).where(MigrationStatus.user_id == user_id))
-    migration = result.scalars().first()
-    if migration:
-        await session.execute(
-            update(MigrationStatus).where(MigrationStatus.user_id == user_id).values(status=status)
-        )
-    else:
-        session.add(MigrationStatus(user_id=user_id, status=status))
-    await session.commit()
 
 async def migration_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Display the user's migration status with progress bar and steps."""

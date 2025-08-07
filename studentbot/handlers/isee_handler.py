@@ -24,16 +24,6 @@ logger = logging.getLogger(__name__)
 # States
 FAMILY_MEMBERS, ANNUAL_INCOME, IS_OWNER, PROPERTY_AREA = range(4)
 
-# ISEE calculation constants (should be added to config.py)
-ISEE_COEFFICIENTS = {1: 1, 2: 1.57, 3: 2.04, 4: 2.46, 5: 2.85, 6: 3.20, 7: 3.50, 8: 3.80}
-PROPERTY_VALUE_FACTOR = 500
-PROPERTY_VALUE_MULTIPLIER = 0.2
-SCHOLARSHIP_THRESHOLDS = {
-    "full": 12650,
-    "medium": 16445,
-    "partial": 23000,
-}
-
 async def store_isee_result(
     user_id: int, family_members: int, annual_income: float, 
     property_value: float, isee: float, status: str
@@ -209,7 +199,7 @@ async def property_area(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
         )
         return PROPERTY_AREA
     
-    property_value = area * PROPERTY_VALUE_FACTOR * PROPERTY_VALUE_MULTIPLIER
+    property_value = area * config.PROPERTY_VALUE_FACTOR * config.PROPERTY_VALUE_MULTIPLIER
     return await calculate_and_send_result(update, context, property_value)
 
 async def calculate_and_send_result(update: Update, context: ContextTypes.DEFAULT_TYPE, property_value: float) -> int:
@@ -220,7 +210,7 @@ async def calculate_and_send_result(update: Update, context: ContextTypes.DEFAUL
     members = context.user_data["family_members"]
     
     try:
-        coefficient = ISEE_COEFFICIENTS.get(members, max(ISEE_COEFFICIENTS.values()))
+        coefficient = config.ISEE_COEFFICIENTS.get(members, max(config.ISEE_COEFFICIENTS.values()))
         isee = (income + property_value) / coefficient
         status = get_scholarship_status(isee, lang)
         
@@ -279,11 +269,11 @@ async def calculate_and_send_result(update: Update, context: ContextTypes.DEFAUL
 
 def get_scholarship_status(isee: float, lang: str) -> str:
     """Determine scholarship status based on ISEE value."""
-    if isee <= SCHOLARSHIP_THRESHOLDS["full"]:
+    if isee <= config.SCHOLARSHIP_THRESHOLDS["full"]:
         return get_translated_text("scholarship_status_full", lang)
-    elif isee <= SCHOLARSHIP_THRESHOLDS["medium"]:
+    elif isee <= config.SCHOLARSHIP_THRESHOLDS["medium"]:
         return get_translated_text("scholarship_status_medium", lang)
-    elif isee <= SCHOLARSHIP_THRESHOLDS["partial"]:
+    elif isee <= config.SCHOLARSHIP_THRESHOLDS["partial"]:
         return get_translated_text("scholarship_status_partial", lang)
     else:
         return get_translated_text("scholarship_status_none", lang)

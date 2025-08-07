@@ -3,34 +3,13 @@ from typing import List, Tuple
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 from telegram.error import TelegramError
-from studentbot.utils.common import get_translated_text, sanitize_markdown
+from studentbot.utils.common import get_translated_text, sanitize_markdown, get_available_languages
 from studentbot.utils.db_utils import AsyncSessionLocal
 from studentbot.utils.models_db import User
 from sqlalchemy import update
-from pathlib import Path
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
-
-async def get_available_languages() -> List[Tuple[str, str]]:
-    """Load available languages dynamically from lang/ directory."""
-    lang_dir = Path(__file__).resolve().parent.parent / "lang"
-    languages = []
-    try:
-        for file in lang_dir.glob("*.json"):
-            lang_code = file.stem
-            lang_name = {
-                "en": "🇬🇧 English",
-                "fa": "🇮🇷 فارسی",
-                "it": "🇮🇹 Italiano"
-            }.get(lang_code, lang_code)
-            languages.append((lang_name, lang_code))
-        if not languages:
-            logger.warning("⚠️ No language files found in lang/ directory")
-        return languages
-    except Exception as e:
-        logger.error(f"❌ Error loading language files: {str(e)}")
-        return [("🇬🇧 English", "en")]  # Fallback to English
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Handle the /start command and prompt for language selection."""

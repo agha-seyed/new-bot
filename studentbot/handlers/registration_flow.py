@@ -11,7 +11,7 @@ from telegram.ext import (
     CallbackQueryHandler
 )
 from telegram.error import TelegramError
-from studentbot.utils.common import get_translated_text, sanitize_markdown  # Changed from text_formatter
+from studentbot.utils.common import get_translated_text, sanitize_markdown, prompt
 from studentbot.utils.db_utils import create_user, get_user, AsyncSessionLocal, log_event
 from studentbot.utils.gsheets import gsheets_client
 from studentbot.handlers.gamification_handler import award_points_for_action
@@ -20,27 +20,6 @@ from studentbot import config
 logger = logging.getLogger(__name__)
 
 FIRST_NAME, LAST_NAME, AGE, EMAIL, COUNTRY, FIELD_OF_STUDY, CONFIRM = range(7)
-
-async def prompt(update: Update, context: ContextTypes.DEFAULT_TYPE, prompt_text: str, next_state: int) -> int:
-    """Send a prompt message and return the next state."""
-    user_id = update.effective_user.id
-    lang = context.user_data.get("lang", "en")
-    
-    try:
-        await update.message.reply_text(
-            sanitize_markdown(get_translated_text(prompt_text, lang)),
-            parse_mode="MarkdownV2",
-            reply_markup=ReplyKeyboardRemove()
-        )
-        logger.info(f"✅ Prompt {prompt_text} sent to user {user_id}")
-        return next_state
-    except TelegramError as e:
-        logger.error(f"❌ Telegram error sending prompt {prompt_text} to user {user_id}: {str(e)}")
-        await update.message.reply_text(
-            sanitize_markdown(get_translated_text("error_occurred", lang)),
-            parse_mode="MarkdownV2"
-        )
-        return ConversationHandler.END
 
 async def start_registration(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Start the registration process."""

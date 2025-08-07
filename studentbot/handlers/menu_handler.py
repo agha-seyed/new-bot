@@ -130,12 +130,63 @@ async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
             "language_courses": "/search language courses"
         }
         
-        command = command_map.get(query.data, None)
-        if command:
+        if query.data in command_map:
+            # First, acknowledge the callback to remove the "loading" state on the button
+            await query.answer()
+
+            # Edit the message to show what was selected
+            selected_option_text = get_translated_text(f'{query.data}_menu', lang)
             await query.edit_message_text(
-                sanitize_markdown(get_translated_text("menu_selected", lang).format(command=command)),
+                text=sanitize_markdown(get_translated_text("menu_selected", lang).format(option=selected_option_text)),
                 parse_mode="MarkdownV2"
             )
+
+            # Import handlers dynamically to avoid circular imports
+            from studentbot.handlers.registration_flow import start_registration
+            from studentbot.handlers.profile_handler import profile
+            from studentbot.handlers.question_handler import start_question
+            from studentbot.handlers.search_handler import start_search
+            from studentbot.handlers.news_handler import news
+            from studentbot.handlers.weather_handler import weather
+            from studentbot.handlers.cost_handler import start_cost_calculation
+            from studentbot.handlers.document_handler import start_document_submission
+            from studentbot.handlers.gamification_handler import points
+            from studentbot.handlers.feedback_handler import feedback
+            from studentbot.handlers.language_handler import language
+            from studentbot.handlers.migration_handler import migration_status
+            from studentbot.handlers.info_handler import help_command, contact_us, about_us
+            from studentbot.handlers.consult_handler import start_consultation
+            from studentbot.handlers.isee_handler import start_isee_calculation
+
+            handler_map = {
+                "register": start_registration,
+                "profile": profile,
+                "question": start_question,
+                "search": start_search,
+                "news": news,
+                "weather": weather,
+                "cost": start_cost_calculation,
+                "upload": start_document_submission,
+                "gamification": points,
+                "feedback": feedback,
+                "language": language,
+                "migration_status": migration_status,
+                "help": help_command,
+                "contact": contact_us,
+                "about": about_us,
+                "consulting": start_consultation,
+                "isee": start_isee_calculation,
+            }
+
+            # Special cases for search
+            if query.data in ["scholarships", "migration", "housing", "documents", "deadlines", "language_courses"]:
+                context.args = [query.data]
+                await start_search(update, context)
+            else:
+                handler = handler_map.get(query.data)
+                if handler:
+                    await handler(update, context)
+
             async with AsyncSessionLocal() as session:
                 user = await get_user(session, user_id)
                 if user:

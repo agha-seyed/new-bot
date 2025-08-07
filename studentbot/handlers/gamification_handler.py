@@ -7,6 +7,8 @@ from studentbot import config
 from studentbot.utils.db_utils import get_user_points, get_user_level, get_leaderboard, add_points
 from studentbot.utils.common import get_translated_text, sanitize_markdown
 from studentbot.utils.gsheets import gsheets_client
+from studentbot.utils.models_db import User
+from sqlalchemy import update
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
@@ -166,6 +168,24 @@ async def award_points_for_action(user_id: int, action: str) -> None:
             )
         except Exception as e:
             logger.error(f"❌ Error awarding {points} points to user {user_id} for action '{action}': {str(e)}")
+
+async def add_score(session, user_id: int, score: int):
+    """Add score to a user and update their level."""
+    await add_points(session, user_id, score)
+    await update_user_level(session, user_id)
+
+async def update_user_level(session, user_id: int):
+    """Update user level based on points."""
+    points = await get_user_points(session, user_id)
+    level = "🎓 Newbie"
+    if points >= 100:
+        level = "🥉 Bronze"
+    elif points >= 50:
+        level = "🧱 Beginner"
+
+    await session.execute(
+        update(User).where(User.id == user_id).values(level=level)
+    )
 
 async def set_gamification_commands(application) -> None:
     """Set bot commands for gamification with localized descriptions."""

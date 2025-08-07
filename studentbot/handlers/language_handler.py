@@ -3,37 +3,16 @@ from typing import List, Tuple
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import ContextTypes, CommandHandler, CallbackQueryHandler, MessageHandler, filters
 from telegram.error import TelegramError
-from studentbot.utils.common import get_translated_text, sanitize_markdown  # Changed from text_formatter
+from studentbot.utils.common import get_translated_text, sanitize_markdown, get_available_languages
 from studentbot.utils.db_utils import AsyncSessionLocal, get_user, log_event
 from studentbot.utils.gsheets import gsheets_client
 from studentbot.handlers.gamification_handler import award_points_for_action
 from studentbot import config
-from pathlib import Path
 from datetime import datetime
 from sqlalchemy import update
 from studentbot.utils.models_db import User
 
 logger = logging.getLogger(__name__)
-
-async def get_available_languages() -> List[Tuple[str, str]]:
-    """Load available languages dynamically from lang/ directory."""
-    lang_dir = Path(__file__).resolve().parent.parent / "lang"
-    languages = []
-    try:
-        for file in lang_dir.glob("*.json"):
-            lang_code = file.stem
-            lang_name = {
-                "en": "🇬🇧 English",
-                "fa": "🇮🇷 فارسی",
-                "it": "🇮🇹 Italiano"
-            }.get(lang_code, lang_code)
-            languages.append((lang_name, lang_code))
-        if not languages:
-            logger.warning("⚠️ No language files found in lang/ directory")
-        return languages
-    except Exception as e:
-        logger.error(f"❌ Error loading language files: {str(e)}")
-        return [("🇬🇧 English", "en")]  # Fallback to English
 
 async def language(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Display the language selection menu."""
@@ -102,6 +81,10 @@ async def language_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) 
             parse_mode="MarkdownV2",
             reply_markup=ReplyKeyboardRemove()
         )
+
+        # Show the main menu after language selection
+        from studentbot.handlers.menu_handler import menu
+        await menu(update, context)
 
         # Log interaction in Google Sheets
         user = await get_user(user_id)

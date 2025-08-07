@@ -35,6 +35,7 @@ class Config:
         self.EXCHANGE_RATE_API_KEY = os.getenv("EXCHANGE_RATE_API_KEY")
         self.HUGGINGFACE_API_KEY = os.getenv("HUGGINGFACE_API_KEY")
         self.OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+        self.RSS_FEED_URLS = os.getenv("RSS_FEED_URLS", "").split(",")
 
         # Email
         self.EMAIL_SENDER = os.getenv("EMAIL_SENDER")
@@ -75,6 +76,7 @@ class Config:
             "EMAIL_PASSWORD": self.EMAIL_PASSWORD,
             "HUGGINGFACE_API_KEY": self.HUGGINGFACE_API_KEY,
             "OPENWEATHERMAP_API_KEY": self.OPENWEATHERMAP_API_KEY,
+            "RSS_FEED_URLS": self.RSS_FEED_URLS,
         }
         missing = [k for k, v in required_vars.items() if not v]
         if missing:

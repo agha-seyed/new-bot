@@ -19,19 +19,15 @@ from studentbot import config
 
 logger = logging.getLogger(__name__)
 
-def get_level_badge(level: int) -> str:
-    if level <= 5:
+def get_level_badge(points: int) -> str:
+    if points < 50:
+        return "🎓 Newbie"
+    elif points < 100:
         return "🧱 Beginner"
-    elif level <= 10:
-        return "🥉 Bronze"
-    elif level <= 20:
-        return "🥈 Silver"
-    elif level <= 30:
-        return "🥇 Gold"
     else:
-        return "🏅 Champion"
+        return "🥉 Bronze"
 
-def get_progress_bar(level: int) -> str:
+def get_progress_bar(points: int) -> str:
     full = "🔵"
     empty = "⚪"
     total = 5
@@ -72,8 +68,8 @@ async def profile(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 📚 *{sanitize_markdown(get_translated_text("field_of_study", lang))}*: {sanitize_markdown(user.field_of_study or "N/A")}
 🕒 *{sanitize_markdown(get_translated_text("registration_time", lang))}*: {created_at}
 🏆 *{sanitize_markdown(get_translated_text("points", lang))}*: {points}
-🚀 *{sanitize_markdown(get_translated_text("level", lang))}*: {level} ({get_level_badge(level)})
-📈 *{sanitize_markdown(get_translated_text("progress", lang))}*: {get_progress_bar(level)}
+🚀 *{sanitize_markdown(get_translated_text("level", lang))}*: {level} ({get_level_badge(points)})
+📈 *{sanitize_markdown(get_translated_text("progress", lang))}*: {get_progress_bar(points)}
 ❓ *{sanitize_markdown(get_translated_text("questions_asked", lang))}*: {stats.get("questions_asked", 0)}
 📬 *{sanitize_markdown(get_translated_text("answers_received", lang))}*: {stats.get("answers_received", 0)}
             """
@@ -82,8 +78,7 @@ async def profile(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 [
                     InlineKeyboardButton(get_translated_text("edit_profile", lang), callback_data="edit_profile"),
                     InlineKeyboardButton(get_translated_text("delete_profile", lang), callback_data="delete_profile")
-                ],
-                [InlineKeyboardButton(get_translated_text("upload_document_menu", lang), callback_data="upload_document")]
+                ]
             ]
             reply_markup = InlineKeyboardMarkup(keyboard)
 
@@ -155,13 +150,9 @@ async def profile_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -
             await log_event(user_id, "profile_deleted", "Deleted user profile")
             logger.info(f"✅ User {user_id} deleted their profile")
         
-        elif query.data in ["edit_profile", "upload_document"]:
+        elif query.data == "edit_profile":
             from studentbot.handlers.edit_profile_flow import start_edit_profile
-            from studentbot.handlers.document_handler import start_document_submission
-            if query.data == "edit_profile":
-                await start_edit_profile(Update(update.callback_query.from_user, query.message), context)
-            else:
-                await start_document_submission(Update(update.callback_query.from_user, query.message), context)
+            await start_edit_profile(Update(update.callback_query.from_user, query.message), context)
             logger.info(f"✅ User {user_id} triggered {query.data}")
         
         else:
@@ -187,5 +178,5 @@ async def profile_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 def get_profile_handler():
     return [
         CommandHandler("profile", profile),
-        CallbackQueryHandler(profile_callback, pattern="^(edit_profile|delete_profile|upload_document)$"),
+        CallbackQueryHandler(profile_callback, pattern="^(edit_profile|delete_profile)$"),
     ]
