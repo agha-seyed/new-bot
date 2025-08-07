@@ -6,8 +6,9 @@ from telegram.ext import ContextTypes, CommandHandler, MessageHandler, filters, 
 from telegram.error import TelegramError
 from gtts import gTTS
 from studentbot import config
-from studentbot.utils.common import get_translated_text, sanitize_markdown  # Changed from text_formatter
+from studentbot.utils.common import get_translated_text, sanitize_markdown
 from studentbot.utils.redis_utils import redis_client
+import studentbot.messages as messages
 from studentbot.utils.ai_utils import smart_search
 from studentbot.utils.db_utils import get_user, log_event
 from studentbot.utils.gsheets import gsheets_client
@@ -23,14 +24,14 @@ async def ask(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user_id = update.effective_user.id
     try:
         await update.message.reply_text(
-            sanitize_markdown(get_translated_text("ask_prompt", lang)),
+            sanitize_markdown(messages.SEARCH_PROMPT),
             parse_mode="MarkdownV2"
         )
         logger.info(f"✅ User {user_id} prompted to ask a question")
     except TelegramError as e:
         logger.error(f"❌ Telegram error prompting user {user_id}: {str(e)}")
         await update.message.reply_text(
-            sanitize_markdown(get_translated_text("error_occurred", lang)),
+            sanitize_markdown(messages.ERROR_OCCURRED),
             parse_mode="MarkdownV2"
         )
 
@@ -63,7 +64,7 @@ async def answer(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await log_event(user_id, "question_answered", f"Question: {question}, Answer: {answer[:1000]}")
         
         keyboard = [
-            [InlineKeyboardButton(get_translated_text("tts_button", lang), callback_data=f"tts_{answer[:1000]}")]
+            [InlineKeyboardButton(messages.TTS_BUTTON, callback_data=f"tts_{answer[:1000]}")]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         await update.message.reply_text(
@@ -94,7 +95,7 @@ async def text_to_speech(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     
     if not text:
         await update.message.reply_text(
-            sanitize_markdown(get_translated_text("tts_prompt", lang)),
+            sanitize_markdown(messages.TTS_PROMPT),
             parse_mode="MarkdownV2"
         )
         return
@@ -141,13 +142,13 @@ async def speech_to_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         
         keyboard = [
             [
-                InlineKeyboardButton(get_translated_text("yes", lang), callback_data=f"stt_yes_{text[:1000]}"),
-                InlineKeyboardButton(get_translated_text("no", lang), callback_data="stt_no"),
+                InlineKeyboardButton(messages.YES, callback_data=f"stt_yes_{text[:1000]}"),
+                InlineKeyboardButton(messages.NO, callback_data="stt_no"),
             ]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         await update.message.reply_text(
-            sanitize_markdown(get_translated_text("stt_confirm_prompt", lang).format(text=sanitize_markdown(text))),
+            sanitize_markdown(messages.STT_CONFIRM_PROMPT.format(text=sanitize_markdown(text))),
             parse_mode="MarkdownV2",
             reply_markup=reply_markup,
         )
@@ -182,12 +183,13 @@ async def stt_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         if data[1] == "yes":
             text = data[2]
             await query.edit_message_text(
-                sanitize_markdown(get_translated_text("searching", lang)),
+                sanitize_markdown(messages.SEARCHING),
                 parse_mode="MarkdownV2"
             )
             answer = await smart_search(text, user_id, lang)
             
-            user = await get_user(user_id)
+            async with AsyncSessionLocal() as session:
+                user = await get_user(session, user_id)
             if user:
                 interaction_data = [
                     user_id,
@@ -211,10 +213,11 @@ async def stt_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
             )
         else:
             await query.edit_message_text(
-                sanitize_markdown(get_translated_text("stt_cancelled", lang)),
+                sanitize_markdown(messages.STT_CANCELLED),
                 parse_mode="MarkdownV2"
             )
-            await log_event(user_id, "stt_cancelled", "User cancelled STT")
+            async with AsyncSessionLocal() as session:
+                await log_event(session, user_id, "stt_cancelled", "User cancelled STT")
         logger.info(f"✅ Handled STT callback for user {user_id}")
     
     except TelegramError as e:

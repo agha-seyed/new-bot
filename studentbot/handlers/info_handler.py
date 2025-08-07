@@ -30,9 +30,10 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
             parse_mode="MarkdownV2",
             reply_markup=reply_markup
         )
-        user = await get_user(user_id)
-        if user:
-            interaction_data = [
+        async with AsyncSessionLocal() as session:
+            user = await get_user(session, user_id)
+            if user:
+                interaction_data = [
                 user_id,
                 user.first_name,
                 user.last_name or "N/A",
@@ -47,7 +48,8 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
             await gsheets_client.add_interaction_to_sheet(config.QUESTIONS_SHEET_NAME, interaction_data)
         
         await award_points_for_action(user_id, "interaction")
-        await log_event(user_id, "help_accessed", "Requested help information")
+        async with AsyncSessionLocal() as session:
+            await log_event(session, user_id, "help_accessed", "Requested help information")
         logger.info(f"✅ /help command used by user {user_id}")
     
     except TelegramError as e:
@@ -72,9 +74,10 @@ async def contact_us(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
             parse_mode="MarkdownV2",
             reply_markup=reply_markup
         )
-        user = await get_user(user_id)
-        if user:
-            interaction_data = [
+        async with AsyncSessionLocal() as session:
+            user = await get_user(session, user_id)
+            if user:
+                interaction_data = [
                 user_id,
                 user.first_name,
                 user.last_name or "N/A",
@@ -89,7 +92,8 @@ async def contact_us(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
             await gsheets_client.add_interaction_to_sheet(config.QUESTIONS_SHEET_NAME, interaction_data)
         
         await award_points_for_action(user_id, "interaction")
-        await log_event(user_id, "contact_accessed", "Requested contact information")
+        async with AsyncSessionLocal() as session:
+            await log_event(session, user_id, "contact_accessed", "Requested contact information")
         logger.info(f"✅ /contact command used by user {user_id}")
     
     except TelegramError as e:
@@ -114,9 +118,10 @@ async def about_us(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             parse_mode="MarkdownV2",
             reply_markup=reply_markup
         )
-        user = await get_user(user_id)
-        if user:
-            interaction_data = [
+        async with AsyncSessionLocal() as session:
+            user = await get_user(session, user_id)
+            if user:
+                interaction_data = [
                 user_id,
                 user.first_name,
                 user.last_name or "N/A",
@@ -131,7 +136,8 @@ async def about_us(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             await gsheets_client.add_interaction_to_sheet(config.QUESTIONS_SHEET_NAME, interaction_data)
         
         await award_points_for_action(user_id, "interaction")
-        await log_event(user_id, "about_accessed", "Requested about information")
+        async with AsyncSessionLocal() as session:
+            await log_event(session, user_id, "about_accessed", "Requested about information")
         logger.info(f"✅ /about command used by user {user_id}")
     
     except TelegramError as e:
@@ -185,9 +191,10 @@ async def info_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
             logger.warning(f"⚠️ Invalid callback by user {user_id}: {query.data}")
             return
         
-        user = await get_user(user_id)
-        if user:
-            interaction_data = [
+        async with AsyncSessionLocal() as session:
+            user = await get_user(session, user_id)
+            if user:
+                interaction_data = [
                 user_id,
                 user.first_name,
                 user.last_name or "N/A",
@@ -202,7 +209,8 @@ async def info_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
             await gsheets_client.add_interaction_to_sheet(config.QUESTIONS_SHEET_NAME, interaction_data)
         
         await award_points_for_action(user_id, "interaction")
-        await log_event(user_id, action.lower(), f"Triggered {action.lower()}")
+        async with AsyncSessionLocal() as session:
+            await log_event(session, user_id, action.lower(), f"Triggered {action.lower()}")
         logger.info(f"✅ {action} triggered by user {user_id}")
     
     except TelegramError as e:

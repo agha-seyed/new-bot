@@ -86,7 +86,8 @@ async def weather(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             reply_markup=InlineKeyboardMarkup(keyboard)
         )
         await award_points_for_action(user_id, "interaction")
-        await log_event(user_id, "weather_fetched", f"Fetched weather for Perugia: {condition}, {data['main']['temp']}°C")
+        async with AsyncSessionLocal() as session:
+            await log_event(session, user_id, "weather_fetched", f"Fetched weather for Perugia: {condition}, {data['main']['temp']}°C")
         logger.info(f"✅ Weather displayed for user {user_id}")
     except httpx.HTTPStatusError as e:
         logger.error(f"❌ Weather API HTTP error for user {user_id}: {str(e)}")
@@ -117,7 +118,8 @@ async def weather_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         await query.answer()
         if query.data == "refresh_weather":
             await weather(Update(query.from_user, query.message), context)
-            await log_event(user_id, "weather_refreshed", "Refreshed weather for Perugia")
+            async with AsyncSessionLocal() as session:
+                await log_event(session, user_id, "weather_refreshed", "Refreshed weather for Perugia")
             logger.info(f"✅ User {user_id} refreshed weather")
     except TelegramError as e:
         logger.error(f"❌ Telegram error handling weather callback for user {user_id}: {str(e)}")

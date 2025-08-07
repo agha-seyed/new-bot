@@ -89,7 +89,8 @@ async def migration_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         
         await update.message.reply_text(message, parse_mode="MarkdownV2")
         await award_points_for_action(user_id, "interaction")
-        await log_event(user_id, "migration_status_checked", f"Status: {status}/10")
+        async with AsyncSessionLocal() as session:
+            await log_event(session, user_id, "migration_status_checked", f"Status: {status}/10")
         logger.info(f"✅ User {user_id} checked migration status: {status}/10")
     
     except TelegramError as e:
@@ -147,7 +148,8 @@ async def update_migration_status(update: Update, context: ContextTypes.DEFAULT_
         """
         await update.message.reply_text(message, parse_mode="MarkdownV2")
         await award_points_for_action(user_id, "migration_update")
-        await log_event(user_id, "migration_status_updated", f"New status: {new_status}/10")
+        async with AsyncSessionLocal() as session:
+            await log_event(session, user_id, "migration_status_updated", f"New status: {new_status}/10")
         logger.info(f"✅ User {user_id} updated migration status to {new_status}")
         
         admin_chat_id = config.ADMIN_CHAT_ID

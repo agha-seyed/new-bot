@@ -2,7 +2,7 @@ import os
 import logging
 import json
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 from googleapiclient.discovery import build
 from google.oauth2.service_account import Credentials
 from googleapiclient.http import MediaFileUpload
@@ -50,7 +50,7 @@ class GoogleDriveClient:
         if not file_path.lower().endswith(allowed_extensions):
             raise ValueError(f"Invalid file type. Allowed: {', '.join(allowed_extensions)}")
     
-    async def upload_file(self, file_path: str, user_id: int, original_filename: str) -> Optional[str]:
+    def upload_file(self, file_path: str, user_id: int, original_filename: str) -> Optional[str]:
         """Upload a file to Google Drive and return its file ID."""
         if not self.service:
             logger.error("❌ Google Drive service is not initialized")
@@ -67,7 +67,7 @@ class GoogleDriveClient:
                 raise ValueError("Original filename cannot be empty")
             self.validate_file(file_path)
             
-            timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+            timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
             file_name = f"{user_id}_{timestamp}_{original_filename}"
             
             file_metadata = {

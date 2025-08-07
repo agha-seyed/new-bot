@@ -14,7 +14,7 @@ from sqlalchemy import (
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.asyncio import AsyncEngine
-from datetime import datetime
+from datetime import datetime, timezone
 import enum
 
 Base = declarative_base()
@@ -30,10 +30,10 @@ class User(Base):
     field_of_study = Column(String)
     points = Column(Integer, default=0)
     level = Column(String, default="🎓 Newbie")
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     deleted_at = Column(DateTime, nullable=True)
-    last_active = Column(DateTime, default=datetime.utcnow)
+    last_active = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
 class ConsultationRequest(Base):
     __tablename__ = "consultation_requests"
@@ -50,8 +50,8 @@ class ConsultationRequest(Base):
     special_needs = Column(Text)
     status = Column(String, default="pending")
     file_id = Column(String, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     user = relationship("User")
 
 class CostCalculation(Base):
@@ -64,7 +64,7 @@ class CostCalculation(Base):
     compared_city = Column(String)
     user_total = Column(Float)
     city_total = Column(Float)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     user = relationship("User")
 
 class Document(Base):
@@ -73,7 +73,7 @@ class Document(Base):
     user_id = Column(BigInteger, ForeignKey("users.id"))
     file_id = Column(String)
     file_name = Column(String)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     user = relationship("User")
 
 class Feedback(Base):
@@ -82,7 +82,7 @@ class Feedback(Base):
     user_id = Column(BigInteger, ForeignKey("users.id"))
     rating = Column(Integer)
     comment = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     user = relationship("User")
 
 class Question(Base):
@@ -91,7 +91,7 @@ class Question(Base):
     user_id = Column(BigInteger, ForeignKey("users.id"))
     question = Column(Text)
     answer = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     user = relationship("User")
 
 class MigrationStatus(Base):
@@ -106,7 +106,7 @@ class SearchHistory(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(BigInteger, ForeignKey("users.id"))
     query = Column(Text)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     user = relationship("User")
 
 class Event(Base):
@@ -115,7 +115,7 @@ class Event(Base):
     user_id = Column(BigInteger, ForeignKey("users.id"))
     event_type = Column(String)
     details = Column(Text)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     user = relationship("User")
 
 async def init_db(engine: AsyncEngine):

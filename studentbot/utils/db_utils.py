@@ -1,14 +1,13 @@
 import logging
 from typing import Optional, List, Dict
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy import select, update, text, func
 from studentbot import config
 from .models_db import (
     User, ConsultationRequest, CostCalculation, Document, Feedback,
     Question, MigrationStatus, SearchHistory, Event, init_db
 )
-from datetime import datetime
+from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
 
@@ -38,15 +37,6 @@ async def create_users_table():
         logger.info("✅ Users table initialized")
     except Exception as e:
         logger.error(f"❌ Error creating users table: {str(e)}")
-        raise
-
-async def create_consultation_requests_table():
-    """Create consultation requests table if not exists."""
-    try:
-        await init_db(engine)
-        logger.info("✅ Consultation requests table initialized")
-    except Exception as e:
-        logger.error(f"❌ Error creating consultation requests table: {str(e)}")
         raise
 
 async def create_user(
@@ -92,7 +82,7 @@ async def delete_user(session: AsyncSession, user_id: int) -> None:
     """Delete a user by ID."""
     try:
         async with session.begin():
-            await session.execute(update(User).where(User.id == user_id).values(deleted_at=datetime.utcnow()))
+            await session.execute(update(User).where(User.id == user_id).values(deleted_at=datetime.now(timezone.utc)))
             logger.info(f"✅ Deleted user {user_id}")
     except Exception as e:
         logger.error(f"❌ Error deleting user {user_id}: {str(e)}")
@@ -362,7 +352,7 @@ async def store_cost_calculation(
                 compared_city=compared_city,
                 user_total=user_total,
                 city_total=city_total,
-                created_at=datetime.utcnow()
+                created_at=datetime.now(timezone.utc)
             )
             session.add(cost_calc)
             await session.commit()

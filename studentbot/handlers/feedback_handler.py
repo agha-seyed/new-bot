@@ -73,7 +73,8 @@ async def feedback_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) 
             await update_user_level(session, user_id)
         
         # Store in Google Sheets
-        user = await get_user(user_id)
+        async with AsyncSessionLocal() as session:
+            user = await get_user(session, user_id)
         if user:
             interaction_data = [
                 user_id,
@@ -108,7 +109,8 @@ async def feedback_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) 
             reply_markup=ReplyKeyboardRemove()
         )
         await award_points_for_action(user_id, "feedback")
-        await log_event(user_id, "feedback_submitted", f"Rating: {rating} stars")
+        async with AsyncSessionLocal() as session:
+            await log_event(session, user_id, "feedback_submitted", f"Rating: {rating} stars")
         logger.info(f"✅ Feedback '{rating} stars' submitted by user {user_id}")
     
     except TelegramError as e:

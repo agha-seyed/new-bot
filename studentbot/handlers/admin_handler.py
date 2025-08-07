@@ -5,8 +5,9 @@ from telegram.ext import ContextTypes, CommandHandler, MessageHandler, CallbackQ
 from telegram.error import TelegramError
 from studentbot import config
 from studentbot.utils.db_utils import get_consultation_request_by_id, update_consultation_request_status, get_all_users, log_event, get_all_consultation_requests
-from studentbot.utils.common import get_translated_text, sanitize_markdown  # Changed from text_formatter
+from studentbot.utils.common import get_translated_text, sanitize_markdown
 from studentbot.handlers.gamification_handler import award_points_for_action
+import studentbot.messages as messages
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +22,7 @@ async def admin_consultations(update: Update, context: ContextTypes.DEFAULT_TYPE
     
     if not await is_admin(user_id):
         await update.message.reply_text(
-            sanitize_markdown(get_translated_text("unauthorized", lang)),
+            sanitize_markdown(messages.UNAUTHORIZED),
             parse_mode="MarkdownV2"
         )
         logger.warning(f"⚠️ Unauthorized admin_consultations attempt by user {user_id}")
@@ -31,7 +32,7 @@ async def admin_consultations(update: Update, context: ContextTypes.DEFAULT_TYPE
         requests = await get_all_consultation_requests()
         if not requests:
             await update.message.reply_text(
-                sanitize_markdown(get_translated_text("no_consultation_requests", lang)),
+                sanitize_markdown(messages.NO_CONSULTATION_REQUESTS),
                 parse_mode="MarkdownV2"
             )
             return
@@ -39,9 +40,9 @@ async def admin_consultations(update: Update, context: ContextTypes.DEFAULT_TYPE
         for req in requests:
             keyboard = [
                 [
-                    InlineKeyboardButton("📥 Respond", callback_data=f"respond_consult_{req['id']}"),
-                    InlineKeyboardButton("🗑 Archive", callback_data=f"archive_consult_{req['id']}"),
-                    InlineKeyboardButton("📁 View File", callback_data=f"view_file_{req['id']}"),
+                    InlineKeyboardButton(messages.RESPOND_BUTTON, callback_data=f"respond_consult_{req['id']}"),
+                    InlineKeyboardButton(messages.ARCHIVE_BUTTON, callback_data=f"archive_consult_{req['id']}"),
+                    InlineKeyboardButton(messages.VIEW_FILE_BUTTON, callback_data=f"view_file_{req['id']}"),
                 ]
             ]
             reply_markup = InlineKeyboardMarkup(keyboard)
@@ -81,7 +82,7 @@ async def archive_consultation(update: Update, context: ContextTypes.DEFAULT_TYP
     
     if not await is_admin(user_id):
         await update.message.reply_text(
-            sanitize_markdown(get_translated_text("unauthorized", lang)),
+            sanitize_markdown(messages.UNAUTHORIZED),
             parse_mode="MarkdownV2"
         )
         logger.warning(f"⚠️ Unauthorized archive attempt by user {user_id}")
@@ -94,7 +95,7 @@ async def archive_consultation(update: Update, context: ContextTypes.DEFAULT_TYP
         request_id = int(query.data.split("_")[-1])
         await update_consultation_request_status(request_id, "archived")
         await query.message.reply_text(
-            sanitize_markdown(get_translated_text("consultation_archived", lang).format(request_id=request_id)),
+            sanitize_markdown(messages.CONSULTATION_ARCHIVED.format(request_id=request_id)),
             parse_mode="MarkdownV2",
             reply_markup=ReplyKeyboardRemove()
         )
@@ -121,7 +122,7 @@ async def reply_to_consultation(update: Update, context: ContextTypes.DEFAULT_TY
     
     if not await is_admin(user_id):
         await update.message.reply_text(
-            sanitize_markdown(get_translated_text("unauthorized", lang)),
+            sanitize_markdown(messages.UNAUTHORIZED),
             parse_mode="MarkdownV2"
         )
         logger.warning(f"⚠️ Unauthorized reply attempt by user {user_id}")
@@ -134,7 +135,7 @@ async def reply_to_consultation(update: Update, context: ContextTypes.DEFAULT_TY
         request_id = int(query.data.split("_")[-1])
         context.user_data["request_id"] = request_id
         await query.message.reply_text(
-            sanitize_markdown(get_translated_text("enter_reply_message", lang)),
+            sanitize_markdown(messages.ENTER_REPLY_MESSAGE),
             parse_mode="MarkdownV2",
             reply_markup=ReplyKeyboardRemove()
         )
@@ -160,7 +161,7 @@ async def handle_reply_message(update: Update, context: ContextTypes.DEFAULT_TYP
     
     if not await is_admin(user_id):
         await update.message.reply_text(
-            sanitize_markdown(get_translated_text("unauthorized", lang)),
+            sanitize_markdown(messages.UNAUTHORIZED),
             parse_mode="MarkdownV2"
         )
         return
@@ -174,7 +175,7 @@ async def handle_reply_message(update: Update, context: ContextTypes.DEFAULT_TYP
         request = await get_consultation_request_by_id(request_id)
         if not request:
             await update.message.reply_text(
-                sanitize_markdown(get_translated_text("request_not_found", lang)),
+                sanitize_markdown(messages.REQUEST_NOT_FOUND),
                 parse_mode="MarkdownV2"
             )
             return ConversationHandler.END
@@ -182,12 +183,12 @@ async def handle_reply_message(update: Update, context: ContextTypes.DEFAULT_TYP
         user_id_to_reply = request["user_id"]
         await context.bot.send_message(
             chat_id=user_id_to_reply,
-            text=sanitize_markdown(f"📬 {get_translated_text('admin_reply', lang)}:\n{reply_text}"),
+            text=sanitize_markdown(f"📬 {messages.ADMIN_REPLY}:\n{reply_text}"),
             parse_mode="MarkdownV2"
         )
         await update_consultation_request_status(request_id, "responded")
         await update.message.reply_text(
-            sanitize_markdown(get_translated_text("consultation_responded", lang).format(request_id=request_id)),
+            sanitize_markdown(messages.CONSULTATION_RESPONDED.format(request_id=request_id)),
             parse_mode="MarkdownV2"
         )
         await log_event(user_id, "consultation_responded", f"Request ID: {request_id}, Reply: {reply_text}")
@@ -214,7 +215,7 @@ async def view_consultation_file(update: Update, context: ContextTypes.DEFAULT_T
     
     if not await is_admin(user_id):
         await update.message.reply_text(
-            sanitize_markdown(get_translated_text("unauthorized", lang)),
+            sanitize_markdown(messages.UNAUTHORIZED),
             parse_mode="MarkdownV2"
         )
         logger.warning(f"⚠️ Unauthorized file view attempt by user {user_id}")
@@ -228,14 +229,14 @@ async def view_consultation_file(update: Update, context: ContextTypes.DEFAULT_T
         request = await get_consultation_request_by_id(request_id)
         if not request or not request["file_id"]:
             await query.message.reply_text(
-                sanitize_markdown(get_translated_text("no_file_found", lang)),
+                sanitize_markdown(messages.NO_FILE_FOUND),
                 parse_mode="MarkdownV2"
             )
             return
         
         file_url = f"https://drive.google.com/file/d/{sanitize_markdown(request['file_id'])}/view"
         await query.message.reply_text(
-            sanitize_markdown(get_translated_text("file_link", lang).format(file_url=file_url)),
+            sanitize_markdown(messages.FILE_LINK.format(file_url=file_url)),
             parse_mode="MarkdownV2"
         )
         await log_event(user_id, "file_viewed", f"Request ID: {request_id}, File ID: {request['file_id']}")
@@ -261,7 +262,7 @@ async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     
     if not await is_admin(user_id):
         await update.message.reply_text(
-            sanitize_markdown(get_translated_text("unauthorized", lang)),
+            sanitize_markdown(messages.UNAUTHORIZED),
             parse_mode="MarkdownV2"
         )
         logger.warning(f"⚠️ Unauthorized broadcast attempt by user {user_id}")
@@ -270,7 +271,7 @@ async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     try:
         context.user_data["broadcast_state"] = AWAITING_BROADCAST_MESSAGE
         await update.message.reply_text(
-            sanitize_markdown(get_translated_text("enter_broadcast_message", lang)),
+            sanitize_markdown(messages.ENTER_BROADCAST_MESSAGE),
             parse_mode="MarkdownV2"
         )
         logger.info(f"✅ Admin {user_id} started broadcast process")
@@ -289,7 +290,7 @@ async def handle_broadcast_message(update: Update, context: ContextTypes.DEFAULT
     
     if not await is_admin(user_id):
         await update.message.reply_text(
-            sanitize_markdown(get_translated_text("unauthorized", lang)),
+            sanitize_markdown(messages.UNAUTHORIZED),
             parse_mode="MarkdownV2"
         )
         return ConversationHandler.END
@@ -312,7 +313,7 @@ async def handle_broadcast_message(update: Update, context: ContextTypes.DEFAULT
                 continue
 
         await update.message.reply_text(
-            sanitize_markdown(get_translated_text("broadcast_sent", lang).format(count=count)),
+            sanitize_markdown(messages.BROADCAST_SENT.format(count=count)),
             parse_mode="MarkdownV2"
         )
         await log_event(user_id, "broadcast_sent", f"Sent to {count} users")
@@ -367,7 +368,7 @@ async def cancel_conversation(update: Update, context: ContextTypes.DEFAULT_TYPE
     user_id = update.effective_user.id
 
     await update.message.reply_text(
-        sanitize_markdown(get_translated_text("conversation_cancelled", lang)),
+        sanitize_markdown(messages.CONVERSATION_CANCELLED),
         parse_mode="MarkdownV2"
     )
     context.user_data.clear()

@@ -30,8 +30,8 @@ def get_level_badge(points: int) -> str:
 def get_progress_bar(points: int) -> str:
     full = "🔵"
     empty = "⚪"
-    total = 5
-    filled = min(level % total, total)
+    total = 50
+    filled = min(points % total, total)
     return full * filled + empty * (total - filled)
 
 async def profile(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -102,7 +102,7 @@ async def profile(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             await gsheets_client.add_interaction_to_sheet(config.QUESTIONS_SHEET_NAME, interaction_data)
             
             await award_points_for_action(user_id, "interaction")
-            await log_event(user_id, "profile_viewed", "Viewed user profile")
+            await log_event(session, user_id, "profile_viewed", "Viewed user profile")
             logger.info(f"✅ Profile displayed for user {user_id}")
     
     except TelegramError as e:
@@ -147,7 +147,8 @@ async def profile_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -
                 datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
             ]
             await gsheets_client.add_interaction_to_sheet(config.QUESTIONS_SHEET_NAME, interaction_data)
-            await log_event(user_id, "profile_deleted", "Deleted user profile")
+            async with AsyncSessionLocal() as session:
+                await log_event(session, user_id, "profile_deleted", "Deleted user profile")
             logger.info(f"✅ User {user_id} deleted their profile")
         
         elif query.data == "edit_profile":

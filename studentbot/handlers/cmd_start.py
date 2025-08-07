@@ -7,7 +7,8 @@ from studentbot.utils.common import get_translated_text, sanitize_markdown, get_
 from studentbot.utils.db_utils import AsyncSessionLocal
 from studentbot.utils.models_db import User
 from sqlalchemy import update
-from datetime import datetime
+from datetime import datetime, timezone
+import studentbot.messages as messages
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +24,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 await session.execute(
                     update(User)
                     .where(User.id == user_id)
-                    .values(last_active=datetime.utcnow())
+                    .values(last_active=datetime.now(timezone.utc))
                 )
         # Load available languages
         languages = await get_available_languages()
@@ -37,7 +38,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         
         # Multi-language prompt
         prompt = "\n".join(
-            sanitize_markdown(get_translated_text("select_language", lang_code))
+            sanitize_markdown(messages.SELECT_LANGUAGE)
             for _, lang_code in languages
         )
         

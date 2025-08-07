@@ -1,6 +1,6 @@
 import logging
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 import aiosmtplib
 from email.message import EmailMessage
 from studentbot import config
@@ -40,7 +40,7 @@ async def send_email(to_email: str, subject: str, body: str, user_id: int, lang:
             [
                 user_id, "N/A", body[:1000], 0, "N/A", to_email, "N/A",
                 "Email Sent", f"Sent email to {to_email}",
-                datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+                datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
             ]
         )
         logger.info(f"✅ Email sent to {to_email}")

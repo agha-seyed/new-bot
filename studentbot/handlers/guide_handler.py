@@ -44,7 +44,8 @@ async def arrival_guide(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
             parse_mode="MarkdownV2",
             reply_markup=reply_markup
         )
-        await log_event(user_id, "arrival_guide_accessed", "Opened arrival guide menu")
+        async with AsyncSessionLocal() as session:
+            await log_event(session, user_id, "arrival_guide_accessed", "Opened arrival guide menu")
         await award_points_for_action(user_id, "interaction")
         logger.info(f"✅ Displayed arrival guide menu for user {user_id}")
     except TelegramError as e:
@@ -83,7 +84,8 @@ async def calendar(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             reply_markup=reply_markup
         )
         await award_points_for_action(user_id, "interaction")
-        await log_event(user_id, "calendar_accessed", "Opened calendar")
+        async with AsyncSessionLocal() as session:
+            await log_event(session, user_id, "calendar_accessed", "Opened calendar")
         logger.info(f"✅ Displayed calendar for user {user_id}")
     except TelegramError as e:
         logger.error(f"❌ Telegram error displaying calendar for user {user_id}: {str(e)}")
@@ -143,7 +145,8 @@ async def guide_item_callback(update: Update, context: ContextTypes.DEFAULT_TYPE
             parse_mode="MarkdownV2"
         )
         await award_points_for_action(user_id, "interaction")
-        await log_event(user_id, "arrival_guide_item_viewed", f"Item: {title}")
+        async with AsyncSessionLocal() as session:
+            await log_event(session, user_id, "arrival_guide_item_viewed", f"Item: {title}")
         logger.info(f"✅ Displayed arrival guide item '{item_key}' for user {user_id}")
     
     except TelegramError as e:
@@ -197,7 +200,8 @@ async def event_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
                 await gsheets_client.add_interaction_to_sheet(config.QUESTIONS_SHEET_NAME, interaction_data)
             
             await award_points_for_action(user_id, "interaction")
-            await log_event(user_id, "calendar_event_viewed", f"Event: {matched['event']}")
+            async with AsyncSessionLocal() as session:
+                await log_event(session, user_id, "calendar_event_viewed", f"Event: {matched['event']}")
             await query.edit_message_text(
                 text=message,
                 parse_mode="MarkdownV2"

@@ -29,7 +29,7 @@ from studentbot.handlers.question_handler import get_question_handler
 from studentbot.handlers.feedback_handler import get_feedback_handler
 from studentbot.handlers.migration_handler import get_migration_handler
 from studentbot.handlers.calendar_handler import get_calendar_handler
-from studentbot.utils.db_utils import create_users_table, create_consultation_requests_table, test_db_connection
+from studentbot.utils.db_utils import create_users_table, test_db_connection
 from studentbot.utils.scheduler import scheduler
 from studentbot.utils.redis_utils import redis_client
 from studentbot import config
@@ -96,7 +96,6 @@ async def setup():
         
         # Create database tables
         await create_users_table()
-        await create_consultation_requests_table()
 
         # Set webhook
         await application.bot.set_webhook(

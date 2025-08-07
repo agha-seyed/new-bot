@@ -40,7 +40,8 @@ async def start_registration(update: Update, context: ContextTypes.DEFAULT_TYPE)
         context.user_data["lang"] = lang
         logger.info(f"✅ User {user_id} started registration")
         await award_points_for_action(user_id, "interaction")
-        await log_event(user_id, "registration_started", "Started registration process")
+        async with AsyncSessionLocal() as session:
+            await log_event(session, user_id, "registration_started", "Started registration process")
         return await prompt(update, context, "first_name_prompt", FIRST_NAME)
     except TelegramError as e:
         logger.error(f"❌ Telegram error starting registration for user {user_id}: {str(e)}")
@@ -162,7 +163,8 @@ async def confirm(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
                 parse_mode="MarkdownV2",
                 reply_markup=ReplyKeyboardRemove()
             )
-            await log_event(user_id, "registration_cancelled", "Cancelled registration process")
+            async with AsyncSessionLocal() as session:
+                await log_event(session, user_id, "registration_cancelled", "Cancelled registration process")
             logger.info(f"✅ User {user_id} cancelled registration")
             context.user_data.clear()
             context.user_data["lang"] = lang
@@ -231,7 +233,8 @@ async def confirm(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
             reply_markup=ReplyKeyboardRemove()
         )
         await award_points_for_action(user_id, "registration")
-        await log_event(user_id, "registration_completed", f"Registered user: {user_data['first_name']} {user_data['last_name']}")
+        async with AsyncSessionLocal() as session:
+            await log_event(session, user_id, "registration_completed", f"Registered user: {user_data['first_name']} {user_data['last_name']}")
         logger.info(f"✅ User {user_id} completed registration")
         context.user_data.clear()
         context.user_data["lang"] = lang
@@ -262,7 +265,8 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
             parse_mode="MarkdownV2",
             reply_markup=ReplyKeyboardRemove()
         )
-        await log_event(user_id, "registration_cancelled", "Cancelled registration via command")
+        async with AsyncSessionLocal() as session:
+            await log_event(session, user_id, "registration_cancelled", "Cancelled registration via command")
         logger.info(f"✅ User {user_id} cancelled registration")
         context.user_data.clear()
         context.user_data["lang"] = lang

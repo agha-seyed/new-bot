@@ -1,7 +1,7 @@
 import os
 import logging
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 import fitz
 import docx
 from bs4 import BeautifulSoup
@@ -97,7 +97,7 @@ async def search_in_documents(query: str, user_id: int = None, lang: str = "en")
                 [
                     user_id, query, final_result[:1000], 0, "Documents", "N/A", "N/A",
                     "Document Search", f"Search query: {query}",
-                    datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+                    datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
                 ]
             )
 

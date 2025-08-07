@@ -45,7 +45,8 @@ async def start_search(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         logger.info(f"✅ User {user_id} started search")
         await award_points_for_action(user_id, "interaction")
-        await log_event(user_id, "search_started", "Started search process")
+        async with AsyncSessionLocal() as session:
+            await log_event(session, user_id, "search_started", "Started search process")
     except TelegramError as e:
         logger.error(f"❌ Telegram error starting search for user {user_id}: {str(e)}")
         await update.message.reply_text(
@@ -98,7 +99,8 @@ async def search_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     ]
                     await gsheets_client.add_interaction_to_sheet(config.QUESTIONS_SHEET_NAME, interaction_data)
             await award_points_for_action(user_id, "interaction")
-            await log_event(user_id, "search_cached", f"Cached search result for {query}")
+            async with AsyncSessionLocal() as session:
+                await log_event(session, user_id, "search_cached", f"Cached search result for {query}")
             logger.info(f"✅ User {user_id} received cached search result for query: {query}")
             return
 
@@ -146,7 +148,8 @@ async def search_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await gsheets_client.add_interaction_to_sheet(config.QUESTIONS_SHEET_NAME, interaction_data)
 
         await award_points_for_action(user_id, "search")
-        await log_event(user_id, "search_completed", f"New search for {query}")
+        async with AsyncSessionLocal() as session:
+            await log_event(session, user_id, "search_completed", f"New search for {query}")
         logger.info(f"✅ User {user_id} received search result for query: {query}")
     except TelegramError as e:
         logger.error(f"❌ Telegram error during search for user {user_id}: {str(e)}")
@@ -175,7 +178,8 @@ async def search_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
                 parse_mode="MarkdownV2"
             )
             await award_points_for_action(user_id, "interaction")
-            await log_event(user_id, "search_again", "Requested to search again")
+            async with AsyncSessionLocal() as session:
+                await log_event(session, user_id, "search_again", "Requested to search again")
             logger.info(f"✅ User {user_id} requested to search again")
     except TelegramError as e:
         logger.error(f"❌ Telegram error handling search callback for user {user_id}: {str(e)}")

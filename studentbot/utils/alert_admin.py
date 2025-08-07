@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from telegram import Bot
 from telegram.error import TelegramError
 from studentbot import config
@@ -22,7 +22,7 @@ async def notify_admin_unanswered(question: str, user_id: int, lang: str = "en")
             user = await get_user(session, user_id)
             user_name = f"{user.first_name} {user.last_name}" if user else "Unknown User"
 
-        timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+        timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
         message = (
             f"⚠️ *{sanitize_markdown(get_translated_text('unanswered_question_alert', lang))}*\n\n"
             f"👤 *{sanitize_markdown(get_translated_text('user', lang))}*: {sanitize_markdown(user_name)} (ID: `{user_id}`)\n"

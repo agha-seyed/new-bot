@@ -16,6 +16,8 @@ from telegram.error import TelegramError
 import httpx
 from studentbot.utils.common import get_translated_text, sanitize_markdown
 from studentbot.utils.db_utils import AsyncSessionLocal, get_user, log_event, store_cost_calculation
+import studentbot.messages as messages
+from datetime import timezone
 from studentbot.utils.gsheets import gsheets_client
 from studentbot.handlers.gamification_handler import award_points_for_action
 from studentbot import config
@@ -55,7 +57,7 @@ async def start_cost_calculation(update: Update, context: ContextTypes.DEFAULT_T
     
     try:
         await update.message.reply_text(
-            sanitize_markdown(get_translated_text("rent_prompt", lang)),
+            sanitize_markdown(messages.RENT_PROMPT),
             parse_mode="MarkdownV2",
             reply_markup=ReplyKeyboardRemove()
         )
@@ -65,7 +67,7 @@ async def start_cost_calculation(update: Update, context: ContextTypes.DEFAULT_T
     except TelegramError as e:
         logger.error(f"❌ Telegram error starting cost calculation for user {user_id}: {str(e)}")
         await update.message.reply_text(
-            sanitize_markdown(get_translated_text("error_occurred", lang)),
+            sanitize_markdown(messages.ERROR_OCCURRED),
             parse_mode="MarkdownV2"
         )
         return ConversationHandler.END
@@ -79,7 +81,7 @@ async def rent(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     rent = await validate_number(rent_text)
     if rent is None:
         await update.message.reply_text(
-            sanitize_markdown(get_translated_text("invalid_number", lang)),
+            sanitize_markdown(messages.INVALID_NUMBER),
             parse_mode="MarkdownV2"
         )
         logger.warning(f"⚠️ Invalid rent input by user {user_id}: {rent_text}")
@@ -87,7 +89,7 @@ async def rent(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     
     context.user_data["rent"] = rent
     await update.message.reply_text(
-        sanitize_markdown(get_translated_text("food_prompt", lang)),
+        sanitize_markdown(messages.FOOD_PROMPT),
         parse_mode="MarkdownV2"
     )
     logger.info(f"🏠 User {user_id} entered rent: {rent}")
@@ -102,7 +104,7 @@ async def food(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     food = await validate_number(food_text)
     if food is None:
         await update.message.reply_text(
-            sanitize_markdown(get_translated_text("invalid_number", lang)),
+            sanitize_markdown(messages.INVALID_NUMBER),
             parse_mode="MarkdownV2"
         )
         logger.warning(f"⚠️ Invalid food cost input by user {user_id}: {food_text}")
@@ -110,7 +112,7 @@ async def food(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     
     context.user_data["food"] = food
     await update.message.reply_text(
-        sanitize_markdown(get_translated_text("transportation_prompt", lang)),
+        sanitize_markdown(messages.TRANSPORTATION_PROMPT),
         parse_mode="MarkdownV2"
     )
     logger.info(f"🍽️ User {user_id} entered food cost: {food}")
@@ -125,7 +127,7 @@ async def transportation(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     transportation = await validate_number(transportation_text)
     if transportation is None:
         await update.message.reply_text(
-            sanitize_markdown(get_translated_text("invalid_number", lang)),
+            sanitize_markdown(messages.INVALID_NUMBER),
             parse_mode="MarkdownV2"
         )
         logger.warning(f"⚠️ Invalid transportation cost input by user {user_id}: {transportation_text}")
@@ -139,13 +141,13 @@ async def transportation(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     ]
     keyboard.append([
         InlineKeyboardButton(
-            get_translated_text("back_to_main", lang),
+            messages.BACK_TO_MENU,
             callback_data="back_to_main"
         )
     ])
     reply_markup = InlineKeyboardMarkup(keyboard)
     await update.message.reply_text(
-        sanitize_markdown(get_translated_text("compare_city_prompt", lang)),
+        sanitize_markdown(messages.COMPARE_CITY_PROMPT),
         parse_mode="MarkdownV2",
         reply_markup=reply_markup
     )
@@ -162,7 +164,7 @@ async def compare_city(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
     try:
         if query.data == "back_to_main":
             await query.message.reply_text(
-                sanitize_markdown(get_translated_text("back_to_main", lang)),
+                sanitize_markdown(messages.BACK_TO_MENU),
                 parse_mode="MarkdownV2"
             )
             logger.info(f"✅ User {user_id} returned to main menu")
@@ -173,7 +175,7 @@ async def compare_city(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
         city_key = query.data.split("_", 1)[1]
         if city_key not in cost_of_living_data:
             await query.message.reply_text(
-                sanitize_markdown(get_translated_text("invalid_city", lang)),
+                sanitize_markdown(messages.INVALID_CITY),
                 parse_mode="MarkdownV2"
             )
             logger.warning(f"⚠️ Invalid city selected by user {user_id}: {city_key}")
@@ -206,22 +208,22 @@ async def compare_city(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
         
         # Prepare response
         comparison_text = f"""
-🧮 *{sanitize_markdown(get_translated_text("your_total_cost", lang))}*: `{user_total:.2f} EUR`
-🏙️ *{sanitize_markdown(get_translated_text("total_cost_in", lang))} {sanitize_markdown(city_to_compare)}*: `{city_total:.2f} EUR`
-📝 *{sanitize_markdown(get_translated_text("details", lang))}*:
-- 🏠 *{sanitize_markdown(get_translated_text("rent", lang))}*: {sanitize_markdown(cost_of_living_data[city_key]["rent"]["description"][lang])}
-- 🍽️ *{sanitize_markdown(get_translated_text("food", lang))}*: {sanitize_markdown(cost_of_living_data[city_key]["food"]["description"][lang])}
-- 🚍 *{sanitize_markdown(get_translated_text("transportation", lang))}*: {sanitize_markdown(cost_of_living_data[city_key]["transportation"]["description"][lang])}
+🧮 *{sanitize_markdown(messages.YOUR_TOTAL_COST)}*: `{user_total:.2f} EUR`
+🏙️ *{sanitize_markdown(messages.TOTAL_COST_IN)} {sanitize_markdown(city_to_compare)}*: `{city_total:.2f} EUR`
+📝 *{sanitize_markdown(messages.DETAILS)}*:
+- 🏠 *{sanitize_markdown(messages.RENT)}*: {sanitize_markdown(cost_of_living_data[city_key]["rent"]["description"][lang])}
+- 🍽️ *{sanitize_markdown(messages.FOOD)}*: {sanitize_markdown(cost_of_living_data[city_key]["food"]["description"][lang])}
+- 🚍 *{sanitize_markdown(messages.TRANSPORTATION)}*: {sanitize_markdown(cost_of_living_data[city_key]["transportation"]["description"][lang])}
 """
         # Reply markup for retry or back
         keyboard = [
             [
                 InlineKeyboardButton(
-                    get_translated_text("recalculate", lang),
+                    messages.RECALCULATE,
                     callback_data="start_cost_calculation"
                 ),
                 InlineKeyboardButton(
-                    get_translated_text("back_to_main", lang),
+                    messages.BACK_TO_MENU,
                     callback_data="back_to_main"
                 ),
             ]
@@ -242,7 +244,7 @@ async def compare_city(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
                     user.country or "N/A",
                     "Cost Calculation",
                     f"Compared with {city_to_compare}: User={user_total:.2f}, City={city_total:.2f}",
-                    datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+                    datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
                 ]
                 await gsheets_client.add_interaction_to_sheet(config.QUESTIONS_SHEET_NAME, interaction_data)
         
@@ -252,7 +254,8 @@ async def compare_city(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
             reply_markup=reply_markup
         )
         await award_points_for_action(user_id, "cost_calculation")
-        await log_event(user_id, "cost_calculated", f"Compared with {city_to_compare}: User={user_total:.2f}, City={city_total:.2f}")
+        async with AsyncSessionLocal() as session:
+            await log_event(session, user_id, "cost_calculated", f"Compared with {city_to_compare}: User={user_total:.2f}, City={city_total:.2f}")
         logger.info(f"✅ User {user_id} compared costs with {city_to_compare}")
         
         context.user_data.clear()
@@ -282,7 +285,7 @@ async def exchange_rate(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     
     if not api_key:
         await update.message.reply_text(
-            sanitize_markdown(get_translated_text("api_key_missing", lang)),
+            sanitize_markdown(messages.API_KEY_MISSING),
             parse_mode="MarkdownV2"
         )
         logger.error(f"❌ EXCHANGE_RATE_API_KEY not found for user {user_id}")
@@ -292,7 +295,7 @@ async def exchange_rate(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         # Check cache
         cache_key = "exchange_rate:EUR_IRR"
         cached = exchange_rate_cache.get(cache_key)
-        if cached and (datetime.utcnow().timestamp() - cached["timestamp"]) < EXCHANGE_RATE_CACHE_TTL:
+        if cached and (datetime.now(timezone.utc).timestamp() - cached["timestamp"]) < EXCHANGE_RATE_CACHE_TTL:
             exchange_rate = cached["rate"]
             logger.info(f"✅ Exchange rate retrieved from cache for user {user_id}: 1 EUR = {exchange_rate} IRR")
         else:
@@ -306,12 +309,12 @@ async def exchange_rate(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
                     raise ValueError("IRR rate not found")
                 exchange_rate_cache[cache_key] = {
                     "rate": exchange_rate,
-                    "timestamp": datetime.utcnow().timestamp()
+                    "timestamp": datetime.now(timezone.utc).timestamp()
                 }
                 logger.info(f"✅ Fetched exchange rate for user {user_id}: 1 EUR = {exchange_rate} IRR")
         
         text = f"""
-🌍 *{sanitize_markdown(get_translated_text("cost_of_living_in_italy", lang))}*
+🌍 *{sanitize_markdown(messages.COST_OF_LIVING_IN_ITALY)}*
 💸 *1 EUR* = `{exchange_rate:.2f} IRR`
 """
         async with AsyncSessionLocal() as session:
@@ -327,25 +330,26 @@ async def exchange_rate(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
                     user.country or "N/A",
                     "Exchange Rate",
                     f"1 EUR = {exchange_rate:.2f} IRR",
-                    datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+                    datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
                 ]
                 await gsheets_client.add_interaction_to_sheet(config.QUESTIONS_SHEET_NAME, interaction_data)
         
         await update.message.reply_text(text, parse_mode="MarkdownV2")
         await award_points_for_action(user_id, "interaction")
-        await log_event(user_id, "exchange_rate_fetched", f"1 EUR = {exchange_rate:.2f} IRR")
+        async with AsyncSessionLocal() as session:
+            await log_event(session, user_id, "exchange_rate_fetched", f"1 EUR = {exchange_rate:.2f} IRR")
         logger.info(f"✅ User {user_id} fetched exchange rate: 1 EUR = {exchange_rate} IRR")
     
     except httpx.HTTPStatusError as e:
         logger.error(f"❌ HTTP error fetching exchange rate for user {user_id}: {str(e)}")
         await update.message.reply_text(
-            sanitize_markdown(get_translated_text("exchange_rate_failed", lang)),
+            sanitize_markdown(messages.EXCHANGE_RATE_FAILED),
             parse_mode="MarkdownV2"
         )
     except Exception as e:
         logger.error(f"❌ Unexpected error fetching exchange rate for user {user_id}: {str(e)}")
         await update.message.reply_text(
-            sanitize_markdown(get_translated_text("exchange_rate_failed", lang)),
+            sanitize_markdown(messages.EXCHANGE_RATE_FAILED),
             parse_mode="MarkdownV2"
         )
 
@@ -356,7 +360,7 @@ async def cancel_cost_calculation(update: Update, context: ContextTypes.DEFAULT_
     
     try:
         await update.message.reply_text(
-            sanitize_markdown(get_translated_text("cost_calculation_cancelled", lang)),
+            sanitize_markdown(messages.COST_CALCULATION_CANCELLED),
             parse_mode="MarkdownV2",
             reply_markup=ReplyKeyboardRemove()
         )

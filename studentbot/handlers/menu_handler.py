@@ -87,7 +87,8 @@ async def menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 await gsheets_client.add_interaction_to_sheet(config.QUESTIONS_SHEET_NAME, interaction_data)
         
         await award_points_for_action(user_id, "interaction")
-        await log_event(user_id, "menu_displayed", "Displayed main menu")
+        async with AsyncSessionLocal() as session:
+            await log_event(session, user_id, "menu_displayed", "Displayed main menu")
         logger.info(f"✅ Main menu displayed for user {user_id}")
     except TelegramError as e:
         logger.error(f"❌ Telegram error displaying menu for user {user_id}: {str(e)}")
@@ -204,7 +205,8 @@ async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
                     ]
                     await gsheets_client.add_interaction_to_sheet(config.QUESTIONS_SHEET_NAME, interaction_data)
             await award_points_for_action(user_id, "interaction")
-            await log_event(user_id, "menu_selected", f"Selected menu option: {query.data}")
+            async with AsyncSessionLocal() as session:
+                await log_event(session, user_id, "menu_selected", f"Selected menu option: {query.data}")
             logger.info(f"✅ User {user_id} selected menu option: {query.data}")
         else:
             await query.edit_message_text(

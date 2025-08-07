@@ -32,7 +32,8 @@ async def language(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             parse_mode="MarkdownV2",
             reply_markup=reply_markup
         )
-        await log_event(user_id, "language_menu_accessed", "Opened language selection menu")
+        async with AsyncSessionLocal() as session:
+            await log_event(session, user_id, "language_menu_accessed", "Opened language selection menu")
         await award_points_for_action(user_id, "interaction")
         logger.info(f"✅ Language selection menu displayed for user {user_id}")
     except TelegramError as e:
@@ -104,7 +105,8 @@ async def language_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) 
             await gsheets_client.add_interaction_to_sheet(config.QUESTIONS_SHEET_NAME, interaction_data)
 
         await award_points_for_action(user_id, "interaction")
-        await log_event(user_id, "language_changed", f"Language changed to {new_lang}")
+        async with AsyncSessionLocal() as session:
+            await log_event(session, user_id, "language_changed", f"Language changed to {new_lang}")
         logger.info(f"✅ User {user_id} changed language to {new_lang}")
 
     except TelegramError as e:

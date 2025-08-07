@@ -2,7 +2,7 @@ import logging
 from telegram import Bot
 from telegram.error import TelegramError
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from sqlalchemy import text, select, or_
 from studentbot import config
 from studentbot.utils.db_utils import AsyncSessionLocal, get_all_consultation_requests
@@ -68,7 +68,7 @@ class Scheduler:
         """Fetch users inactive for the past 7 days."""
         try:
             async with AsyncSessionLocal() as session:
-                seven_days_ago = datetime.utcnow() - timedelta(days=7)
+                seven_days_ago = datetime.now(timezone.utc) - timedelta(days=7)
                 result = await session.execute(
                     select(User.id, User.first_name, User.last_name, User.lang)
                     .where(or_(User.last_active == None, User.last_active < seven_days_ago))
@@ -82,7 +82,7 @@ class Scheduler:
         """Fetch users active in the past 7 days."""
         try:
             async with AsyncSessionLocal() as session:
-                seven_days_ago = datetime.utcnow() - timedelta(days=7)
+                seven_days_ago = datetime.now(timezone.utc) - timedelta(days=7)
                 result = await session.execute(
                     select(User.id).where(User.last_active >= seven_days_ago)
                 )
@@ -109,7 +109,7 @@ class Scheduler:
                 f"🆕 *{sanitize_markdown(get_translated_text('new_users', 'en'))}*: {new_users_count}\n"
                 f"📩 *{sanitize_markdown(get_translated_text('consultation_requests', 'en'))}*: {len(consultations)}\n"
                 f"⏳ *{sanitize_markdown(get_translated_text('pending_consultations', 'en'))}*: {pending_consultations}\n"
-                f"🕒 *{sanitize_markdown(get_translated_text('time', 'en'))}*: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')}"
+                f"🕒 *{sanitize_markdown(get_translated_text('time', 'en'))}*: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}"
             )
             await self.bot.send_message(
                 chat_id=config.ADMIN_CHAT_ID,
@@ -121,7 +121,7 @@ class Scheduler:
                 config.QUESTIONS_SHEET_NAME,
                 ["N/A", "N/A", report_text[:1000], 0, "N/A", config.ADMIN_CHAT_ID, "N/A",
                  "Daily Report", "Sent daily report to admin",
-                 datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")]
+                 datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")]
             )
         except TelegramError as e:
             logger.error(f"❌ Telegram error sending daily report: {str(e)}")
@@ -143,7 +143,7 @@ class Scheduler:
                 f"📅 *{sanitize_markdown(get_translated_text('weekly_report', 'en'))}*\n\n"
                 f"✅ *{sanitize_markdown(get_translated_text('active_users', 'en'))}*: {len(active_users)}\n"
                 f"❌ *{sanitize_markdown(get_translated_text('inactive_users', 'en'))}*: {len(inactive_users)}\n"
-                f"🕒 *{sanitize_markdown(get_translated_text('time', 'en'))}*: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')}"
+                f"🕒 *{sanitize_markdown(get_translated_text('time', 'en'))}*: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}"
             )
             await self.bot.send_message(
                 chat_id=admin_chat_id,
@@ -155,7 +155,7 @@ class Scheduler:
                 config.QUESTIONS_SHEET_NAME,
                 ["N/A", "N/A", report_text[:1000], 0, "N/A", admin_chat_id, "N/A",
                  "Weekly Report", "Sent weekly report to admin",
-                 datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")]
+                 datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")]
             )
 
             for user in inactive_users:
@@ -173,7 +173,7 @@ class Scheduler:
                         config.QUESTIONS_SHEET_NAME,
                         [user_id, "N/A", message[:1000], 0, "N/A", "N/A", "N/A",
                          "Inactive User Reminder", f"Sent reminder to {first_name}",
-                         datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")]
+                         datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")]
                     )
                 except TelegramError as e:
                     logger.warning(f"⚠️ Failed to message {user_id}: {str(e)}")
@@ -190,7 +190,7 @@ class Scheduler:
                 async with session.begin():
                     await session.execute(
                         text("DELETE FROM tokens WHERE expiry_date < :now"),
-                        {"now": datetime.utcnow()}
+                        {"now": datetime.now(timezone.utc)}
                     )
                     logger.info("✅ Expired tokens removed")
         except Exception as e:

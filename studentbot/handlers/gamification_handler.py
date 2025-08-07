@@ -19,8 +19,9 @@ async def points(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     lang = context.user_data.get("lang", "en")
     
     try:
-        points = await get_user_points(user_id)
-        level = await get_user_level(user_id)
+        async with AsyncSessionLocal() as session:
+            points = await get_user_points(session, user_id)
+            level = await get_user_level(session, user_id)
         message = get_translated_text("points", lang).format(points=points, level=level)
         await update.message.reply_text(
             f"🎖️ *{sanitize_markdown(message)}*",
@@ -159,7 +160,8 @@ async def award_points_for_action(user_id: int, action: str) -> None:
     points = points_map.get(action, 0)
     if points > 0:
         try:
-            await add_points(user_id, points)
+            async with AsyncSessionLocal() as session:
+                await add_points(session, user_id, points)
             logger.info(f"✅ Awarded {points} points to user {user_id} for action '{action}'")
             await gsheets_client.add_interaction_to_sheet(
                 config.QUESTIONS_SHEET_NAME,

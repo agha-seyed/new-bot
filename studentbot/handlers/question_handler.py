@@ -230,7 +230,8 @@ async def confirm_question(update: Update, context: ContextTypes.DEFAULT_TYPE) -
             await update_user_level(session, user_id)  # Assuming defined in gamification_handler.py
 
         await award_points_for_action(user_id, "question_submission")
-        await log_event(user_id, "question_submitted", f"Title: {user_data['question_title']}, Topic: {user_data['question_topic']}")
+        async with AsyncSessionLocal() as session:
+            await log_event(session, user_id, "question_submitted", f"Title: {user_data['question_title']}, Topic: {user_data['question_topic']}")
         logger.info(f"✅ User {user_id} submitted question: {question_text}")
         context.user_data.clear()
         context.user_data["lang"] = lang
