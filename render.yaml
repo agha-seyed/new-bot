@@ -1,0 +1,54 @@
+services:
+  # Main Web Service (Bot + API)
+  - type: web
+    name: smartstudentbot-web
+    env: python
+    buildCommand: "cd smartstudentbot && make setup"
+    startCommand: "uvicorn smartstudentbot.main:app --host 0.0.0.0 --port $PORT --workers 1"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: WEBHOOK_HOST
+        sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: smartstudentbot-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: smartstudentbot-redis
+          property: connectionString
+      - key: FEATURE_AI_ENABLED
+        value: "true"
+      - key: LOG_LEVEL
+        value: "INFO"
+
+  # Background Worker (Scheduler)
+  - type: worker
+    name: smartstudentbot-worker
+    env: python
+    buildCommand: "cd smartstudentbot && make setup"
+    startCommand: "python -m smartstudentbot.utils.scheduler"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: smartstudentbot-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: smartstudentbot-redis
+          property: connectionString
+
+databases:
+  - name: smartstudentbot-db
+    databaseName: smartstudentbot
+    user: smartstudent
+    plan: free # or starter
+
+  - name: smartstudentbot-redis
+    plan: free # or starter
+    ipAllowList: [] # internal only
